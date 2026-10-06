@@ -1,0 +1,26 @@
+# PostgreSQL for the multi-branch POS.
+# The schema is owned by Django migrations (see pos_backend/); the database
+# starts empty. The former hand-written SQL lives in database/legacy/ as reference.
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: pos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pos_db}
+      POSTGRES_USER: ${POSTGRES_USER:-pos_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      TZ: America/Caracas
+      PGTZ: America/Caracas
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pos_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pos_db_data:

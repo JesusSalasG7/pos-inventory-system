@@ -1,0 +1,2053 @@
+openapi: 3.0.3
+info:
+  title: POS Multi-Sucursal API
+  version: 1.0.0
+  description: Punto de venta y control de inventario multi-sucursal.
+paths:
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/v1/auth/me/:
+    get:
+      operationId: auth_me
+      description: Devuelve el usuario autenticado.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/refresh/:
+    post:
+      operationId: auth_refresh
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/branches/:
+    get:
+      operationId: branches_list
+      description: Sucursales del negocio, ordenadas por nombre.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo sucursales activas.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBranchList'
+          description: ''
+    post:
+      operationId: branches_create
+      description: Crea una sucursal con stock cero de todos los productos.
+      tags:
+      - branches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/branches/{code}/:
+    get:
+      operationId: branches_retrieve
+      description: Lectura para SUPERVISOR y MANAGER; escritura solo para MANAGER.
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    patch:
+      operationId: branches_partial_update
+      description: Cambia el nombre o activa/desactiva la sucursal. El código no cambia.
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/cash-sessions/:
+    get:
+      operationId: cash_sessions_list
+      description: Lista las cajas de la sucursal, de la más reciente a la más antigua.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+        description: Código de la sucursal.
+      - in: query
+        name: only_open
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - cash-sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCashSessionList'
+          description: ''
+    post:
+      operationId: cash_sessions_open
+      description: Abre una caja para el usuario autenticado.
+      tags:
+      - cash-sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenCashSession'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OpenCashSession'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OpenCashSession'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashSession'
+          description: ''
+  /api/v1/cash-sessions/{id}/close/:
+    post:
+      operationId: cash_sessions_close
+      description: Cierra la caja con los montos contados y calcula la diferencia.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cash-sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseCashSession'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CloseCashSession'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CloseCashSession'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashSession'
+          description: ''
+  /api/v1/cash-sessions/{id}/expenses/:
+    get:
+      operationId: cash_sessions_expenses_list
+      description: Lista los egresos de la caja.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - cash-sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCashExpenseList'
+          description: ''
+    post:
+      operationId: cash_sessions_expenses_create
+      description: Registra un egreso de efectivo en una caja abierta.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cash-sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashExpense'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashExpense'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashExpense'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashExpense'
+          description: ''
+  /api/v1/cash-sessions/{id}/summary/:
+    get:
+      operationId: cash_sessions_summary
+      description: 'Arqueo: efectivo esperado en la caja según ventas y egresos.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cash-sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashCountSummary'
+          description: ''
+  /api/v1/cash-sessions/current/:
+    get:
+      operationId: cash_sessions_current
+      description: Caja abierta del usuario. Responde 409 `no_open_session` si no
+        tiene.
+      tags:
+      - cash-sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashSession'
+          description: ''
+  /api/v1/exchange-rates/:
+    get:
+      operationId: exchange_rates_list
+      description: Histórico de tasas, de la más reciente a la más antigua.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExchangeRateList'
+          description: ''
+    post:
+      operationId: exchange_rates_create
+      description: Registra una nueva tasa, que pasa a ser la activa.
+      tags:
+      - exchange-rates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeRate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExchangeRate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExchangeRate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+  /api/v1/exchange-rates/bcv/:
+    get:
+      operationId: exchange_rates_bcv
+      description: |-
+        Tasa oficial del BCV, solo como referencia: no cambia la tasa activa.
+
+        Responde 503 `bcv_rate_unavailable` si la fuente externa no responde.
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcvRate'
+          description: ''
+  /api/v1/exchange-rates/current/:
+    get:
+      operationId: exchange_rates_current
+      description: Tasa activa. Responde 409 `exchange_rate_not_set` si no hay ninguna.
+      tags:
+      - exchange-rates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+  /api/v1/inventory/:
+    get:
+      operationId: inventory_list
+      description: Existencias de la sucursal.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+        description: Código de la sucursal. Por defecto, la asignada al usuario.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBranchInventoryList'
+          description: ''
+  /api/v1/inventory/{product_id}/minimum-stock/:
+    patch:
+      operationId: inventory_set_minimum_stock
+      description: Define el stock mínimo del producto en la sucursal.
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMinimumStock'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMinimumStock'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMinimumStock'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchInventory'
+          description: ''
+  /api/v1/inventory/low-stock/:
+    get:
+      operationId: inventory_low_stock
+      description: Productos activos con stock en o por debajo del mínimo.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+        description: Código de la sucursal. Por defecto, la asignada al usuario.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBranchInventoryList'
+          description: ''
+  /api/v1/inventory/movements/:
+    get:
+      operationId: inventory_movements_list
+      description: Kardex de la sucursal, del movimiento más reciente al más antiguo.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+      - in: query
+        name: created_from
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: created_to
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: movement_type
+        schema:
+          type: string
+          enum:
+          - ADJUSTMENT
+          - ENTRY
+          - SALE
+          - WASTE
+        description: |-
+          * `ENTRY` - Entrada
+          * `SALE` - Venta
+          * `WASTE` - Merma
+          * `ADJUSTMENT` - Ajuste
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: product
+        schema:
+          type: number
+      tags:
+      - inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInventoryMovementList'
+          description: ''
+    post:
+      operationId: inventory_movements_create
+      description: |-
+        Registra una entrada, merma o ajuste.
+
+        Responde 204 si un ajuste coincide con el stock actual y no cambia nada.
+      tags:
+      - inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryMovementCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InventoryMovementCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InventoryMovementCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryMovement'
+          description: ''
+        '204':
+          description: No response body
+  /api/v1/products/:
+    get:
+      operationId: products_list
+      description: Catálogo de productos, ordenado por nombre.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo productos activos.
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - ACCESSORIES
+          - LIQUIDS
+          - POWDERS
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Texto dentro del nombre.
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+    post:
+      operationId: products_create
+      description: Crea un producto con stock cero en todas las sucursales activas.
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/products/{id}/:
+    get:
+      operationId: products_retrieve
+      description: Lectura para SUPERVISOR y MANAGER; escritura solo para MANAGER.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: products_partial_update
+      description: Actualiza los campos enviados. No afecta a ventas ya facturadas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/products/{id}/toggle-active/:
+    post:
+      operationId: products_toggle_active
+      description: Activa o desactiva el producto.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/sales/:
+    get:
+      operationId: sales_list
+      description: Ventas de la sucursal, de la más reciente a la más antigua.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+      - in: query
+        name: cash_session
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date-time
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - sales
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSaleList'
+          description: ''
+    post:
+      operationId: sales_create
+      description: |-
+        Registra una venta en la caja abierta del usuario.
+
+        Los precios se toman de la base de datos y la tasa activa queda
+        congelada en la venta.
+      tags:
+      - sales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSale'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSale'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateSale'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
+  /api/v1/sales/{id}/:
+    get:
+      operationId: sales_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sales
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
+  /api/v1/sales/reports/summary/:
+    get:
+      operationId: sales_reports_summary
+      description: Número de ventas y totales en USD y VES del periodo.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+      - in: query
+        name: cash_session
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date-time
+      tags:
+      - sales
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesSummary'
+          description: ''
+  /api/v1/users/:
+    get:
+      operationId: users_list
+      description: Usuarios del sistema, ordenados por nombre de usuario.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo usuarios activos.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+    post:
+      operationId: users_create
+      description: Crea un usuario con su contraseña inicial.
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/users/{id}/:
+    get:
+      operationId: users_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      description: Actualiza los campos enviados; con `password` asigna una contraseña
+        nueva.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    BcvRate:
+      type: object
+      description: Tasa oficial del BCV obtenida de la fuente externa (solo lectura).
+      properties:
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - rate
+      - updated_at
+    Branch:
+      type: object
+      properties:
+        code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+      required:
+      - active
+      - code
+      - name
+    BranchCreate:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Identificador estable, p. ej. `CENTRO`. No se puede cambiar.
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - code
+      - name
+    BranchInventory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        current_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+        minimum_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+      required:
+      - branch
+      - current_stock
+      - id
+      - minimum_stock
+      - product
+      - product_name
+    CashCountSummary:
+      type: object
+      properties:
+        opening_float:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cash_sales_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cash_sales_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        electronic_sales_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        electronic_sales_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        expenses_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        expenses_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        expected_cash_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        expected_cash_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - cash_sales_usd
+      - cash_sales_ves
+      - electronic_sales_usd
+      - electronic_sales_ves
+      - expected_cash_usd
+      - expected_cash_ves
+      - expenses_usd
+      - expenses_ves
+      - opening_float
+    CashExpense:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cash_session:
+          type: integer
+          readOnly: true
+        reason:
+          type: string
+          maxLength: 255
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        created_by:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - cash_session
+      - created_at
+      - created_by
+      - currency
+      - id
+      - reason
+    CashSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        opened_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        opening_float:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        counted_amount_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        counted_amount_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        difference_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+      required:
+      - branch
+      - closed_at
+      - counted_amount_usd
+      - counted_amount_ves
+      - difference_usd
+      - id
+      - opened_at
+      - opening_float
+      - user
+    CategoryEnum:
+      enum:
+      - LIQUIDS
+      - POWDERS
+      - ACCESSORIES
+      type: string
+      description: |-
+        * `LIQUIDS` - Líquidos
+        * `POWDERS` - Polvos
+        * `ACCESSORIES` - Accesorios
+    CloseCashSession:
+      type: object
+      properties:
+        counted_amount_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        counted_amount_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - counted_amount_usd
+      - counted_amount_ves
+    CreateSale:
+      type: object
+      properties:
+        branch:
+          type: string
+          maxLength: 20
+        customer_tax_id:
+          type: string
+          maxLength: 20
+        customer_name:
+          type: string
+          maxLength: 150
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleItemInput'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentInput'
+      required:
+      - items
+      - payments
+    CurrencyEnum:
+      enum:
+      - VES
+      - USD
+      type: string
+      description: |-
+        * `VES` - Bolívares
+        * `USD` - Dólares
+    ExchangeRate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        usd_to_ves_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+        created_by:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - id
+      - usd_to_ves_rate
+    InventoryMovement:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        movement_type:
+          allOf:
+          - $ref: '#/components/schemas/InventoryMovementMovementTypeEnum'
+          readOnly: true
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+        stock_before:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+        stock_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        sale:
+          type: integer
+          readOnly: true
+          nullable: true
+        notes:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - branch
+      - created_at
+      - id
+      - movement_type
+      - notes
+      - product
+      - quantity
+      - sale
+      - stock_after
+      - stock_before
+      - user
+    InventoryMovementCreate:
+      type: object
+      description: Entrada, merma o ajuste manual. Las ventas generan su Kardex solas.
+      properties:
+        product_id:
+          type: integer
+          minimum: 1
+        branch:
+          type: string
+          maxLength: 20
+        movement_type:
+          $ref: '#/components/schemas/InventoryMovementCreateMovementTypeEnum'
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          description: Cantidad que entra o se pierde. En un ADJUSTMENT es el stock
+            contado.
+        notes:
+          type: string
+          maxLength: 255
+      required:
+      - movement_type
+      - product_id
+      - quantity
+    InventoryMovementCreateMovementTypeEnum:
+      enum:
+      - ENTRY
+      - WASTE
+      - ADJUSTMENT
+      type: string
+      description: |-
+        * `ENTRY` - ENTRY
+        * `WASTE` - WASTE
+        * `ADJUSTMENT` - ADJUSTMENT
+    InventoryMovementMovementTypeEnum:
+      enum:
+      - ENTRY
+      - SALE
+      - WASTE
+      - ADJUSTMENT
+      type: string
+      description: |-
+        * `ENTRY` - Entrada
+        * `SALE` - Venta
+        * `WASTE` - Merma
+        * `ADJUSTMENT` - Ajuste
+    MethodEnum:
+      enum:
+      - POS_CARD
+      - CASH_VES
+      - CASH_USD
+      - MOBILE_PAYMENT
+      type: string
+      description: |-
+        * `POS_CARD` - Punto de venta
+        * `CASH_VES` - Efectivo VES
+        * `CASH_USD` - Efectivo USD
+        * `MOBILE_PAYMENT` - Pago móvil
+    OpenCashSession:
+      type: object
+      properties:
+        branch:
+          type: string
+          maxLength: 20
+        opening_float:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - opening_float
+    PaginatedBranchInventoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchInventory'
+    PaginatedBranchList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+    PaginatedCashExpenseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashExpense'
+    PaginatedCashSessionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashSession'
+    PaginatedExchangeRateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRate'
+    PaginatedInventoryMovementList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryMovement'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedSaleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PatchedBranchUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        active:
+          type: boolean
+    PatchedMinimumStock:
+      type: object
+      properties:
+        branch:
+          type: string
+          maxLength: 20
+        minimum_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+    PatchedProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        cost_price_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        sale_price_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        active:
+          type: boolean
+          readOnly: true
+    PatchedUserUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        assigned_branch:
+          type: string
+          nullable: true
+          description: Código de la sucursal; null = todas (solo MANAGER).
+          maxLength: 20
+        is_active:
+          type: boolean
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+    PaymentInput:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        approval_reference:
+          type: string
+          maxLength: 50
+      required:
+      - amount
+      - currency
+      - method
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        cost_price_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        sale_price_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        active:
+          type: boolean
+          readOnly: true
+      required:
+      - active
+      - category
+      - cost_price_usd
+      - id
+      - name
+      - sale_price_usd
+      - unit_of_measure
+    RoleEnum:
+      enum:
+      - MANAGER
+      - SUPERVISOR
+      type: string
+      description: |-
+        * `MANAGER` - Gerente
+        * `SUPERVISOR` - Supervisor
+    Sale:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cash_session:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        customer_tax_id:
+          type: string
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        exchange_rate_at_invoice:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          readOnly: true
+        total_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        total_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleDetail'
+          readOnly: true
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalePayment'
+          readOnly: true
+      required:
+      - branch
+      - cash_session
+      - created_at
+      - customer_name
+      - customer_tax_id
+      - details
+      - exchange_rate_at_invoice
+      - id
+      - payments
+      - total_usd
+      - total_ves
+      - user
+    SaleDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          readOnly: true
+        unit_price_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        subtotal_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - id
+      - product
+      - quantity
+      - subtotal_usd
+      - unit_price_usd
+    SaleItemInput:
+      type: object
+      description: 'El cliente nunca envía el precio: se toma de la base de datos.'
+      properties:
+        product_id:
+          type: integer
+          minimum: 1
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+      required:
+      - product_id
+      - quantity
+    SalePayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        approval_reference:
+          type: string
+          readOnly: true
+      required:
+      - amount
+      - approval_reference
+      - currency
+      - id
+      - method
+    SalesSummary:
+      type: object
+      properties:
+        sales_count:
+          type: integer
+        total_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - sales_count
+      - total_usd
+      - total_ves
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UnitOfMeasureEnum:
+      enum:
+      - LITER
+      - KILOGRAM
+      - UNIT
+      type: string
+      description: |-
+        * `LITER` - Litro
+        * `KILOGRAM` - Kilogramo
+        * `UNIT` - Unidad
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        assigned_branch:
+          type: string
+          readOnly: true
+          nullable: true
+        is_active:
+          type: boolean
+          readOnly: true
+      required:
+      - assigned_branch
+      - full_name
+      - id
+      - is_active
+      - role
+      - username
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        full_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        assigned_branch:
+          type: string
+          nullable: true
+          description: Código de la sucursal; null = todas (solo MANAGER).
+          maxLength: 20
+      required:
+      - assigned_branch
+      - full_name
+      - password
+      - role
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

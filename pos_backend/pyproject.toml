@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["*/migrations/*", ".venv"]
+
+[tool.ruff.lint]
+# E/F: pycodestyle y pyflakes, I: orden de imports, UP: pyupgrade,
+# B: bugbear, DJ: buenas prácticas de Django.
+select = ["E", "F", "I", "UP", "B", "DJ"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config", "core", "tests"]
