@@ -19,8 +19,6 @@ class CartBanner extends StatelessWidget {
     super.key,
   });
 
-  static const Color _secondaryOnPrimary = Color(0xFFD5E6EE);
-
   final int itemCount;
   final Decimal totalUsd;
   final VoidCallback onTap;
@@ -31,25 +29,27 @@ class CartBanner extends StatelessWidget {
     if (itemCount <= 0) return const SizedBox.shrink();
 
     return Material(
-      color: AppColors.primary,
-      elevation: 6,
-      shadowColor: AppColors.primaryDark,
-      borderRadius: AppRadius.lgAll,
+      color: AppColors.ink,
+      elevation: 8,
+      shadowColor: AppColors.ink,
+      borderRadius: AppRadius.pillAll,
       child: InkWell(
-        borderRadius: AppRadius.lgAll,
+        borderRadius: AppRadius.pillAll,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.sm,
+            AppSpacing.sm,
+            AppSpacing.lg,
+            AppSpacing.sm,
+          ),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryDark,
-                  borderRadius: AppRadius.smAll,
-                ),
-                child: const Icon(Icons.shopping_bag_rounded, color: AppColors.onPrimary),
+                width: 52,
+                height: 52,
+                decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
+                child: const Icon(Icons.shopping_bag_rounded, color: AppColors.onAccent),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -59,11 +59,15 @@ class CartBanner extends StatelessWidget {
                   children: [
                     Text(
                       Strings.viewCart,
-                      style: AppTypography.subtitle.copyWith(color: AppColors.onPrimary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.subtitle.copyWith(color: AppColors.white),
                     ),
                     Text(
                       Strings.cartItems(itemCount),
-                      style: AppTypography.bodySmall.copyWith(color: _secondaryOnPrimary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(color: AppColors.onInkMuted),
                     ),
                   ],
                 ),
@@ -73,11 +77,11 @@ class CartBanner extends StatelessWidget {
                 amountUsd: totalUsd,
                 rate: rate,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                usdColor: AppColors.onPrimary,
-                vesColor: _secondaryOnPrimary,
+                usdColor: AppColors.accent,
+                vesColor: AppColors.onInkMuted,
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.onPrimary),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.white),
             ],
           ),
         ),

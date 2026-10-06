@@ -65,9 +65,18 @@ scripts/run_device.sh "" -d <device_id>       # USB, eligiendo el dispositivo
 
 ## Vista previa de diseño
 
-En depuración la app abre `DesignPreviewScreen` (`/design-preview`): un catálogo de todos los
-componentes globales con datos de ejemplo, sin llamar al backend. Sirve para revisar colores,
-tipografía, tarjetas y estados en el teléfono.
+En depuración se puede abrir `DesignPreviewScreen` (`/design-preview`) desde el enlace bajo el
+botón de ingreso o desde la pestaña Más: un catálogo de todos los componentes globales con datos
+de ejemplo, sin llamar al backend. Sirve para revisar colores, tipografía, tarjetas y estados.
+
+## Primer uso
+
+La app abre en el login. Entra con un usuario del backend (por ejemplo el creado con
+`python manage.py createsuperuser`, que queda como gerente con acceso a todas las sucursales):
+
+- Si el negocio no tiene sucursales, un gerente pasa a crear la primera.
+- Con una sola sucursal activa se entra directo a Inicio.
+- Un gerente con acceso a todas y varias sucursales elige en cuál trabajar.
 
 ## Tests y verificación
 

@@ -103,12 +103,10 @@ class ProductCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppRadius.mdAll,
-          border: Border.all(
-            color: inCart ? AppColors.primary : AppColors.border,
-            width: inCart ? 2 : 1,
-          ),
+          color: inCart ? AppColors.primarySoft : AppColors.surface,
+          borderRadius: AppRadius.lgAll,
+          border: Border.all(color: inCart ? AppColors.primary : Colors.transparent, width: 2),
+          boxShadow: _isOutOfStock ? null : AppColors.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,10 +114,10 @@ class ProductCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(color: style.softColor, borderRadius: AppRadius.smAll),
-                  child: Icon(style.icon, size: 20, color: style.color),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: style.softColor, shape: BoxShape.circle),
+                  child: Icon(style.icon, size: 22, color: style.color),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -161,10 +159,12 @@ class ProductCard extends StatelessWidget {
                 child: FilledButton.tonalIcon(
                   onPressed: _isOutOfStock ? null : _add,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primarySoft,
-                    foregroundColor: AppColors.primaryDark,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    disabledBackgroundColor: AppColors.surfaceMuted,
+                    disabledForegroundColor: AppColors.disabled,
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                    shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+                    shape: const StadiumBorder(),
                   ),
                   icon: const Icon(Icons.add_rounded, size: 20),
                   label: const Text(Strings.add),
@@ -211,14 +211,19 @@ class _QuantityStepper extends StatelessWidget {
       height: AppSpacing.minTouchTarget,
       child: Row(
         children: [
-          _StepButton(icon: Icons.remove_rounded, tooltip: Strings.decrease, onPressed: onDecrease),
+          _StepButton(
+            icon: Icons.remove_rounded,
+            tooltip: Strings.decrease,
+            onPressed: onDecrease,
+            isPrimary: false,
+          ),
           Expanded(
             child: onEdit == null
                 ? quantity
                 : Semantics(
                     button: true,
                     label: Strings.editQuantity,
-                    child: InkWell(borderRadius: AppRadius.smAll, onTap: onEdit, child: quantity),
+                    child: InkWell(borderRadius: AppRadius.pillAll, onTap: onEdit, child: quantity),
                   ),
           ),
           _StepButton(icon: Icons.add_rounded, tooltip: Strings.increase, onPressed: onIncrease),
@@ -229,11 +234,19 @@ class _QuantityStepper extends StatelessWidget {
 }
 
 class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.tooltip, required this.onPressed});
+  const _StepButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.isPrimary = true,
+  });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
+
+  /// El `+` va en el color de marca; el `−` en blanco, para que no compitan.
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -243,11 +256,12 @@ class _StepButton extends StatelessWidget {
         tooltip: tooltip,
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
+          backgroundColor: isPrimary ? AppColors.primary : AppColors.white,
+          foregroundColor: isPrimary ? AppColors.onPrimary : AppColors.ink,
           disabledBackgroundColor: AppColors.surfaceMuted,
           disabledForegroundColor: AppColors.disabled,
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+          side: isPrimary ? null : const BorderSide(color: AppColors.border, width: 1.5),
+          shape: const CircleBorder(),
         ),
         icon: Icon(icon, size: 24),
       ),

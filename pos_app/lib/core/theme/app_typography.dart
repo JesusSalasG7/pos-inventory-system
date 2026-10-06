@@ -16,12 +16,12 @@ abstract final class AppTypography {
   );
 
   static final TextStyle headline = _base.copyWith(
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: FontWeight.w800,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   );
-  static final TextStyle title = _base.copyWith(fontSize: 18, fontWeight: FontWeight.w700);
-  static final TextStyle subtitle = _base.copyWith(fontSize: 16, fontWeight: FontWeight.w600);
+  static final TextStyle title = _base.copyWith(fontSize: 19, fontWeight: FontWeight.w800);
+  static final TextStyle subtitle = _base.copyWith(fontSize: 16, fontWeight: FontWeight.w700);
   static final TextStyle body = _base.copyWith(fontSize: 15, fontWeight: FontWeight.w500);
   static final TextStyle bodySmall = _base.copyWith(
     fontSize: 13,
@@ -33,7 +33,7 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w700,
     letterSpacing: 0.2,
   );
-  static final TextStyle button = _base.copyWith(fontSize: 16, fontWeight: FontWeight.w700);
+  static final TextStyle button = _base.copyWith(fontSize: 17, fontWeight: FontWeight.w800);
 
   /// Monto destacado (USD). Negrita y cifras tabulares.
   static TextStyle amount(double fontSize, {Color color = AppColors.textPrimary}) {

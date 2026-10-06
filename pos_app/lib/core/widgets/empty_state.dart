@@ -13,7 +13,7 @@ class EmptyState extends StatelessWidget {
     this.message = Strings.emptyMessage,
     this.actionLabel,
     this.onAction,
-    this.iconColor = AppColors.primary,
+    this.iconColor = AppColors.primaryDark,
     this.iconBackground = AppColors.primarySoft,
     super.key,
   });

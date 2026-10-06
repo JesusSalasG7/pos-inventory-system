@@ -33,10 +33,11 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = switch (tone) {
-      ButtonTone.primary => AppColors.primary,
-      ButtonTone.success => AppColors.success,
-      ButtonTone.danger => AppColors.error,
+    // Fondo, texto sobre el fondo y color del borde/texto en la variante delineada.
+    final (color, onColor, outlineColor) = switch (tone) {
+      ButtonTone.primary => (AppColors.primary, AppColors.onPrimary, AppColors.primaryDark),
+      ButtonTone.success => (AppColors.success, AppColors.white, AppColors.success),
+      ButtonTone.danger => (AppColors.error, AppColors.white, AppColors.error),
     };
     final minimumSize = Size(expand ? double.infinity : 0, AppSpacing.primaryButtonHeight);
     final effectiveOnPressed = isLoading ? null : onPressed;
@@ -51,7 +52,7 @@ class PrimaryButton extends StatelessWidget {
             dimension: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              color: isFilled ? AppColors.textSecondary : color,
+              color: isFilled ? AppColors.textSecondary : outlineColor,
             ),
           )
         else if (icon != null)
@@ -66,7 +67,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: effectiveOnPressed,
         style: FilledButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: AppColors.onPrimary,
+          foregroundColor: onColor,
           minimumSize: minimumSize,
         ),
         child: child,
@@ -74,10 +75,10 @@ class PrimaryButton extends StatelessWidget {
       ButtonVariant.outlined => OutlinedButton(
         onPressed: effectiveOnPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
+          foregroundColor: outlineColor,
           side: BorderSide(
-            color: effectiveOnPressed == null ? AppColors.border : color,
-            width: 1.5,
+            color: effectiveOnPressed == null ? AppColors.border : outlineColor,
+            width: 2,
           ),
           minimumSize: minimumSize,
         ),

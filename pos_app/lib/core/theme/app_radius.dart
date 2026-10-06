@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-/// Radios de esquina de la app, en dp.
+/// Radios de esquina de la app, en dp. Formas muy redondeadas.
 abstract final class AppRadius {
-  static const double sm = 12;
-  static const double md = 16;
-  static const double lg = 20;
+  static const double sm = 14;
+  static const double md = 20;
+  static const double lg = 28;
   static const double pill = 999;
 
   static const BorderRadius smAll = BorderRadius.all(Radius.circular(sm));

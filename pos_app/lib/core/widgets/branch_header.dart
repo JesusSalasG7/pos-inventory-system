@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:pos_app/core/currency/money_formatter.dart';
 import 'package:pos_app/core/l10n/strings.dart';
@@ -20,17 +21,21 @@ class BranchHeader extends StatelessWidget implements PreferredSizeWidget {
     required this.rate,
     required this.isSessionOpen,
     this.canChangeBranch = false,
+    this.isRateLoading = false,
     this.onBranchTap,
     this.onSessionTap,
     super.key,
   });
 
-  static const double height = 104;
+  static const double height = 124;
 
   final String? branchName;
 
   /// Tasa activa (VES por 1 USD); `null` si aún no hay ninguna.
   final Decimal? rate;
+
+  /// `true` mientras se consulta la tasa: evita mostrar "Sin tasa" antes de saberlo.
+  final bool isRateLoading;
 
   /// `null` mientras no se conoce el estado de la caja.
   final bool? isSessionOpen;
@@ -46,122 +51,141 @@ class BranchHeader extends StatelessWidget implements PreferredSizeWidget {
     final rate = this.rate;
     final isSessionOpen = this.isSessionOpen;
     final branchTap = canChangeBranch ? onBranchTap : null;
+    final rateText = isRateLoading
+        ? Strings.loading
+        : rate == null
+        ? Strings.rateNotSet
+        : '${Strings.rateUnit} ${MoneyFormatter.rate(rate)}';
 
-    return Material(
-      color: AppColors.surface,
-      child: SafeArea(
-        bottom: false,
-        child: Container(
-          height: height,
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.sm,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.sm,
-          ),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.border)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Íconos oscuros en la barra de estado: el fondo de la cabecera es claro y vivo.
+      value: SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppRadius.lg)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: SizedBox(
+            height: height,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.sm,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Semantics(
-                      button: branchTap != null,
-                      label: branchTap == null ? null : Strings.changeBranch,
-                      child: InkWell(
-                        borderRadius: AppRadius.smAll,
-                        onTap: branchTap,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                            vertical: AppSpacing.xs,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primarySoft,
-                                  borderRadius: AppRadius.smAll,
-                                ),
-                                child: const Icon(
-                                  Icons.storefront_rounded,
-                                  color: AppColors.primary,
-                                ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          button: branchTap != null,
+                          label: branchTap == null ? null : Strings.changeBranch,
+                          child: InkWell(
+                            borderRadius: AppRadius.mdAll,
+                            onTap: branchTap,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
                               ),
-                              const SizedBox(width: AppSpacing.md),
-                              Flexible(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      Strings.branchLabel,
-                                      style: AppTypography.label.copyWith(
-                                        color: AppColors.textMuted,
-                                      ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.white,
+                                      shape: BoxShape.circle,
                                     ),
-                                    Text(
-                                      branchName ?? Strings.noBranch,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTypography.title,
+                                    child: const Icon(
+                                      Icons.storefront_rounded,
+                                      color: AppColors.primaryDark,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.md),
+                                  Flexible(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          Strings.branchLabel,
+                                          style: AppTypography.label.copyWith(
+                                            color: AppColors.onPrimary,
+                                          ),
+                                        ),
+                                        Text(
+                                          branchName ?? Strings.noBranch,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTypography.title.copyWith(
+                                            color: AppColors.onPrimary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (branchTap != null)
+                                    const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: AppColors.onPrimary,
+                                    ),
+                                ],
                               ),
-                              if (branchTap != null)
-                                const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: AppColors.textSecondary,
-                                ),
-                            ],
+                            ),
                           ),
                         ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (isSessionOpen != null)
+                        _SessionChip(isOpen: isSessionOpen, onTap: onSessionTap),
+                    ],
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: AppSpacing.sm),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Color(0x33FFFFFF),
+                        borderRadius: AppRadius.pillAll,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.currency_exchange_rounded,
+                            size: 16,
+                            color: AppColors.onPrimary,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            '${Strings.rateOfTheDay}  ',
+                            style: AppTypography.bodySmall.copyWith(color: AppColors.onPrimary),
+                          ),
+                          Flexible(
+                            child: Text(
+                              rateText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.amount(15, color: AppColors.onPrimary),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  if (isSessionOpen != null)
-                    _SessionChip(isOpen: isSessionOpen, onTap: onSessionTap),
                 ],
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(left: AppSpacing.sm),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.currency_exchange_rounded,
-                      size: 16,
-                      color: AppColors.textMuted,
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      '${Strings.rateOfTheDay}  ',
-                      style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
-                    ),
-                    Flexible(
-                      child: Text(
-                        rate == null
-                            ? Strings.rateNotSet
-                            : '${Strings.rateUnit} ${MoneyFormatter.rate(rate)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.amount(
-                          15,
-                          color: rate == null ? AppColors.warning : AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -178,7 +202,6 @@ class _SessionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = isOpen ? AppColors.success : AppColors.textSecondary;
-    final background = isOpen ? AppColors.successSoft : AppColors.surfaceMuted;
     final label = isOpen ? Strings.sessionOpen : Strings.sessionClosed;
     // En pantallas estrechas el chip se acorta para no recortar el nombre de la sede.
     final isNarrow = MediaQuery.sizeOf(context).width < 360;
@@ -191,7 +214,7 @@ class _SessionChip extends StatelessWidget {
       label: onTap == null ? label : '$label. ${Strings.goToCashSession}',
       excludeSemantics: true,
       child: Material(
-        color: background,
+        color: AppColors.white,
         borderRadius: AppRadius.pillAll,
         child: InkWell(
           borderRadius: AppRadius.pillAll,

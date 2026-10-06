@@ -58,6 +58,7 @@ class ConfirmDialog extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(true),
                 style: FilledButton.styleFrom(
                   backgroundColor: isDestructive ? AppColors.error : AppColors.primary,
+                  foregroundColor: isDestructive ? AppColors.white : AppColors.onPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 ),
                 child: Text(confirmLabel, maxLines: 1, overflow: TextOverflow.ellipsis),

@@ -17,6 +17,62 @@ abstract final class Strings {
   static const String loading = 'Cargando…';
   static const String underConstruction = 'La app está en construcción.';
 
+  // Arranque e ingreso.
+  static const String appTagline = 'Tu punto de venta, sede por sede';
+  static const String startingUp = 'Preparando todo…';
+  static const String startupErrorTitle = 'No pudimos conectar';
+  static const String loginGreeting = '¡Hola!';
+  static const String loginSubtitle = 'Ingresa con tu usuario para empezar a vender.';
+  static const String username = 'Usuario';
+  static const String password = 'Contraseña';
+  static const String showPassword = 'Mostrar contraseña';
+  static const String hidePassword = 'Ocultar contraseña';
+  static const String signIn = 'Ingresar';
+  static const String signOut = 'Cerrar sesión';
+  static const String signOutTitle = '¿Cerrar sesión?';
+  static const String signOutMessage = 'Tendrás que volver a ingresar con tu usuario y contraseña.';
+  static const String usernameRequired = 'Escribe tu usuario';
+  static const String passwordRequired = 'Escribe tu contraseña';
+  static String serverAddress(String url) => 'Servidor: $url';
+
+  // Sucursal de trabajo.
+  static const String pickBranchTitle = '¿En qué sucursal vas a trabajar?';
+  static const String pickBranchSubtitle = 'Puedes cambiarla cuando quieras desde la cabecera.';
+  static const String currentBranch = 'Actual';
+  static const String firstBranchTitle = 'Crea tu primera sucursal';
+  static const String firstBranchSubtitle =
+      'Todavía no hay ninguna sede registrada. Crea la primera para empezar a cargar '
+      'productos y vender. Si tienes un solo local, con una basta.';
+  static const String branchName = 'Nombre de la sucursal';
+  static const String branchNameHint = 'Ej. Local principal';
+  static const String branchNameRequired = 'Escribe el nombre de la sucursal';
+  static const String branchCode = 'Código';
+  static const String branchCodeHelper = 'Identificador interno. No se puede cambiar después.';
+  static const String branchCodeInvalid =
+      'Empieza por una letra; solo letras, números y guion bajo (máx. 20).';
+  static const String createBranch = 'Crear sucursal';
+  static const String branchUnavailableTitle = 'No puedes operar todavía';
+  static const String branchUnavailableMessage =
+      'Tu sucursal está inactiva o aún no existe ninguna. Pide a un gerente que la registre '
+      'o la active y vuelve a intentar.';
+
+  // Navegación principal.
+  static const String navHome = 'Inicio';
+  static const String navSell = 'Vender';
+  static const String navInventory = 'Inventario';
+  static const String navCash = 'Caja';
+  static const String navMore = 'Más';
+  static const String comingSoonTitle = 'Muy pronto';
+  static const String comingSoonMessage = 'Esta sección estará lista en la próxima entrega.';
+  static String greeting(String name) => '¡Hola, $name!';
+  static const String homeReadyTitle = 'Todo listo para empezar';
+  static const String homeReadyMessage =
+      'Ya entraste a tu sucursal. Las ventas del día, la caja y los avisos de stock '
+      'aparecerán aquí.';
+  static const String allBranches = 'Todas las sucursales';
+  static const String account = 'Tu cuenta';
+  static const String designPreviewEntry = 'Vista previa de diseño';
+
   // Estados.
   static const String emptyTitle = 'No hay nada que mostrar';
   static const String emptyMessage = 'Cuando haya datos aparecerán aquí.';

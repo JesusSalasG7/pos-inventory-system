@@ -525,12 +525,14 @@ class _ColorSwatches extends StatelessWidget {
   const _ColorSwatches();
 
   static const List<(String, Color, Color)> _swatches = [
-    ('Primario', AppColors.primary, AppColors.onPrimary),
-    ('Éxito / USD', AppColors.success, AppColors.onPrimary),
-    ('Alerta', AppColors.warning, AppColors.onPrimary),
-    ('Error', AppColors.error, AppColors.onPrimary),
-    ('Primario suave', AppColors.primarySoft, AppColors.primaryDark),
-    ('Éxito suave', AppColors.successSoft, AppColors.success),
+    ('Marca', AppColors.primary, AppColors.onPrimary),
+    ('Acento', AppColors.accent, AppColors.onAccent),
+    ('Tinta', AppColors.ink, AppColors.white),
+    ('Éxito / USD', AppColors.success, AppColors.white),
+    ('Alerta', AppColors.warning, AppColors.white),
+    ('Error', AppColors.error, AppColors.white),
+    ('Marca suave', AppColors.primarySoft, AppColors.primaryDark),
+    ('Acento suave', AppColors.accentSoft, AppColors.onAccent),
     ('Alerta suave', AppColors.warningSoft, AppColors.warning),
     ('Error suave', AppColors.errorSoft, AppColors.error),
   ];

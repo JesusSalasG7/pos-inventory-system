@@ -15,15 +15,15 @@ abstract final class AppTheme {
       primaryContainer: AppColors.primarySoft,
       onPrimaryContainer: AppColors.primaryDark,
       secondary: AppColors.success,
-      onSecondary: AppColors.onPrimary,
+      onSecondary: AppColors.white,
       secondaryContainer: AppColors.successSoft,
       onSecondaryContainer: AppColors.success,
       tertiary: AppColors.warning,
-      onTertiary: AppColors.onPrimary,
+      onTertiary: AppColors.white,
       tertiaryContainer: AppColors.warningSoft,
       onTertiaryContainer: AppColors.warning,
       error: AppColors.error,
-      onError: AppColors.onPrimary,
+      onError: AppColors.white,
       errorContainer: AppColors.errorSoft,
       onErrorContainer: AppColors.error,
       surface: AppColors.surface,
@@ -35,7 +35,7 @@ abstract final class AppTheme {
     );
 
     const inputBorder = OutlineInputBorder(
-      borderRadius: AppRadius.smAll,
+      borderRadius: AppRadius.mdAll,
       borderSide: BorderSide(color: AppColors.border),
     );
 
@@ -50,11 +50,11 @@ abstract final class AppTheme {
       splashFactory: InkSparkle.splashFactory,
       dividerTheme: const DividerThemeData(color: AppColors.border, thickness: 1, space: 1),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        scrolledUnderElevation: 1,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: AppTypography.title,
       ),
@@ -63,16 +63,13 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.mdAll,
-          side: BorderSide(color: AppColors.border),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(AppSpacing.minTouchTarget, AppSpacing.minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          shape: const StadiumBorder(),
           textStyle: AppTypography.button,
         ),
       ),
@@ -80,16 +77,16 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(AppSpacing.minTouchTarget, AppSpacing.minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          foregroundColor: AppColors.primaryDark,
+          side: const BorderSide(color: AppColors.primaryDark, width: 2),
+          shape: const StadiumBorder(),
           textStyle: AppTypography.button,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           minimumSize: const Size(AppSpacing.minTouchTarget, AppSpacing.minTouchTarget),
-          foregroundColor: AppColors.primary,
+          foregroundColor: AppColors.primaryDark,
           textStyle: AppTypography.button.copyWith(fontSize: 15),
         ),
       ),
@@ -108,7 +105,7 @@ abstract final class AppTheme {
         border: inputBorder,
         enabledBorder: inputBorder,
         focusedBorder: inputBorder.copyWith(
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primaryDark, width: 2),
         ),
         errorBorder: inputBorder.copyWith(borderSide: const BorderSide(color: AppColors.error)),
         focusedErrorBorder: inputBorder.copyWith(
@@ -135,14 +132,14 @@ abstract final class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => AppTypography.label.copyWith(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? AppColors.primaryDark
                 : AppColors.textSecondary,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? AppColors.primaryDark
                 : AppColors.textSecondary,
           ),
         ),
@@ -157,7 +154,7 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.textPrimary,
-        contentTextStyle: AppTypography.body.copyWith(color: AppColors.onPrimary),
+        contentTextStyle: AppTypography.body.copyWith(color: AppColors.white),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
       ),
     );

@@ -69,19 +69,43 @@ Se usa `flutter_riverpod` con `riverpod_generator`, no BLoC ni Provider, porque:
 - **Tests simples.** Cualquier provider se sustituye con `overrides` en un `ProviderScope`, sin
   montar inyección de dependencias aparte.
 
-Providers globales (`keepAlive`): `currentUserProvider`, `activeBranchProvider`,
-`activeRateProvider`, `serverOfflineProvider`, `sessionExpiredProvider`, `dioProvider`.
+Providers globales (`keepAlive`): `sessionControllerProvider`, `currentUserProvider`,
+`activeBranchProvider`, `activeRateProvider`, `serverOfflineProvider`, `sessionExpiredProvider`,
+`dioProvider`.
+
+### Sesión y navegación
+
+`SessionController` (`features/auth`) orquesta el arranque: tokens → `auth/me/` → sucursales
+activas → sucursal de trabajo. Su `SessionStatus` decide la pantalla, y `RouteGuards.redirect`
+(función pura) lo traduce a rutas:
+
+| Estado | Pantalla |
+|---|---|
+| `loading`, `error` | Splash (con reintento si falló la conexión) |
+| `unauthenticated` | Login |
+| `needsFirstBranch` | Crear la primera sucursal (MANAGER en un negocio sin sedes) |
+| `needsBranchSelection` | Selector de sucursal (MANAGER con acceso a todas y varias sedes) |
+| `branchUnavailable` | Aviso: la sucursal está inactiva o no existe ninguna |
+| `ready` | Navegación principal: Inicio, Vender, Inventario, Caja y Más |
+
+La sucursal se resuelve igual que `resolve_branch` en el backend. La última elegida por un MANAGER
+se recuerda en el dispositivo. El rol y la sucursal vienen de la cuenta: nunca se eligen en el login.
 
 ## Sistema de diseño
 
-- Solo tema claro. Colores en `app_colors.dart` (contraste WCAG AA), tipografía Manrope empaquetada
-  en `assets/fonts/` (nunca se descarga en tiempo de ejecución).
+- Estilo vivo y amigable, solo tema claro. Colores en `app_colors.dart`: verde de marca brillante,
+  acento amarillo y superficie oscura (`ink`) para el carrito. **Sobre el verde de marca el texto va
+  en tinta oscura (`onPrimary`), nunca en blanco**: así se cumple WCAG AA. Para texto verde sobre
+  fondos claros se usa `primaryDark`.
+- Formas muy redondeadas (`app_radius.dart`), botones en píldora y tarjetas con sombra suave.
+- Tipografía Manrope empaquetada en `assets/fonts/` (nunca se descarga en tiempo de ejecución).
 - Montos con `AppTypography.amount` (negrita y cifras tabulares). USD destacado (`$ 12,50`) y VES
   secundario (`Bs 10.904,88`), siempre con `DualCurrencyText` y `MoneyFormatter`.
 - Áreas táctiles de 48 dp como mínimo; botones de acción principal de 56 dp (`PrimaryButton`).
 - Vertical bloqueado en teléfonos; las tablets pueden girar y usan más columnas
   (`ProductCard.columnsFor`).
 - `DesignPreviewScreen` (solo en depuración) muestra todos los componentes con datos de ejemplo.
+  Se abre desde el login o desde la pestaña Más.
 
 ## Comandos
 
@@ -104,7 +128,9 @@ Los tests de widgets cargan la fuente real con `test/mocks/test_fonts.dart`; sin
 Desarrollo por fases, con pausa y aprobación entre cada una:
 
 1. **Base y diseño** — hecho: `core/` completo, tema, widgets globales y vista previa.
-2. Auth y sucursal.
+2. **Auth y sucursal** — hecho: splash, login, refresco de token, `me`, primera sucursal, selector
+   y `BranchHeader` conectado. Las pestañas Vender, Inventario y Caja son provisionales
+   (`ComingSoonScreen`) y la tasa activa ya se lee del backend.
 3. Tasa y caja.
 4. POS y cobro.
 5. Inventario.
