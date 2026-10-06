@@ -7,9 +7,27 @@ import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/core/session/current_user_provider.dart';
 import 'package:pos_app/core/widgets/branch_header.dart';
+import 'package:pos_app/core/widgets/confirm_dialog.dart';
 import 'package:pos_app/features/auth/presentation/providers/session_controller.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/pos/presentation/providers/cart_controller.dart';
+
+/// Abre el selector de tienda. Si hay productos en el carrito pide
+/// confirmación antes: al cambiar de tienda el carrito se vacía.
+Future<void> requestBranchChange(BuildContext context, WidgetRef ref) async {
+  if (!ref.read(cartControllerProvider).isEmpty) {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: Strings.changeBranchWithCartTitle,
+      message: Strings.changeBranchWithCartMessage,
+      confirmLabel: Strings.changeBranch,
+      isDestructive: true,
+    );
+    if (!confirmed) return;
+  }
+  await ref.read(sessionControllerProvider.notifier).requestBranchChange();
+}
 
 /// [BranchHeader] conectado a la sesión: sucursal activa, permiso para
 /// cambiarla, tasa del día y estado de la caja.
@@ -45,7 +63,7 @@ class ConnectedBranchHeader extends ConsumerWidget implements PreferredSizeWidge
       onSessionTap: () => context.go(RouteNames.cash),
       // Solo un MANAGER con acceso a todas y más de una sede puede cambiarla.
       canChangeBranch: (user?.hasAllBranchesAccess ?? false) && branchCount > 1,
-      onBranchTap: () => ref.read(sessionControllerProvider.notifier).requestBranchChange(),
+      onBranchTap: () => requestBranchChange(context, ref),
     );
   }
 }

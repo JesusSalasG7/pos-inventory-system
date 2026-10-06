@@ -24,6 +24,7 @@ import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart'
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/widgets/cash_summary_view.dart';
 import 'package:pos_app/features/cash_session/presentation/widgets/expense_sheet.dart';
+import 'package:pos_app/features/pos/presentation/providers/cart_controller.dart';
 
 /// Pestaña Caja: abre el turno o, si ya hay uno, muestra el arqueo en curso,
 /// los gastos y el acceso al cierre.
@@ -92,6 +93,8 @@ class _OpenSessionFormState extends ConsumerState<_OpenSessionForm> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text(Strings.cashOpenedSnack)));
+      // Si se llegó aquí desde Vender, se vuelve allí con el carrito intacto.
+      if (ref.read(returnToSellProvider.notifier).consume()) context.go(RouteNames.sell);
     } on Failure catch (failure) {
       if (!mounted) return;
       setState(() {

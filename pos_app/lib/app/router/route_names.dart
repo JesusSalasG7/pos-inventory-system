@@ -20,5 +20,8 @@ abstract final class RouteNames {
   static const String cashClosePattern = '/cash-close/:sessionId';
   static String cashClose(int sessionId) => '/cash-close/$sessionId';
 
+  static const String checkout = '/checkout';
+  static const String saleReceipt = '/sale-receipt';
+
   static const String designPreview = '/design-preview';
 }

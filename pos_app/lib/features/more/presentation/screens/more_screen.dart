@@ -11,6 +11,7 @@ import 'package:pos_app/core/theme/app_radius.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_typography.dart';
 import 'package:pos_app/core/widgets/confirm_dialog.dart';
+import 'package:pos_app/core/widgets/connected_branch_header.dart';
 import 'package:pos_app/features/auth/presentation/providers/session_controller.dart';
 
 /// Pestaña "Más": la cuenta y las opciones secundarias.
@@ -110,7 +111,7 @@ class MoreScreen extends ConsumerWidget {
                       icon: Icons.storefront_rounded,
                       label: Strings.changeBranch,
                       detail: branch?.name,
-                      onTap: ref.read(sessionControllerProvider.notifier).requestBranchChange,
+                      onTap: () => requestBranchChange(context, ref),
                     ),
                   _MoreTile(
                     icon: Icons.currency_exchange_rounded,

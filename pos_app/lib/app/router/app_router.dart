@@ -20,6 +20,10 @@ import 'package:pos_app/features/design_preview/presentation/design_preview_scre
 import 'package:pos_app/features/exchange_rate/presentation/screens/exchange_rate_screen.dart';
 import 'package:pos_app/features/home/presentation/screens/home_screen.dart';
 import 'package:pos_app/features/more/presentation/screens/more_screen.dart';
+import 'package:pos_app/features/pos/domain/sale_receipt.dart';
+import 'package:pos_app/features/pos/presentation/screens/checkout_screen.dart';
+import 'package:pos_app/features/pos/presentation/screens/pos_screen.dart';
+import 'package:pos_app/features/pos/presentation/screens/sale_receipt_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -56,6 +60,13 @@ GoRouter appRouter(Ref ref) {
         builder: (_, _) => const BranchUnavailableScreen(),
       ),
       GoRoute(path: RouteNames.designPreview, builder: (_, _) => const DesignPreviewScreen()),
+      GoRoute(path: RouteNames.checkout, builder: (_, _) => const CheckoutScreen()),
+      GoRoute(
+        path: RouteNames.saleReceipt,
+        // El comprobante llega del cobro; sin él (enlace directo) se vuelve a Vender.
+        redirect: (_, state) => state.extra is SaleReceipt ? null : RouteNames.sell,
+        builder: (_, state) => SaleReceiptScreen(receipt: state.extra! as SaleReceipt),
+      ),
       GoRoute(path: RouteNames.exchangeRate, builder: (_, _) => const ExchangeRateScreen()),
       GoRoute(path: RouteNames.cashHistory, builder: (_, _) => const CashHistoryScreen()),
       GoRoute(
@@ -73,10 +84,7 @@ GoRouter appRouter(Ref ref) {
         builder: (_, _, navigationShell) => MainShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [tab(RouteNames.home, const HomeScreen())]),
-          // TODO(fase-4): POSScreen.
-          StatefulShellBranch(
-            routes: [tab(RouteNames.sell, const ComingSoonScreen(title: Strings.navSell))],
-          ),
+          StatefulShellBranch(routes: [tab(RouteNames.sell, const PosScreen())]),
           // TODO(fase-5): InventoryScreen.
           StatefulShellBranch(
             routes: [

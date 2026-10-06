@@ -1,6 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
+import 'package:pos_app/core/currency/currency_converter.dart';
+import 'package:pos_app/core/currency/money.dart';
 import 'package:pos_app/core/domain/app_user.dart';
 import 'package:pos_app/core/domain/branch.dart';
 import 'package:pos_app/core/domain/enums.dart';
@@ -23,8 +25,10 @@ import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dar
 import 'package:pos_app/features/exchange_rate/domain/repositories/exchange_rate_repository.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/rate_change_notice_provider.dart';
 import 'package:pos_app/features/inventory/data/repositories/inventory_repository_impl.dart';
+import 'package:pos_app/features/inventory/domain/entities/product.dart';
 import 'package:pos_app/features/inventory/domain/repositories/inventory_repository.dart';
 import 'package:pos_app/features/sales/data/repositories/sales_repository_impl.dart';
+import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/domain/entities/sales_summary.dart';
 import 'package:pos_app/features/sales/domain/repositories/sales_repository.dart';
 
@@ -305,6 +309,25 @@ class FakeCashSessionRepository implements CashSessionRepository {
   }
 }
 
+Product product(
+  int id,
+  String name, {
+  String price = '1.00',
+  UnitOfMeasure unit = UnitOfMeasure.unit,
+  ProductCategory category = ProductCategory.liquids,
+}) => Product(
+  id: id,
+  name: name,
+  category: category,
+  unit: unit,
+  costPriceUsd: dec('0.50'),
+  salePriceUsd: dec(price),
+  active: true,
+);
+
+StockedProduct stocked(Product product, String stock, {String minimum = '0'}) =>
+    StockedProduct(product: product, currentStock: dec(stock), minimumStock: dec(minimum));
+
 class FakeSalesRepository implements SalesRepository {
   SalesSummary summary = SalesSummary(
     salesCount: 0,
@@ -313,6 +336,14 @@ class FakeSalesRepository implements SalesRepository {
   );
   String? lastBranchCode;
   DateTime? lastDateFrom;
+
+  /// Precios "de la base de datos" con los que se calculan las ventas.
+  final Map<int, Decimal> prices = {};
+
+  /// Tasa que el backend congela en la venta.
+  Decimal rate = Decimal.parse('150');
+  Failure? saleFailure;
+  final List<NewSale> createdSales = [];
 
   @override
   Future<SalesSummary> fetchSummary({
@@ -324,13 +355,87 @@ class FakeSalesRepository implements SalesRepository {
     lastDateFrom = dateFrom;
     return summary;
   }
+
+  @override
+  Future<Sale> createSale(NewSale sale) async {
+    final failure = saleFailure;
+    if (failure != null) throw failure;
+    createdSales.add(sale);
+    final details = [
+      for (final (index, item) in sale.items.indexed)
+        SaleDetail(
+          id: index + 1,
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPriceUsd: prices[item.productId] ?? Decimal.one,
+          subtotalUsd: quantizeMoney(item.quantity * (prices[item.productId] ?? Decimal.one)),
+        ),
+    ];
+    final totalUsd = details.fold(Decimal.zero, (sum, detail) => sum + detail.subtotalUsd);
+    return Sale(
+      id: createdSales.length,
+      cashSessionId: 1,
+      userId: 1,
+      branchCode: sale.branchCode,
+      customerTaxId: sale.customerTaxId,
+      customerName: sale.customerName,
+      exchangeRateAtInvoice: rate,
+      totalUsd: totalUsd,
+      totalVes: CurrencyConverter.usdToVes(totalUsd, rate),
+      createdAt: DateTime.utc(2026, 10, 6, 16),
+      details: details,
+      payments: [
+        for (final (index, payment) in sale.payments.indexed)
+          SalePayment(
+            id: index + 1,
+            method: payment.method,
+            currency: payment.method.currency,
+            amount: payment.amount,
+            approvalReference: payment.approvalReference,
+          ),
+      ],
+    );
+  }
 }
 
 class FakeInventoryRepository implements InventoryRepository {
   int lowStock = 0;
+  List<Product> products = [];
+  List<BranchStock> stock = [];
+  int catalogCalls = 0;
+
+  /// Carga el catálogo y su stock en una sucursal a partir de productos con stock.
+  void seed(String branchCode, List<StockedProduct> items) {
+    products = [for (final item in items) item.product];
+    stock = [
+      for (final item in items)
+        BranchStock(
+          productId: item.product.id,
+          productName: item.product.name,
+          branchCode: branchCode,
+          currentStock: item.currentStock,
+          minimumStock: item.minimumStock,
+        ),
+    ];
+  }
 
   @override
   Future<int> fetchLowStockCount({required String branchCode}) async => lowStock;
+
+  @override
+  Future<List<Product>> fetchProducts({bool onlyActive = false}) async {
+    catalogCalls++;
+    return [
+      for (final product in products)
+        if (!onlyActive || product.active) product,
+    ];
+  }
+
+  @override
+  Future<List<BranchStock>> fetchBranchStock({required String branchCode}) async => [
+    for (final row in stock)
+      if (row.branchCode == branchCode) row,
+  ];
 }
 
 /// Overrides para montar la sesión con repositorios falsos.

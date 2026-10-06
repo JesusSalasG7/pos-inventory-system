@@ -1,4 +1,4 @@
-# POS Sucursal (app Flutter) — guía para trabajar en `pos_app/`
+# POS Tienda (app Flutter) — guía para trabajar en `pos_app/`
 
 Cliente móvil del backend Django de `../pos_backend/`. Se usa en el mostrador, en un teléfono
 Android, para tiendas de productos de limpieza en Venezuela.
@@ -28,6 +28,10 @@ Android, para tiendas de productos de limpieza en Venezuela.
 - **Sucursal**: los repositorios envían siempre el `code` de `activeBranchProvider` en `branch`
   (query en los `GET`, body en `POST`/`PATCH`). Así un MANAGER con acceso a todas ve solo su sede.
 - **Vuelto**: no existe en el backend. A la API se envía el monto exacto que cubre la venta.
+- **Tasa automática**: el servidor registra sola la tasa del BCV (`source=BCV`, con su
+  `effective_date`). La app vuelve a consultar la tasa al abrir, al volver a primer plano y cada
+  10 minutos, y `RateChangeNoticeController` avisa cuando cambia respecto a la última vista en el
+  dispositivo.
 - `flutter analyze` sin advertencias. Formato con `dart format` (ancho 100).
 
 ## Arquitectura
@@ -139,6 +143,10 @@ Desarrollo por fases, con pausa y aprobación entre cada una:
 3. **Tasa y caja** — hecho: tasa global (se refresca al volver a primer plano), pantalla de tasas
    con BCV e histórico, apertura de caja, gastos, arqueo, cierre, historial de cajas y dashboard.
    La caja abierta puede pertenecer a otra sucursal: el backend solo admite una por usuario.
-4. POS y cobro.
+4. **POS y cobro** — hecho: catálogo cruzado con el stock de la tienda, carrito, cobro con pagos
+   mixtos, vuelto visual, comprobante con tasa congelada y manejo de los errores de venta.
+   `CheckoutMath` (dominio puro) replica el cuadre del backend: los bolívares se suman y se
+   convierten a USD una sola vez. El vuelto se descuenta del último pago en efectivo antes de
+   enviar, porque el backend rechaza tanto lo que falta como lo que sobra.
 5. Inventario.
 6. Más y administración, y test de integración en el teléfono.

@@ -192,6 +192,64 @@ abstract final class Strings {
   static const String emptyCashHistoryMessage = 'Las cajas que abras aparecerán aquí.';
   static const String sessionDetail = 'Detalle de caja';
 
+  // Vender (POS).
+  static const String needOpenCashSnack = 'Abre la caja para empezar a vender';
+  static const String emptyCatalogTitle = 'Aún no hay productos';
+  static const String emptyCatalogMessage =
+      'Cuando un gerente registre productos aparecerán aquí para venderlos.';
+  static const String noResultsTitle = 'Sin resultados';
+  static const String noResultsMessage = 'Ningún producto coincide con la búsqueda.';
+  static const String noRateToSellTitle = 'Falta la tasa de cambio';
+  static const String noRateToSellMessage =
+      'Sin tasa no se puede vender. Un gerente debe registrarla en Más → Tasa de cambio.';
+  static const String changeBranchWithCartTitle = '¿Cambiar de tienda?';
+  static const String changeBranchWithCartMessage =
+      'El carrito se vaciará: el stock y la caja son de cada tienda.';
+
+  // Cobro.
+  static const String checkoutTitle = 'Cobrar';
+  static const String cartItemsTitle = 'Productos';
+  static const String emptyCartTitle = 'El carrito está vacío';
+  static const String emptyCartMessage = 'Vuelve a Vender y agrega productos.';
+  static const String backToSell = 'Volver a Vender';
+  static const String removeItem = 'Quitar del carrito';
+  static String availableOnly(String amount) => 'Solo quedan $amount';
+  static const String total = 'Total';
+  static String rateUsed(String rate) => 'Tasa: Bs/\$ $rate';
+  static const String customerOptional = 'Cliente (opcional)';
+  static const String customerTaxId = 'Cédula o RIF';
+  static const String customerName = 'Nombre';
+  static const String payments = 'Pagos';
+  static const String addPaymentHint = 'Elige cómo paga el cliente. Puedes combinar varios.';
+  static const String paymentAmount = 'Monto';
+  static const String paymentReference = 'Referencia';
+  static const String referenceRequired = 'Escribe la referencia';
+  static const String removePayment = 'Quitar pago';
+  static const String remaining = 'Restante';
+  static const String change = 'Vuelto';
+  static const String paidExact = 'Pago completo';
+  static const String overpaidWithoutCash =
+      'Sobra dinero y no hay pago en efectivo del que dar vuelto. Ajusta los montos.';
+  static const String changeExceedsCash =
+      'El vuelto es mayor que el último pago en efectivo. Quita o ajusta ese pago.';
+  static const String incompletePayments = 'Completa el monto y la referencia de cada pago.';
+  static const String stockIssues = 'Ajusta las cantidades marcadas: ya no hay tanto stock.';
+  static const String confirmSale = 'Confirmar venta';
+  static const String saleNeedsOpenCash = 'Tu caja no está abierta. Ábrela y vuelve a confirmar.';
+  static String productsRemoved(int count) => count == 1
+      ? 'Se quitó un producto que ya no está disponible.'
+      : 'Se quitaron $count productos que ya no están disponibles.';
+
+  // Comprobante.
+  static const String receiptTitle = 'Venta registrada';
+  static String saleNumber(int id) => 'Venta #$id';
+  static const String newSale = 'Nueva venta';
+  static const String share = 'Compartir';
+  static const String customer = 'Cliente';
+  static String quantityTimesPrice(String quantity, String unit, String price) =>
+      '$quantity $unit × $price';
+  static String referenceLabel(String reference) => 'Ref. $reference';
+
   // Estados.
   static const String emptyTitle = 'No hay nada que mostrar';
   static const String emptyMessage = 'Cuando haya datos aparecerán aquí.';
