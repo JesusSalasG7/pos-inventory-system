@@ -6,8 +6,8 @@ from apps.exchange_rate.models import ExchangeRate
 class ExchangeRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeRate
-        fields = ["id", "usd_to_ves_rate", "created_by", "created_at"]
-        read_only_fields = ["id", "created_by", "created_at"]
+        fields = ["id", "usd_to_ves_rate", "source", "effective_date", "created_by", "created_at"]
+        read_only_fields = ["id", "source", "effective_date", "created_by", "created_at"]
 
 
 class BcvRateSerializer(serializers.Serializer):

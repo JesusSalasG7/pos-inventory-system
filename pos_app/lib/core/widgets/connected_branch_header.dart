@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_app/app/router/route_names.dart';
+import 'package:pos_app/core/formatting/date_formatter.dart';
+import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/core/session/current_user_provider.dart';
 import 'package:pos_app/core/widgets/branch_header.dart';
@@ -24,7 +26,8 @@ class ConnectedBranchHeader extends ConsumerWidget implements PreferredSizeWidge
     final branchCount = ref.watch(
       sessionControllerProvider.select((session) => session.branches.length),
     );
-    final rate = ref.watch(activeRateProvider);
+    final rate = ref.watch(activeExchangeRateProvider);
+    final active = rate.value;
     final cashSession = ref.watch(currentSessionProvider);
     // La caja cuenta como abierta solo si es de la sucursal activa.
     final isSessionOpen = cashSession.hasValue
@@ -33,7 +36,10 @@ class ConnectedBranchHeader extends ConsumerWidget implements PreferredSizeWidge
 
     return BranchHeader(
       branchName: branch?.name,
-      rate: rate.value,
+      rate: active?.rate,
+      rateLabel: active == null
+          ? Strings.rateOfTheDay
+          : Strings.rateTag(active.source, DateFormatter.calendarDayMonth(active.day)),
       isRateLoading: rate.isLoading && !rate.hasValue,
       isSessionOpen: isSessionOpen,
       onSessionTap: () => context.go(RouteNames.cash),

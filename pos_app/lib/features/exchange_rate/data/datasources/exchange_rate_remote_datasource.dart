@@ -30,6 +30,12 @@ class ExchangeRateRemoteDataSource {
     return ExchangeRateDto.fromJson(response.data!);
   }
 
+  /// Devuelve la tasa activa y si la sincronización creó una nueva (HTTP 201).
+  Future<(ExchangeRateDto, bool)> syncBcv() async {
+    final response = await _dio.post<Map<String, dynamic>>('exchange-rates/bcv/sync/');
+    return (ExchangeRateDto.fromJson(response.data!), response.statusCode == 201);
+  }
+
   Future<BcvRateDto> fetchBcv() async {
     final response = await _dio.get<Map<String, dynamic>>('exchange-rates/bcv/');
     return BcvRateDto.fromJson(response.data!);

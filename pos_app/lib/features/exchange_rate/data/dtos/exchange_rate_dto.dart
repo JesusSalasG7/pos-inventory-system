@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pos_app/core/currency/decimal_converter.dart';
+import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
 
 part 'exchange_rate_dto.freezed.dart';
@@ -12,16 +13,29 @@ abstract class ExchangeRateDto with _$ExchangeRateDto {
   const factory ExchangeRateDto({
     required int id,
     @DecimalConverter() required Decimal usdToVesRate,
-    required int createdBy,
+    required String source,
     required DateTime createdAt,
+
+    /// Fecha de calendario `YYYY-MM-DD`; `null` en las tasas manuales.
+    String? effectiveDate,
+    int? createdBy,
   }) = _ExchangeRateDto;
 
   const ExchangeRateDto._();
 
   factory ExchangeRateDto.fromJson(Map<String, dynamic> json) => _$ExchangeRateDtoFromJson(json);
 
-  ExchangeRate toEntity() =>
-      ExchangeRate(id: id, rate: usdToVesRate, createdBy: createdBy, createdAt: createdAt);
+  ExchangeRate toEntity() {
+    final date = effectiveDate;
+    return ExchangeRate(
+      id: id,
+      rate: usdToVesRate,
+      source: RateSource.fromApi(source),
+      effectiveDate: date == null ? null : DateTime.parse(date),
+      createdBy: createdBy,
+      createdAt: createdAt,
+    );
+  }
 }
 
 /// Respuesta de `exchange-rates/bcv/`.

@@ -1,7 +1,8 @@
-"""Consulta de la tasa oficial del BCV en DolarApi, protegida con caché.
+"""Tasa oficial del BCV: consulta en DolarApi y sincronización automática.
 
-La tasa obtenida aquí es solo una referencia: la tasa con la que se factura
-sigue siendo la que registra un MANAGER con `exchange_rate_service`.
+`get_bcv_rate` sirve la tasa como referencia, con caché. `sync_active_rate`
+la registra como tasa activa cada vez que el BCV publica una nueva; lo ejecuta
+el comando programado `sync_bcv_rate`.
 """
 
 import json
@@ -11,9 +12,13 @@ from decimal import Decimal, InvalidOperation
 
 import requests
 from django.core.cache import cache
+from django.db import transaction
 from django.utils import timezone
 
 from apps.exchange_rate.domain.dtos import BcvRate
+from apps.exchange_rate.models import ExchangeRate
+from apps.exchange_rate.repositories import exchange_rate_repository
+from core.enums import RateSource
 from core.exceptions import DomainError
 from core.money import quantize_rate
 
@@ -64,6 +69,44 @@ def get_bcv_rate_or_fail() -> BcvRate:
             status_code=503,
         )
     return bcv_rate
+
+
+def sync_active_rate() -> ExchangeRate | None:
+    """Registra la tasa del BCV como tasa activa si el BCV publicó una nueva.
+
+    Consulta siempre al BCV, sin pasar por la caché. Compara contra la última
+    tasa de origen BCV registrada, no contra la activa: así una tasa manual de
+    un MANAGER se respeta hasta que el BCV publique la siguiente.
+
+    Devuelve la tasa creada, o None si el BCV no cambió. Lanza
+    `bcv_rate_unavailable` (503) si no se pudo consultar: no se registra nada.
+    """
+    try:
+        bcv_rate = _fetch_bcv_rate()
+    except (requests.RequestException, ValueError, TypeError, KeyError, InvalidOperation) as exc:
+        logger.exception("No se pudo sincronizar la tasa del BCV desde %s.", BCV_RATE_URL)
+        raise DomainError(
+            "No se pudo obtener la tasa del BCV. Intente de nuevo más tarde.",
+            code="bcv_rate_unavailable",
+            status_code=503,
+        ) from exc
+    cache.set(CACHE_KEY, bcv_rate, CACHE_SECONDS)
+    cache.set(LAST_KNOWN_CACHE_KEY, bcv_rate, None)
+
+    effective_date = timezone.localtime(bcv_rate.updated_at).date()
+    with transaction.atomic():
+        last = exchange_rate_repository.get_latest_by_source(RateSource.BCV)
+        if (
+            last is not None
+            and last.usd_to_ves_rate == bcv_rate.rate
+            and last.effective_date == effective_date
+        ):
+            return None
+        return exchange_rate_repository.create(
+            usd_to_ves_rate=bcv_rate.rate,
+            source=RateSource.BCV,
+            effective_date=effective_date,
+        )
 
 
 def _fetch_bcv_rate() -> BcvRate:

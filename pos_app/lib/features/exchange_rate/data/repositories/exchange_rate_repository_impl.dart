@@ -23,9 +23,9 @@ class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
   final ExchangeRateRemoteDataSource _remote;
 
   @override
-  Future<Decimal?> fetchActiveRate() async {
+  Future<ExchangeRate?> fetchActive() async {
     try {
-      return await Failure.guard(() async => (await _remote.fetchCurrent()).usdToVesRate);
+      return await Failure.guard(() async => (await _remote.fetchCurrent()).toEntity());
     } on Failure catch (failure) {
       if (failure.code == notSetCode) return null;
       rethrow;
@@ -42,6 +42,14 @@ class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
   @override
   Future<ExchangeRate> registerRate(Decimal rate) {
     return Failure.guard(() async => (await _remote.register(rate)).toEntity());
+  }
+
+  @override
+  Future<BcvSyncResult> syncWithBcv() {
+    return Failure.guard(() async {
+      final (dto, changed) = await _remote.syncBcv();
+      return BcvSyncResult(rate: dto.toEntity(), changed: changed);
+    });
   }
 
   @override

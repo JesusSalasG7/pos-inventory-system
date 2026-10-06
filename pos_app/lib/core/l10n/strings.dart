@@ -97,6 +97,28 @@ abstract final class Strings {
       'Sin tasa no se puede vender ni cerrar caja. Un gerente debe registrarla.';
 
   // Tasa de cambio.
+  static String rateSource(RateSource source) => switch (source) {
+    RateSource.bcv => 'BCV',
+    RateSource.manual => 'Manual',
+  };
+  static String rateTag(RateSource source, String dayMonth) => switch (source) {
+    RateSource.bcv => 'Tasa BCV $dayMonth',
+    RateSource.manual => 'Tasa manual $dayMonth',
+  };
+  static String rateDayLine(RateSource source, String date) => switch (source) {
+    RateSource.bcv => 'Tasa del BCV correspondiente al $date',
+    RateSource.manual => 'Tasa manual registrada el $date',
+  };
+  static const String rateChangedTitle = 'La tasa cambió';
+  static String previousRate(String rate) => 'Antes: Bs/\$ $rate';
+  static const String rateChangedNote = 'Los precios en bolívares ya usan la tasa nueva.';
+  static const String understood = 'Entendido';
+  static const String syncBcv = 'Actualizar desde el BCV';
+  static const String syncBcvChanged = 'Tasa actualizada con la del BCV';
+  static const String syncBcvUnchanged = 'La tasa del BCV no ha cambiado';
+  static const String autoRateNote =
+      'La tasa se actualiza sola con la del BCV. Una tasa manual vale hasta que el BCV '
+      'publique la siguiente.';
   static const String exchangeRateTitle = 'Tasa de cambio';
   static const String rateHistory = 'Histórico';
   static const String registerRate = 'Registrar nueva tasa';

@@ -22,6 +22,7 @@ class BranchHeader extends StatelessWidget implements PreferredSizeWidget {
     required this.isSessionOpen,
     this.canChangeBranch = false,
     this.isRateLoading = false,
+    this.rateLabel = Strings.rateOfTheDay,
     this.onBranchTap,
     this.onSessionTap,
     super.key,
@@ -33,6 +34,9 @@ class BranchHeader extends StatelessWidget implements PreferredSizeWidget {
 
   /// Tasa activa (VES por 1 USD); `null` si aún no hay ninguna.
   final Decimal? rate;
+
+  /// Texto junto a la tasa: su origen y el día al que corresponde.
+  final String rateLabel;
 
   /// `true` mientras se consulta la tasa: evita mostrar "Sin tasa" antes de saberlo.
   final bool isRateLoading;
@@ -168,7 +172,7 @@ class BranchHeader extends StatelessWidget implements PreferredSizeWidget {
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           Text(
-                            '${Strings.rateOfTheDay}  ',
+                            '$rateLabel  ',
                             style: AppTypography.bodySmall.copyWith(color: AppColors.onPrimary),
                           ),
                           Flexible(

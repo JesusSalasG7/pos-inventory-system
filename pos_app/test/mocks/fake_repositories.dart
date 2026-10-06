@@ -8,6 +8,7 @@ import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/network/api_exception.dart';
 import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/core/storage/branch_preference_storage.dart';
+import 'package:pos_app/core/storage/rate_notice_storage.dart';
 import 'package:pos_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:pos_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pos_app/features/auth/presentation/providers/session_controller.dart';
@@ -20,6 +21,7 @@ import 'package:pos_app/features/cash_session/domain/repositories/cash_session_r
 import 'package:pos_app/features/exchange_rate/data/repositories/exchange_rate_repository_impl.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
 import 'package:pos_app/features/exchange_rate/domain/repositories/exchange_rate_repository.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/rate_change_notice_provider.dart';
 import 'package:pos_app/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:pos_app/features/inventory/domain/repositories/inventory_repository.dart';
 import 'package:pos_app/features/sales/data/repositories/sales_repository_impl.dart';
@@ -123,8 +125,30 @@ class FakeExchangeRateRepository implements ExchangeRateRepository {
   BcvRate? bcv;
   final List<ExchangeRate> history = [];
 
+  /// Tasa activa completa; por defecto una manual con el valor de [rate].
+  ExchangeRate? active;
+
+  /// Lo que devolverá la próxima sincronización con el BCV.
+  ExchangeRate? nextBcvRate;
+
   @override
-  Future<Decimal?> fetchActiveRate() async => rate;
+  Future<ExchangeRate?> fetchActive() async {
+    final value = rate;
+    if (active != null) return active;
+    if (value == null) return null;
+    return ExchangeRate(id: 1000, rate: value, createdAt: DateTime.utc(2026, 10, 6, 14));
+  }
+
+  @override
+  Future<BcvSyncResult> syncWithBcv() async {
+    final next = nextBcvRate;
+    if (next == null) return BcvSyncResult(rate: (await fetchActive())!, changed: false);
+    nextBcvRate = null;
+    active = next;
+    rate = next.rate;
+    history.insert(0, next);
+    return BcvSyncResult(rate: next, changed: true);
+  }
 
   @override
   Future<Paginated<ExchangeRate>> fetchHistory({required int page}) async =>
@@ -140,6 +164,7 @@ class FakeExchangeRateRepository implements ExchangeRateRepository {
     );
     history.insert(0, created);
     this.rate = rate;
+    active = created;
     return created;
   }
 
@@ -318,7 +343,9 @@ List<Override> sessionOverrides({
   FakeCashSessionRepository? cash,
   FakeSalesRepository? sales,
   FakeInventoryRepository? inventory,
+  InMemoryRateNoticeStorage? rateNotice,
 }) => [
+  rateNoticeStorageProvider.overrideWithValue(rateNotice ?? InMemoryRateNoticeStorage()),
   cashSessionRepositoryProvider.overrideWithValue(cash ?? FakeCashSessionRepository()),
   salesRepositoryProvider.overrideWithValue(sales ?? FakeSalesRepository()),
   inventoryRepositoryProvider.overrideWithValue(inventory ?? FakeInventoryRepository()),

@@ -62,6 +62,27 @@ class CurrentExchangeRateView(APIView):
         return Response(ExchangeRateSerializer(exchange_rate_service.get_active_rate()).data)
 
 
+class BcvRateSyncView(APIView):
+    permission_classes = [IsManager]
+
+    @extend_schema(
+        operation_id="exchange_rates_bcv_sync",
+        request=None,
+        responses={200: ExchangeRateSerializer, 201: ExchangeRateSerializer},
+        tags=["exchange-rates"],
+    )
+    def post(self, request: Request) -> Response:
+        """Sincroniza ahora la tasa activa con la del BCV.
+
+        Responde 201 con la tasa nueva si el BCV publicó una, o 200 con la tasa
+        activa si no cambió. Responde 503 `bcv_rate_unavailable` si el BCV no responde.
+        """
+        created = bcv_rate_service.sync_active_rate()
+        if created is not None:
+            return Response(ExchangeRateSerializer(created).data, status=status.HTTP_201_CREATED)
+        return Response(ExchangeRateSerializer(exchange_rate_service.get_active_rate()).data)
+
+
 class BcvRateView(APIView):
     permission_classes = [IsSupervisorOrManager]
 

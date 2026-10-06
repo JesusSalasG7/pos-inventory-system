@@ -4,14 +4,25 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 
+from core.enums import RateSource
+
 
 class ExchangeRate(models.Model):
     """La tasa activa es siempre la fila más reciente; nunca se edita una existente."""
 
     # Cantidad de VES equivalente a 1 USD.
     usd_to_ves_rate = models.DecimalField(max_digits=14, decimal_places=4)
+    # MANUAL la registra un MANAGER; BCV la registra la sincronización automática.
+    source = models.CharField(max_length=10, choices=RateSource.choices, default=RateSource.MANUAL)
+    # Día al que corresponde la tasa según el BCV. Vacío en las tasas manuales.
+    effective_date = models.DateField(null=True, blank=True)
+    # Vacío en las tasas automáticas: no las registra ningún usuario.
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="exchange_rates"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="exchange_rates",
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

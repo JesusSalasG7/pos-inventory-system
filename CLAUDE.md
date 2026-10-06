@@ -66,6 +66,7 @@ cp .env.example .env          # mismas credenciales POSTGRES_* que el .env de la
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver    # API en /api/v1/, documentación en /api/docs/
+python manage.py sync_bcv_rate   # registra la tasa del BCV como activa si cambió (va en cron)
 
 pytest                        # todos los tests (crea la BD test_<POSTGRES_DB>)
 pytest tests/unit             # solo tests puros, sin base de datos
@@ -81,6 +82,11 @@ usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory` y `sales`. 
 
 Convenciones que no se deducen a simple vista:
 
+- **Tasa automática del BCV**: `bcv_rate_service.sync_active_rate()` registra la tasa del BCV
+  como activa (`source=BCV`, con `effective_date` y sin `created_by`) cuando el BCV publica una
+  nueva. Compara contra la última tasa de origen BCV, no contra la activa: una tasa manual de un
+  MANAGER vale hasta la siguiente publicación. Lo ejecuta el comando `sync_bcv_rate`, pensado
+  para cron cada hora, y también `POST exchange-rates/bcv/sync/`. El backend no programa nada solo.
 - La sucursal viaja entre capas como su `code` (`str`). Las FK a `Branch` usan `to_field="code"`,
   así que `obj.branch_id` es el código y `obj.branch` la instancia (evitarla: dispara una consulta).
 - `branch_service` importa `stock_service` y `cash_session_service` dentro de las funciones, y

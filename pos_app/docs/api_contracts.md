@@ -168,10 +168,23 @@ user, sale, notes, created_at}`. `quantity` es siempre positiva; el sentido lo d
 | `POST exchange-rates/` | MANAGER | `{usd_to_ves_rate}` | 201 `ExchangeRate` |
 | `GET exchange-rates/current/` | Operador | — | `ExchangeRate` |
 | `GET exchange-rates/bcv/` | Operador | — | `{rate, updated_at}` |
+| `POST exchange-rates/bcv/sync/` | MANAGER | Sin body | 201 `ExchangeRate` si el BCV publicó una tasa nueva; 200 con la activa si no cambió |
 
-`ExchangeRate`: `{id, usd_to_ves_rate, created_by, created_at}`. Errores: `exchange_rate_not_set`
-(409, todavía no hay tasa: no se puede facturar ni cerrar caja), `invalid_exchange_rate` (422),
-`bcv_rate_unavailable` (503). La tasa BCV es solo referencia.
+`ExchangeRate`: `{id, usd_to_ves_rate, source, effective_date, created_by, created_at}`.
+
+- `source`: `MANUAL` (la registró un MANAGER) o `BCV` (sincronización automática).
+- `effective_date`: día al que corresponde la tasa según el BCV (`"2026-10-06"`); `null` en las
+  manuales.
+- `created_by`: `null` en las tasas automáticas.
+
+Errores: `exchange_rate_not_set` (409, todavía no hay tasa: no se puede facturar ni cerrar caja),
+`invalid_exchange_rate` (422), `bcv_rate_unavailable` (503).
+
+**Tasa automática.** El comando `python manage.py sync_bcv_rate` (programado con cron cada hora)
+registra la tasa del BCV como activa cada vez que el BCV publica una nueva. Una tasa manual vale
+hasta la siguiente publicación del BCV. La app detecta el cambio comparando el `id` de
+`exchange-rates/current/` con el último que vio. `GET exchange-rates/bcv/` sigue siendo solo
+consulta, con caché de 6 horas.
 
 ## Cajas
 

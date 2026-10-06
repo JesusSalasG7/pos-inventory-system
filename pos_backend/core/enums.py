@@ -35,6 +35,13 @@ class PaymentMethod(models.TextChoices):
     MOBILE_PAYMENT = "MOBILE_PAYMENT", "Pago móvil"
 
 
+class RateSource(models.TextChoices):
+    """Origen de una tasa de cambio registrada."""
+
+    MANUAL = "MANUAL", "Manual"
+    BCV = "BCV", "BCV"
+
+
 class Currency(models.TextChoices):
     VES = "VES", "Bolívares"
     USD = "USD", "Dólares"

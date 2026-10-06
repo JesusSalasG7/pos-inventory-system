@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -17,14 +19,25 @@ class PosApp extends ConsumerStatefulWidget {
 }
 
 class _PosAppState extends ConsumerState<PosApp> with WidgetsBindingObserver {
+  /// Cada cuánto se vuelve a consultar la tasa mientras la app está abierta.
+  /// El servidor la cambia solo cuando el BCV publica una nueva.
+  static const Duration _rateRefreshInterval = Duration(minutes: 10);
+
+  Timer? _rateTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _rateTimer = Timer.periodic(
+      _rateRefreshInterval,
+      (_) => ref.invalidate(activeExchangeRateProvider),
+    );
   }
 
   @override
   void dispose() {
+    _rateTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -32,7 +45,7 @@ class _PosAppState extends ConsumerState<PosApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // La tasa puede haber cambiado mientras la app estaba en segundo plano.
-    if (state == AppLifecycleState.resumed) ref.invalidate(activeRateProvider);
+    if (state == AppLifecycleState.resumed) ref.invalidate(activeExchangeRateProvider);
   }
 
   @override

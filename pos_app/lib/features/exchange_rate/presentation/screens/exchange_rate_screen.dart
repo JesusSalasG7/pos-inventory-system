@@ -34,9 +34,21 @@ class ExchangeRateScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _syncBcv(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final changed = await ref.read(activeExchangeRateProvider.notifier).syncWithBcv();
+      messenger.showSnackBar(
+        SnackBar(content: Text(changed ? Strings.syncBcvChanged : Strings.syncBcvUnchanged)),
+      );
+    } on Failure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(failure.message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final active = ref.watch(activeRateProvider);
+    final active = ref.watch(activeExchangeRateProvider);
     final bcv = ref.watch(bcvRateProvider);
     final history = ref.watch(rateHistoryProvider);
     final isManager = ref.watch(currentUserProvider)?.isManager ?? false;
@@ -48,7 +60,7 @@ class ExchangeRateScreen extends ConsumerWidget {
           ref
             ..invalidate(bcvRateProvider)
             ..invalidate(rateHistoryProvider);
-          await ref.read(activeRateProvider.notifier).refresh();
+          await ref.read(activeExchangeRateProvider.notifier).refresh();
         },
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -56,9 +68,9 @@ class ExchangeRateScreen extends ConsumerWidget {
             SectionCard(
               color: AppColors.primarySoft,
               title: Strings.activeRate.toUpperCase(),
-              child: AsyncValueView<Decimal?>(
+              child: AsyncValueView<ExchangeRate?>(
                 value: active,
-                onRetry: () => ref.invalidate(activeRateProvider),
+                onRetry: () => ref.invalidate(activeExchangeRateProvider),
                 loading: const SkeletonBox(height: 44),
                 data: (rate) => rate == null
                     ? Column(
@@ -69,22 +81,39 @@ class ExchangeRateScreen extends ConsumerWidget {
                           Text(Strings.rateNotSetHint, style: AppTypography.bodySmall),
                         ],
                       )
-                    : Text(
-                        '${Strings.rateUnit} ${MoneyFormatter.rate(rate)}',
-                        style: AppTypography.amount(34),
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${Strings.rateUnit} ${MoneyFormatter.rate(rate.rate)}',
+                            style: AppTypography.amount(34),
+                          ),
+                          Text(
+                            Strings.rateDayLine(rate.source, DateFormatter.calendarDate(rate.day)),
+                            style: AppTypography.bodySmall,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            Strings.autoRateNote,
+                            style: AppTypography.bodySmall.copyWith(fontSize: 12),
+                          ),
+                        ],
                       ),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             SectionCard(
               title: Strings.bcvRate.toUpperCase(),
-              child: _BcvContent(bcv: bcv, activeRate: active.value),
+              child: _BcvContent(bcv: bcv, activeRate: active.value?.rate),
             ),
             if (isManager) ...[
               const SizedBox(height: AppSpacing.lg),
+              _SyncBcvButton(onSync: () => _syncBcv(context, ref)),
+              const SizedBox(height: AppSpacing.sm),
               PrimaryButton(
                 label: Strings.registerRate,
                 icon: Icons.add_rounded,
+                variant: ButtonVariant.outlined,
                 onPressed: () => _register(context),
               ),
             ],
@@ -109,9 +138,19 @@ class ExchangeRateScreen extends ConsumerWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: Text(
-                              DateFormatter.dateTime(rate.createdAt),
-                              style: AppTypography.body,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${Strings.rateSource(rate.source)} · '
+                                  '${DateFormatter.calendarDate(rate.day)}',
+                                  style: AppTypography.body,
+                                ),
+                                Text(
+                                  DateFormatter.dateTime(rate.createdAt),
+                                  style: AppTypography.bodySmall.copyWith(fontSize: 12),
+                                ),
+                              ],
                             ),
                           ),
                           Text(MoneyFormatter.rate(rate.rate), style: AppTypography.amount(16)),
@@ -132,6 +171,39 @@ class ExchangeRateScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Botón de sincronización con el BCV, con su propio estado de carga.
+class _SyncBcvButton extends StatefulWidget {
+  const _SyncBcvButton({required this.onSync});
+
+  final Future<void> Function() onSync;
+
+  @override
+  State<_SyncBcvButton> createState() => _SyncBcvButtonState();
+}
+
+class _SyncBcvButtonState extends State<_SyncBcvButton> {
+  bool _isSyncing = false;
+
+  Future<void> _sync() async {
+    setState(() => _isSyncing = true);
+    try {
+      await widget.onSync();
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryButton(
+      label: Strings.syncBcv,
+      icon: Icons.sync_rounded,
+      isLoading: _isSyncing,
+      onPressed: _sync,
     );
   }
 }
@@ -214,7 +286,7 @@ class _NewRateDialogState extends ConsumerState<_NewRateDialog> {
       _errorMessage = null;
     });
     try {
-      await ref.read(activeRateProvider.notifier).register(quantizeRate(_rate!));
+      await ref.read(activeExchangeRateProvider.notifier).register(quantizeRate(_rate!));
       if (mounted) Navigator.of(context).pop(true);
     } on Failure catch (failure) {
       if (!mounted) return;

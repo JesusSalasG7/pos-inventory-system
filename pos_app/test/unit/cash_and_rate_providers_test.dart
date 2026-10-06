@@ -66,9 +66,9 @@ void main() {
       await container.read(activeRateProvider.future);
       expect((await container.read(rateHistoryProvider.future)).items, isEmpty);
 
-      await container.read(activeRateProvider.notifier).register(dec('872.3927'));
+      await container.read(activeExchangeRateProvider.notifier).register(dec('872.3927'));
 
-      expect(container.read(activeRateProvider).value, dec('872.3927'));
+      expect(await container.read(activeRateProvider.future), dec('872.3927'));
       final history = await container.read(rateHistoryProvider.future);
       expect(history.items.single.rate, dec('872.3927'));
     });

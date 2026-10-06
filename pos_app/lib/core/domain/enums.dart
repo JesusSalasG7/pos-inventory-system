@@ -59,6 +59,21 @@ enum MovementType {
       values.firstWhere((e) => e.apiValue == value, orElse: () => adjustment);
 }
 
+/// Origen de una tasa de cambio registrada en el backend.
+enum RateSource {
+  /// La registró un MANAGER a mano.
+  manual('MANUAL'),
+
+  /// La registró la sincronización automática con el BCV.
+  bcv('BCV');
+
+  const RateSource(this.apiValue);
+  final String apiValue;
+
+  static RateSource fromApi(String value) =>
+      values.firstWhere((e) => e.apiValue == value, orElse: () => manual);
+}
+
 enum Currency {
   usd('USD'),
   ves('VES');

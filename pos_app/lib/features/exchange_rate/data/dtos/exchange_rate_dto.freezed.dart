@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ExchangeRateDto {
 
- int get id;@DecimalConverter() Decimal get usdToVesRate; int get createdBy; DateTime get createdAt;
+ int get id;@DecimalConverter() Decimal get usdToVesRate; String get source; DateTime get createdAt;/// Fecha de calendario `YYYY-MM-DD`; `null` en las tasas manuales.
+ String? get effectiveDate; int? get createdBy;
 /// Create a copy of ExchangeRateDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $ExchangeRateDtoCopyWith<ExchangeRateDto> get copyWith => _$ExchangeRateDtoCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExchangeRateDto&&(identical(other.id, id) || other.id == id)&&(identical(other.usdToVesRate, usdToVesRate) || other.usdToVesRate == usdToVesRate)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExchangeRateDto&&(identical(other.id, id) || other.id == id)&&(identical(other.usdToVesRate, usdToVesRate) || other.usdToVesRate == usdToVesRate)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.effectiveDate, effectiveDate) || other.effectiveDate == effectiveDate)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,usdToVesRate,createdBy,createdAt);
+int get hashCode => Object.hash(runtimeType,id,usdToVesRate,source,createdAt,effectiveDate,createdBy);
 
 @override
 String toString() {
-  return 'ExchangeRateDto(id: $id, usdToVesRate: $usdToVesRate, createdBy: $createdBy, createdAt: $createdAt)';
+  return 'ExchangeRateDto(id: $id, usdToVesRate: $usdToVesRate, source: $source, createdAt: $createdAt, effectiveDate: $effectiveDate, createdBy: $createdBy)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $ExchangeRateDtoCopyWith<$Res>  {
   factory $ExchangeRateDtoCopyWith(ExchangeRateDto value, $Res Function(ExchangeRateDto) _then) = _$ExchangeRateDtoCopyWithImpl;
 @useResult
 $Res call({
- int id,@DecimalConverter() Decimal usdToVesRate, int createdBy, DateTime createdAt
+ int id,@DecimalConverter() Decimal usdToVesRate, String source, DateTime createdAt, String? effectiveDate, int? createdBy
 });
 
 
@@ -65,13 +66,15 @@ class _$ExchangeRateDtoCopyWithImpl<$Res>
 
 /// Create a copy of ExchangeRateDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? usdToVesRate = null,Object? createdBy = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? usdToVesRate = null,Object? source = null,Object? createdAt = null,Object? effectiveDate = freezed,Object? createdBy = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,usdToVesRate: null == usdToVesRate ? _self.usdToVesRate : usdToVesRate // ignore: cast_nullable_to_non_nullable
-as Decimal,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as Decimal,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,effectiveDate: freezed == effectiveDate ? _self.effectiveDate : effectiveDate // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: freezed == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, @DecimalConverter()  Decimal usdToVesRate,  int createdBy,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id, @DecimalConverter()  Decimal usdToVesRate,  String source,  DateTime createdAt,  String? effectiveDate,  int? createdBy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ExchangeRateDto() when $default != null:
-return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);case _:
+return $default(_that.id,_that.usdToVesRate,_that.source,_that.createdAt,_that.effectiveDate,_that.createdBy);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, @DecimalConverter()  Decimal usdToVesRate,  int createdBy,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id, @DecimalConverter()  Decimal usdToVesRate,  String source,  DateTime createdAt,  String? effectiveDate,  int? createdBy)  $default,) {final _that = this;
 switch (_that) {
 case _ExchangeRateDto():
-return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);case _:
+return $default(_that.id,_that.usdToVesRate,_that.source,_that.createdAt,_that.effectiveDate,_that.createdBy);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +200,10 @@ return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, @DecimalConverter()  Decimal usdToVesRate,  int createdBy,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id, @DecimalConverter()  Decimal usdToVesRate,  String source,  DateTime createdAt,  String? effectiveDate,  int? createdBy)?  $default,) {final _that = this;
 switch (_that) {
 case _ExchangeRateDto() when $default != null:
-return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);case _:
+return $default(_that.id,_that.usdToVesRate,_that.source,_that.createdAt,_that.effectiveDate,_that.createdBy);case _:
   return null;
 
 }
@@ -212,13 +215,16 @@ return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);cas
 @JsonSerializable()
 
 class _ExchangeRateDto extends ExchangeRateDto {
-  const _ExchangeRateDto({required this.id, @DecimalConverter() required this.usdToVesRate, required this.createdBy, required this.createdAt}): super._();
+  const _ExchangeRateDto({required this.id, @DecimalConverter() required this.usdToVesRate, required this.source, required this.createdAt, this.effectiveDate, this.createdBy}): super._();
   factory _ExchangeRateDto.fromJson(Map<String, dynamic> json) => _$ExchangeRateDtoFromJson(json);
 
 @override final  int id;
 @override@DecimalConverter() final  Decimal usdToVesRate;
-@override final  int createdBy;
+@override final  String source;
 @override final  DateTime createdAt;
+/// Fecha de calendario `YYYY-MM-DD`; `null` en las tasas manuales.
+@override final  String? effectiveDate;
+@override final  int? createdBy;
 
 /// Create a copy of ExchangeRateDto
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExchangeRateDto&&(identical(other.id, id) || other.id == id)&&(identical(other.usdToVesRate, usdToVesRate) || other.usdToVesRate == usdToVesRate)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExchangeRateDto&&(identical(other.id, id) || other.id == id)&&(identical(other.usdToVesRate, usdToVesRate) || other.usdToVesRate == usdToVesRate)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.effectiveDate, effectiveDate) || other.effectiveDate == effectiveDate)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,usdToVesRate,createdBy,createdAt);
+int get hashCode => Object.hash(runtimeType,id,usdToVesRate,source,createdAt,effectiveDate,createdBy);
 
 @override
 String toString() {
-  return 'ExchangeRateDto(id: $id, usdToVesRate: $usdToVesRate, createdBy: $createdBy, createdAt: $createdAt)';
+  return 'ExchangeRateDto(id: $id, usdToVesRate: $usdToVesRate, source: $source, createdAt: $createdAt, effectiveDate: $effectiveDate, createdBy: $createdBy)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$ExchangeRateDtoCopyWith<$Res> implements $ExchangeRateDto
   factory _$ExchangeRateDtoCopyWith(_ExchangeRateDto value, $Res Function(_ExchangeRateDto) _then) = __$ExchangeRateDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id,@DecimalConverter() Decimal usdToVesRate, int createdBy, DateTime createdAt
+ int id,@DecimalConverter() Decimal usdToVesRate, String source, DateTime createdAt, String? effectiveDate, int? createdBy
 });
 
 
@@ -270,13 +276,15 @@ class __$ExchangeRateDtoCopyWithImpl<$Res>
 
 /// Create a copy of ExchangeRateDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? usdToVesRate = null,Object? createdBy = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? usdToVesRate = null,Object? source = null,Object? createdAt = null,Object? effectiveDate = freezed,Object? createdBy = freezed,}) {
   return _then(_ExchangeRateDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,usdToVesRate: null == usdToVesRate ? _self.usdToVesRate : usdToVesRate // ignore: cast_nullable_to_non_nullable
-as Decimal,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as Decimal,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,effectiveDate: freezed == effectiveDate ? _self.effectiveDate : effectiveDate // ignore: cast_nullable_to_non_nullable
+as String?,createdBy: freezed == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

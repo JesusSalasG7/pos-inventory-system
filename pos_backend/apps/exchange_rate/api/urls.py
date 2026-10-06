@@ -10,4 +10,9 @@ urlpatterns = [
         name="exchange-rate-current",
     ),
     path("exchange-rates/bcv/", views.BcvRateView.as_view(), name="exchange-rate-bcv"),
+    path(
+        "exchange-rates/bcv/sync/",
+        views.BcvRateSyncView.as_view(),
+        name="exchange-rate-bcv-sync",
+    ),
 ]
