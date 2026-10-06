@@ -19,3 +19,13 @@ Map<String, dynamic> _$ExchangeRateDtoToJson(_ExchangeRateDto instance) => <Stri
   'created_by': instance.createdBy,
   'created_at': instance.createdAt.toIso8601String(),
 };
+
+_BcvRateDto _$BcvRateDtoFromJson(Map<String, dynamic> json) => _BcvRateDto(
+  rate: const DecimalConverter().fromJson(json['rate'] as String),
+  updatedAt: DateTime.parse(json['updated_at'] as String),
+);
+
+Map<String, dynamic> _$BcvRateDtoToJson(_BcvRateDto instance) => <String, dynamic>{
+  'rate': const DecimalConverter().toJson(instance.rate),
+  'updated_at': instance.updatedAt.toIso8601String(),
+};

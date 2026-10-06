@@ -12,7 +12,8 @@ part of 'active_rate_provider.dart';
 ///
 /// Toda conversión USD → VES de la UI la lee de aquí, salvo cuando se pasa una
 /// tasa congelada (comprobantes e historial de ventas). Se carga al quedar
-/// lista la sesión.
+/// lista la sesión y se refresca al volver la app a primer plano y tras
+/// registrar una tasa nueva.
 
 @ProviderFor(ActiveRate)
 final activeRateProvider = ActiveRateProvider._();
@@ -21,13 +22,15 @@ final activeRateProvider = ActiveRateProvider._();
 ///
 /// Toda conversión USD → VES de la UI la lee de aquí, salvo cuando se pasa una
 /// tasa congelada (comprobantes e historial de ventas). Se carga al quedar
-/// lista la sesión.
+/// lista la sesión y se refresca al volver la app a primer plano y tras
+/// registrar una tasa nueva.
 final class ActiveRateProvider extends $AsyncNotifierProvider<ActiveRate, Decimal?> {
   /// Tasa activa global (VES por 1 USD); `null` si el backend aún no tiene ninguna.
   ///
   /// Toda conversión USD → VES de la UI la lee de aquí, salvo cuando se pasa una
   /// tasa congelada (comprobantes e historial de ventas). Se carga al quedar
-  /// lista la sesión.
+  /// lista la sesión y se refresca al volver la app a primer plano y tras
+  /// registrar una tasa nueva.
   ActiveRateProvider._()
     : super(
         from: null,
@@ -47,13 +50,14 @@ final class ActiveRateProvider extends $AsyncNotifierProvider<ActiveRate, Decima
   ActiveRate create() => ActiveRate();
 }
 
-String _$activeRateHash() => r'758c97fff56d3fc9b0177caca03a27114cd97ad6';
+String _$activeRateHash() => r'eff5098017bcae092248e6e4e77b733566500a4b';
 
 /// Tasa activa global (VES por 1 USD); `null` si el backend aún no tiene ninguna.
 ///
 /// Toda conversión USD → VES de la UI la lee de aquí, salvo cuando se pasa una
 /// tasa congelada (comprobantes e historial de ventas). Se carga al quedar
-/// lista la sesión.
+/// lista la sesión y se refresca al volver la app a primer plano y tras
+/// registrar una tasa nueva.
 
 abstract class _$ActiveRate extends $AsyncNotifier<Decimal?> {
   FutureOr<Decimal?> build();

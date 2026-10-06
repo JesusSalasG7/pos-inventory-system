@@ -7,12 +7,36 @@ import 'package:pos_app/app/router/app_router.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_theme.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 
-class PosApp extends ConsumerWidget {
+class PosApp extends ConsumerStatefulWidget {
   const PosApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PosApp> createState() => _PosAppState();
+}
+
+class _PosAppState extends ConsumerState<PosApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // La tasa puede haber cambiado mientras la app estaba en segundo plano.
+    if (state == AppLifecycleState.resumed) ref.invalidate(activeRateProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: Strings.appName,
       debugShowCheckedModeBanner: false,

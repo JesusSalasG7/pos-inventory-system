@@ -16,7 +16,8 @@ Android, para tiendas de productos de limpieza en Venezuela.
 - **Idioma**: identificadores (carpetas, archivos, clases, widgets, variables, rutas) en **inglés**.
   Comentarios, documentación, commits y textos de la UI en **español**.
 - **Textos de la UI**: centralizados en `lib/core/l10n/strings.dart`. Ningún widget lleva textos
-  sueltos.
+  sueltos. De cara al usuario una sucursal se llama **"tienda"**; en el código y en la API sigue
+  siendo `branch`.
 - **Dinero, cantidades y tasa**: siempre `Decimal` (paquete `decimal`). **Prohibido `double`** para
   estos valores. Se parsean desde string (`parseDecimal`) y se envían como string (`moneyToApi`,
   `quantityToApi`, `rateToApi`). Redondeo y conversión solo con `core/currency/`, que replica
@@ -69,8 +70,12 @@ Se usa `flutter_riverpod` con `riverpod_generator`, no BLoC ni Provider, porque:
 - **Tests simples.** Cualquier provider se sustituye con `overrides` en un `ProviderScope`, sin
   montar inyección de dependencias aparte.
 
+Los reintentos automáticos de Riverpod están **desactivados** (`retry` en el `ProviderScope` de
+`main.dart`): un fallo suele ser una regla de negocio del backend (409, 422…), que no se arregla
+reintentando. Los tests crean sus `ProviderContainer` con el mismo `retry: (_, _) => null`.
+
 Providers globales (`keepAlive`): `sessionControllerProvider`, `currentUserProvider`,
-`activeBranchProvider`, `activeRateProvider`, `serverOfflineProvider`, `sessionExpiredProvider`,
+`activeBranchProvider`, `activeRateProvider`, `currentSessionProvider` (caja abierta), `serverOfflineProvider`, `sessionExpiredProvider`,
 `dioProvider`.
 
 ### Sesión y navegación
@@ -131,7 +136,9 @@ Desarrollo por fases, con pausa y aprobación entre cada una:
 2. **Auth y sucursal** — hecho: splash, login, refresco de token, `me`, primera sucursal, selector
    y `BranchHeader` conectado. Las pestañas Vender, Inventario y Caja son provisionales
    (`ComingSoonScreen`) y la tasa activa ya se lee del backend.
-3. Tasa y caja.
+3. **Tasa y caja** — hecho: tasa global (se refresca al volver a primer plano), pantalla de tasas
+   con BCV e histórico, apertura de caja, gastos, arqueo, cierre, historial de cajas y dashboard.
+   La caja abierta puede pertenecer a otra sucursal: el backend solo admite una por usuario.
 4. POS y cobro.
 5. Inventario.
 6. Más y administración, y test de integración en el teléfono.

@@ -44,6 +44,17 @@ void main() {
     expect(find.text(Strings.vesUnavailable), findsOneWidget);
   });
 
+  testWidgets('con bolívares del backend no convierte nada', (tester) async {
+    await pumpText(
+      tester,
+      DualCurrencyText(amountUsd: d('10'), amountVes: d('1480.25')),
+      activeRate: d('200'),
+    );
+
+    expect(find.text('Bs 1.480,25'), findsOneWidget);
+    expect(find.text('Bs 2.000,00'), findsNothing);
+  });
+
   testWidgets('el USD va destacado y el VES más pequeño, con cifras tabulares', (tester) async {
     await pumpText(
       tester,

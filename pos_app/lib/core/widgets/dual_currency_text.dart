@@ -23,6 +23,7 @@ class DualCurrencyText extends ConsumerWidget {
   const DualCurrencyText({
     required this.amountUsd,
     this.rate,
+    this.amountVes,
     this.size = DualCurrencySize.medium,
     this.layout = DualCurrencyLayout.column,
     this.crossAxisAlignment = CrossAxisAlignment.start,
@@ -35,6 +36,10 @@ class DualCurrencyText extends ConsumerWidget {
 
   /// Tasa congelada (VES por 1 USD). Si es `null` se usa la tasa activa.
   final Decimal? rate;
+
+  /// Monto en VES ya calculado por el backend (p. ej. totales de ventas, que
+  /// suman lo facturado con la tasa de cada venta). Si se indica, no se convierte.
+  final Decimal? amountVes;
   final DualCurrencySize size;
   final DualCurrencyLayout layout;
   final CrossAxisAlignment crossAxisAlignment;
@@ -43,9 +48,12 @@ class DualCurrencyText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final effectiveRate = rate ?? ref.watch(activeRateProvider).value;
+    final fixedVes = amountVes;
+    final effectiveRate = fixedVes != null ? null : rate ?? ref.watch(activeRateProvider).value;
     final usdText = MoneyFormatter.usd(amountUsd);
-    final vesText = effectiveRate == null
+    final vesText = fixedVes != null
+        ? MoneyFormatter.ves(fixedVes)
+        : effectiveRate == null
         ? Strings.vesUnavailable
         : MoneyFormatter.ves(CurrencyConverter.usdToVes(amountUsd, effectiveRate));
 

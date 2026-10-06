@@ -18,6 +18,7 @@ void main() {
   Future<void> pumpLogin(WidgetTester tester) async {
     auth = FakeAuthRepository(user: supervisor());
     container = ProviderContainer(
+      retry: (_, _) => null,
       overrides: sessionOverrides(auth: auth, branches: FakeBranchRepository([villaLibertad])),
     );
     addTearDown(container.dispose);

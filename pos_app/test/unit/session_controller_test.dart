@@ -16,6 +16,7 @@ void main() {
 
   ProviderContainer makeContainer() {
     final container = ProviderContainer(
+      retry: (_, _) => null,
       overrides: sessionOverrides(auth: auth, branches: branches, preference: preference),
     );
     addTearDown(container.dispose);

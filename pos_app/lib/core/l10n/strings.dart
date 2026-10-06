@@ -2,7 +2,7 @@ import 'package:pos_app/core/domain/enums.dart';
 
 /// Textos visibles de la UI, centralizados. Los widgets no llevan textos sueltos.
 abstract final class Strings {
-  static const String appName = 'POS Sucursal';
+  static const String appName = 'POS Tienda';
 
   // Acciones generales.
   static const String retry = 'Reintentar';
@@ -18,7 +18,7 @@ abstract final class Strings {
   static const String underConstruction = 'La app está en construcción.';
 
   // Arranque e ingreso.
-  static const String appTagline = 'Tu punto de venta, sede por sede';
+  static const String appTagline = 'Tu punto de venta, tienda por tienda';
   static const String startingUp = 'Preparando todo…';
   static const String startupErrorTitle = 'No pudimos conectar';
   static const String loginGreeting = '¡Hola!';
@@ -36,24 +36,24 @@ abstract final class Strings {
   static String serverAddress(String url) => 'Servidor: $url';
 
   // Sucursal de trabajo.
-  static const String pickBranchTitle = '¿En qué sucursal vas a trabajar?';
+  static const String pickBranchTitle = '¿En qué tienda vas a trabajar?';
   static const String pickBranchSubtitle = 'Puedes cambiarla cuando quieras desde la cabecera.';
   static const String currentBranch = 'Actual';
-  static const String firstBranchTitle = 'Crea tu primera sucursal';
+  static const String firstBranchTitle = 'Crea tu primera tienda';
   static const String firstBranchSubtitle =
-      'Todavía no hay ninguna sede registrada. Crea la primera para empezar a cargar '
+      'Todavía no hay ninguna tienda registrada. Crea la primera para empezar a cargar '
       'productos y vender. Si tienes un solo local, con una basta.';
-  static const String branchName = 'Nombre de la sucursal';
+  static const String branchName = 'Nombre de la tienda';
   static const String branchNameHint = 'Ej. Local principal';
-  static const String branchNameRequired = 'Escribe el nombre de la sucursal';
+  static const String branchNameRequired = 'Escribe el nombre de la tienda';
   static const String branchCode = 'Código';
   static const String branchCodeHelper = 'Identificador interno. No se puede cambiar después.';
   static const String branchCodeInvalid =
       'Empieza por una letra; solo letras, números y guion bajo (máx. 20).';
-  static const String createBranch = 'Crear sucursal';
+  static const String createBranch = 'Crear tienda';
   static const String branchUnavailableTitle = 'No puedes operar todavía';
   static const String branchUnavailableMessage =
-      'Tu sucursal está inactiva o aún no existe ninguna. Pide a un gerente que la registre '
+      'Tu tienda está inactiva o aún no existe ninguna. Pide a un gerente que la registre '
       'o la active y vuelve a intentar.';
 
   // Navegación principal.
@@ -67,11 +67,108 @@ abstract final class Strings {
   static String greeting(String name) => '¡Hola, $name!';
   static const String homeReadyTitle = 'Todo listo para empezar';
   static const String homeReadyMessage =
-      'Ya entraste a tu sucursal. Las ventas del día, la caja y los avisos de stock '
+      'Ya entraste a tu tienda. Las ventas del día, la caja y los avisos de stock '
       'aparecerán aquí.';
-  static const String allBranches = 'Todas las sucursales';
+  static const String allBranches = 'Todas las tiendas';
   static const String account = 'Tu cuenta';
   static const String designPreviewEntry = 'Vista previa de diseño';
+
+  // Inicio (dashboard).
+  static const String salesToday = 'Ventas de hoy';
+  static String salesCount(int count) => count == 1 ? '1 venta' : '$count ventas';
+  static const String cashCardOpen = 'Tu caja está abierta';
+  static const String cashCardClosed = 'No tienes una caja abierta';
+  static const String cashCardOtherBranch = 'Tienes una caja abierta en otra tienda';
+  static const String cashCardClosedHint = 'Ábrela para empezar a vender.';
+  static String openedAt(String dateTime) => 'Abierta el $dateTime';
+  static const String openCash = 'Abrir caja';
+  static const String closeCash = 'Cerrar caja';
+  static const String viewCash = 'Ver caja';
+  static const String registerExpense = 'Registrar gasto';
+  static const String lowStockTitle = 'Stock mínimo';
+  static String lowStockCount(int count) =>
+      count == 1 ? '1 producto por reponer' : '$count productos por reponer';
+  static const String lowStockNone = 'Todo el inventario está por encima del mínimo';
+  static const String rateCardTitle = 'Tasa de cambio';
+  static const String activeRate = 'Tasa activa';
+  static const String bcvRate = 'BCV (referencia)';
+  static const String bcvUnavailable = 'No disponible';
+  static const String rateNotSetHint =
+      'Sin tasa no se puede vender ni cerrar caja. Un gerente debe registrarla.';
+
+  // Tasa de cambio.
+  static const String exchangeRateTitle = 'Tasa de cambio';
+  static const String rateHistory = 'Histórico';
+  static const String registerRate = 'Registrar nueva tasa';
+  static const String newRateTitle = 'Nueva tasa';
+  static const String newRateLabel = r'Bolívares por 1 $';
+  static const String useBcvRate = 'Usar la del BCV';
+  static const String rateMustBePositive = 'La tasa debe ser mayor que cero';
+  static const String rateSaved = 'Tasa registrada';
+  static String bcvUpdatedAt(String date) => 'Publicada el $date';
+  static const String bcvReferenceNote =
+      'La tasa del BCV es solo una referencia. Se factura con la tasa activa.';
+  static String rateDifference(String amount) => 'Diferencia con el BCV: $amount';
+  static const String emptyRatesTitle = 'Aún no hay tasas';
+  static const String emptyRatesMessage = 'Cuando se registre la primera, aparecerá aquí.';
+  static const String loadMore = 'Cargar más';
+
+  // Caja.
+  static const String cashTitle = 'Caja';
+  static const String openCashTitle = 'Abre tu caja';
+  static const String openCashMessage =
+      'Indica con cuánto efectivo en dólares empiezas el turno. Si empiezas sin fondo, deja cero.';
+  static const String openingFloat = r'Fondo inicial ($)';
+  static const String openingFloatShort = 'Fondo inicial';
+  static const String amountRequired = 'Escribe un monto';
+  static const String amountNotNegative = 'No puede ser negativo';
+  static const String cashOpenedSnack = 'Caja abierta';
+  static const String cashHistory = 'Historial de cajas';
+  static const String currentCash = 'Caja actual';
+  static String otherBranchSession(String branch) =>
+      'Esta caja pertenece a otra tienda ($branch). Ciérrala allí o desde aquí.';
+  static const String expectedCash = 'Efectivo esperado';
+  static const String cashSales = 'Ventas en efectivo';
+  static const String electronicSales = 'Punto y pago móvil';
+  static const String electronicNote = 'Informativo: no es efectivo en gaveta.';
+  static const String expenses = 'Gastos';
+  static const String noExpenses = 'Sin gastos registrados en este turno.';
+  static const String expenseReason = 'Motivo';
+  static const String expenseReasonHint = 'Ej. Bolsas, transporte, hielo';
+  static const String expenseReasonRequired = 'Escribe el motivo del gasto';
+  static const String expenseAmount = 'Monto';
+  static const String expenseCurrency = 'Moneda';
+  static const String expenseSaved = 'Gasto registrado';
+  static const String dollars = 'Dólares';
+  static const String bolivars = 'Bolívares';
+  static const String cashCountTitle = 'Arqueo y cierre';
+  static const String cashCountMessage = 'Cuenta el efectivo de la gaveta y escribe lo que hay.';
+  static const String countedUsd = r'Contado en dólares ($)';
+  static const String countedVes = 'Contado en bolívares (Bs)';
+  static const String expected = 'Esperado';
+  static const String counted = 'Contado';
+  static const String estimatedDifference = 'Diferencia estimada';
+  static const String finalDifference = 'Diferencia del arqueo';
+  static const String surplus = 'Sobrante';
+  static const String shortage = 'Faltante';
+  static const String balanced = 'Cuadra';
+  static const String noRateForCount =
+      'No hay tasa activa: no se puede estimar la diferencia ni cerrar la caja.';
+  static const String closeCashConfirmTitle = '¿Cerrar la caja?';
+  static const String closeCashConfirmMessage =
+      'Se guardará el arqueo y no podrás registrar más ventas ni gastos en este turno.';
+  static const String cashClosedTitle = 'Caja cerrada';
+  static const String cashClosedMessage = 'El arqueo quedó guardado.';
+  static const String closedSession = 'Cerrada';
+  static const String openSession = 'Abierta';
+  static String sessionNumber(int id) => 'Caja #$id';
+  static String sessionOpenedOn(String dateTime) => 'Apertura: $dateTime';
+  static String sessionClosedOn(String dateTime) => 'Cierre: $dateTime';
+  static String sessionUser(int id) => 'Usuario #$id';
+  static const String mySession = 'Tu turno';
+  static const String emptyCashHistoryTitle = 'Aún no hay cajas';
+  static const String emptyCashHistoryMessage = 'Las cajas que abras aparecerán aquí.';
+  static const String sessionDetail = 'Detalle de caja';
 
   // Estados.
   static const String emptyTitle = 'No hay nada que mostrar';
@@ -81,9 +178,9 @@ abstract final class Strings {
   static const String offlineHint = 'Revisa el Wi-Fi o el cable USB y vuelve a intentar.';
 
   // Cabecera de sucursal.
-  static const String branchLabel = 'Sucursal';
-  static const String noBranch = 'Sin sucursal';
-  static const String changeBranch = 'Cambiar de sucursal';
+  static const String branchLabel = 'Tienda';
+  static const String noBranch = 'Sin tienda';
+  static const String changeBranch = 'Cambiar de tienda';
   static const String rateOfTheDay = 'Tasa del día';
   static const String rateUnit = r'Bs/$';
   static const String rateNotSet = 'Sin tasa';
@@ -121,7 +218,7 @@ abstract final class Strings {
   static const String designPreviewTitle = 'Vista previa de diseño';
   static const String previewColors = 'Colores';
   static const String previewTypography = 'Tipografía';
-  static const String previewHeader = 'Cabecera de sucursal';
+  static const String previewHeader = 'Cabecera de tienda';
   static const String previewAmounts = 'Montos en dos monedas';
   static const String previewButtons = 'Botones';
   static const String previewFilters = 'Búsqueda y filtros';

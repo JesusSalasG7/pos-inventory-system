@@ -12,7 +12,12 @@ import 'package:pos_app/features/auth/presentation/screens/branch_unavailable_sc
 import 'package:pos_app/features/auth/presentation/screens/first_branch_screen.dart';
 import 'package:pos_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:pos_app/features/auth/presentation/screens/splash_screen.dart';
+import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
+import 'package:pos_app/features/cash_session/presentation/screens/cash_history_screen.dart';
+import 'package:pos_app/features/cash_session/presentation/screens/cash_screen.dart';
+import 'package:pos_app/features/cash_session/presentation/screens/close_session_screen.dart';
 import 'package:pos_app/features/design_preview/presentation/design_preview_screen.dart';
+import 'package:pos_app/features/exchange_rate/presentation/screens/exchange_rate_screen.dart';
 import 'package:pos_app/features/home/presentation/screens/home_screen.dart';
 import 'package:pos_app/features/more/presentation/screens/more_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -51,6 +56,19 @@ GoRouter appRouter(Ref ref) {
         builder: (_, _) => const BranchUnavailableScreen(),
       ),
       GoRoute(path: RouteNames.designPreview, builder: (_, _) => const DesignPreviewScreen()),
+      GoRoute(path: RouteNames.exchangeRate, builder: (_, _) => const ExchangeRateScreen()),
+      GoRoute(path: RouteNames.cashHistory, builder: (_, _) => const CashHistoryScreen()),
+      GoRoute(
+        path: RouteNames.cashSessionDetail,
+        // La caja llega desde la lista; sin ella (enlace directo) se vuelve al historial.
+        redirect: (_, state) => state.extra is CashSession ? null : RouteNames.cashHistory,
+        builder: (_, state) => CashSessionDetailScreen(session: state.extra! as CashSession),
+      ),
+      GoRoute(
+        path: RouteNames.cashClosePattern,
+        builder: (_, state) =>
+            CloseSessionScreen(sessionId: int.parse(state.pathParameters['sessionId']!)),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) => MainShell(navigationShell: navigationShell),
         branches: [
@@ -65,10 +83,7 @@ GoRouter appRouter(Ref ref) {
               tab(RouteNames.inventory, const ComingSoonScreen(title: Strings.navInventory)),
             ],
           ),
-          // TODO(fase-3): pantallas de caja.
-          StatefulShellBranch(
-            routes: [tab(RouteNames.cash, const ComingSoonScreen(title: Strings.navCash))],
-          ),
+          StatefulShellBranch(routes: [tab(RouteNames.cash, const CashScreen())]),
           StatefulShellBranch(routes: [tab(RouteNames.more, const MoreScreen())]),
         ],
       ),

@@ -2,7 +2,7 @@
     <!-- La app solo necesita red para hablar con el backend. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="POS Sucursal"
+        android:label="POS Tienda"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

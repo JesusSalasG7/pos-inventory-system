@@ -23,22 +23,21 @@ abstract final class ErrorMessages {
     'validation_error': 'Revisa los datos ingresados.',
     'not_found': 'No se encontró lo que buscabas.',
     // Sucursales.
-    'no_branches': 'Todavía no hay ninguna sucursal registrada.',
-    'branch_required': 'Debes elegir una sucursal.',
-    'invalid_branch': 'La sucursal no existe o está inactiva.',
-    'branch_access_denied': 'No tienes acceso a esa sucursal.',
-    'branch_not_found': 'La sucursal no existe.',
+    'no_branches': 'Todavía no hay ninguna tienda registrada.',
+    'branch_required': 'Debes elegir una tienda.',
+    'invalid_branch': 'La tienda no existe o está inactiva.',
+    'branch_access_denied': 'No tienes acceso a esa tienda.',
+    'branch_not_found': 'La tienda no existe.',
     'invalid_branch_code':
         'El código debe empezar por una letra y usar solo letras, números y guion bajo.',
-    'invalid_branch_name': 'El nombre de la sucursal es obligatorio.',
-    'branch_code_taken': 'Ya existe una sucursal con ese código.',
-    'branch_has_open_sessions':
-        'La sucursal tiene cajas abiertas. Ciérralas antes de desactivarla.',
+    'invalid_branch_name': 'El nombre de la tienda es obligatorio.',
+    'branch_code_taken': 'Ya existe una tienda con ese código.',
+    'branch_has_open_sessions': 'La tienda tiene cajas abiertas. Ciérralas antes de desactivarla.',
     // Usuarios.
     'invalid_username': 'El nombre de usuario es obligatorio.',
     'invalid_full_name': 'El nombre completo es obligatorio.',
     'invalid_password': 'La contraseña no cumple los requisitos de seguridad.',
-    'invalid_branch_assignment': 'Solo un gerente puede tener acceso a todas las sucursales.',
+    'invalid_branch_assignment': 'Solo un gerente puede tener acceso a todas las tiendas.',
     'username_taken': 'Ese nombre de usuario ya está en uso.',
     'user_not_found': 'El usuario no existe.',
     'user_has_open_session':
@@ -58,7 +57,7 @@ abstract final class ErrorMessages {
     'invalid_exchange_rate': 'La tasa de cambio debe ser mayor que cero.',
     'bcv_rate_unavailable': 'No se pudo consultar la tasa del BCV. Intenta más tarde.',
     // Cajas.
-    'no_open_session': 'No tienes una caja abierta en esta sucursal.',
+    'no_open_session': 'No tienes una caja abierta en esta tienda.',
     'session_already_open': 'Ya tienes una caja abierta.',
     'session_already_closed': 'La caja ya está cerrada.',
     'cash_session_not_found': 'La caja no existe.',

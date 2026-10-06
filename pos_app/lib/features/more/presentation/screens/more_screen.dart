@@ -112,6 +112,16 @@ class MoreScreen extends ConsumerWidget {
                       detail: branch?.name,
                       onTap: ref.read(sessionControllerProvider.notifier).requestBranchChange,
                     ),
+                  _MoreTile(
+                    icon: Icons.currency_exchange_rounded,
+                    label: Strings.exchangeRateTitle,
+                    onTap: () => context.push(RouteNames.exchangeRate),
+                  ),
+                  _MoreTile(
+                    icon: Icons.history_rounded,
+                    label: Strings.cashHistory,
+                    onTap: () => context.push(RouteNames.cashHistory),
+                  ),
                   if (kDebugMode)
                     _MoreTile(
                       icon: Icons.palette_outlined,

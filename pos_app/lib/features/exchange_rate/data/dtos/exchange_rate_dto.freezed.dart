@@ -211,8 +211,8 @@ return $default(_that.id,_that.usdToVesRate,_that.createdBy,_that.createdAt);cas
 /// @nodoc
 @JsonSerializable()
 
-class _ExchangeRateDto implements ExchangeRateDto {
-  const _ExchangeRateDto({required this.id, @DecimalConverter() required this.usdToVesRate, required this.createdBy, required this.createdAt});
+class _ExchangeRateDto extends ExchangeRateDto {
+  const _ExchangeRateDto({required this.id, @DecimalConverter() required this.usdToVesRate, required this.createdBy, required this.createdAt}): super._();
   factory _ExchangeRateDto.fromJson(Map<String, dynamic> json) => _$ExchangeRateDtoFromJson(json);
 
 @override final  int id;
@@ -276,6 +276,272 @@ id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,usdToVesRate: null == usdToVesRate ? _self.usdToVesRate : usdToVesRate // ignore: cast_nullable_to_non_nullable
 as Decimal,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
 as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$BcvRateDto {
+
+@DecimalConverter() Decimal get rate; DateTime get updatedAt;
+/// Create a copy of BcvRateDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BcvRateDtoCopyWith<BcvRateDto> get copyWith => _$BcvRateDtoCopyWithImpl<BcvRateDto>(this as BcvRateDto, _$identity);
+
+  /// Serializes this BcvRateDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BcvRateDto&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,rate,updatedAt);
+
+@override
+String toString() {
+  return 'BcvRateDto(rate: $rate, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $BcvRateDtoCopyWith<$Res>  {
+  factory $BcvRateDtoCopyWith(BcvRateDto value, $Res Function(BcvRateDto) _then) = _$BcvRateDtoCopyWithImpl;
+@useResult
+$Res call({
+@DecimalConverter() Decimal rate, DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$BcvRateDtoCopyWithImpl<$Res>
+    implements $BcvRateDtoCopyWith<$Res> {
+  _$BcvRateDtoCopyWithImpl(this._self, this._then);
+
+  final BcvRateDto _self;
+  final $Res Function(BcvRateDto) _then;
+
+/// Create a copy of BcvRateDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? rate = null,Object? updatedAt = null,}) {
+  return _then(_self.copyWith(
+rate: null == rate ? _self.rate : rate // ignore: cast_nullable_to_non_nullable
+as Decimal,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [BcvRateDto].
+extension BcvRateDtoPatterns on BcvRateDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BcvRateDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BcvRateDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BcvRateDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _BcvRateDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BcvRateDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BcvRateDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal rate,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BcvRateDto() when $default != null:
+return $default(_that.rate,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal rate,  DateTime updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _BcvRateDto():
+return $default(_that.rate,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@DecimalConverter()  Decimal rate,  DateTime updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _BcvRateDto() when $default != null:
+return $default(_that.rate,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _BcvRateDto extends BcvRateDto {
+  const _BcvRateDto({@DecimalConverter() required this.rate, required this.updatedAt}): super._();
+  factory _BcvRateDto.fromJson(Map<String, dynamic> json) => _$BcvRateDtoFromJson(json);
+
+@override@DecimalConverter() final  Decimal rate;
+@override final  DateTime updatedAt;
+
+/// Create a copy of BcvRateDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BcvRateDtoCopyWith<_BcvRateDto> get copyWith => __$BcvRateDtoCopyWithImpl<_BcvRateDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$BcvRateDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BcvRateDto&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,rate,updatedAt);
+
+@override
+String toString() {
+  return 'BcvRateDto(rate: $rate, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BcvRateDtoCopyWith<$Res> implements $BcvRateDtoCopyWith<$Res> {
+  factory _$BcvRateDtoCopyWith(_BcvRateDto value, $Res Function(_BcvRateDto) _then) = __$BcvRateDtoCopyWithImpl;
+@override @useResult
+$Res call({
+@DecimalConverter() Decimal rate, DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$BcvRateDtoCopyWithImpl<$Res>
+    implements _$BcvRateDtoCopyWith<$Res> {
+  __$BcvRateDtoCopyWithImpl(this._self, this._then);
+
+  final _BcvRateDto _self;
+  final $Res Function(_BcvRateDto) _then;
+
+/// Create a copy of BcvRateDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? rate = null,Object? updatedAt = null,}) {
+  return _then(_BcvRateDto(
+rate: null == rate ? _self.rate : rate // ignore: cast_nullable_to_non_nullable
+as Decimal,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }

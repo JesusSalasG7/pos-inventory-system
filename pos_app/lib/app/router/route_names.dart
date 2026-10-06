@@ -13,5 +13,12 @@ abstract final class RouteNames {
   static const String cash = '/cash';
   static const String more = '/more';
 
+  // Pantallas completas, por encima de la barra de navegación.
+  static const String exchangeRate = '/exchange-rate';
+  static const String cashHistory = '/cash-history';
+  static const String cashSessionDetail = '/cash-history/detail';
+  static const String cashClosePattern = '/cash-close/:sessionId';
+  static String cashClose(int sessionId) => '/cash-close/$sessionId';
+
   static const String designPreview = '/design-preview';
 }
