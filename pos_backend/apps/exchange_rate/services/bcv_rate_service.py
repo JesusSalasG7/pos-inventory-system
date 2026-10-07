@@ -1,14 +1,15 @@
 """Tasa oficial del BCV: consulta en DolarApi y sincronización automática.
 
-`get_bcv_rate` sirve la tasa como referencia, con caché. `sync_active_rate`
-la registra como tasa activa cada vez que el BCV publica una nueva; lo ejecuta
-el comando programado `sync_bcv_rate`.
+`get_bcv_rate` sirve la tasa como referencia, con caché. `get_cost_rate` da la
+que valora el costo de una venta. `sync_active_rate` la registra como tasa
+activa cada vez que el BCV publica una nueva; lo ejecuta el comando programado
+`sync_bcv_rate`.
 """
 
 import json
 import logging
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 import requests
 from django.core.cache import cache
@@ -20,11 +21,14 @@ from apps.exchange_rate.models import ExchangeRate
 from apps.exchange_rate.repositories import exchange_rate_repository
 from core.enums import RateMode, RateSource
 from core.exceptions import DomainError
-from core.money import quantize_rate
+from core.money import quantize_rate, to_decimal
 
 logger = logging.getLogger(__name__)
 
 BCV_RATE_URL = "https://ve.dolarapi.com/v1/dolares/oficial"
+# El BCV publica más decimales, pero en la calle se cobra con dos: la tasa se
+# guarda ya redondeada para que la que se muestra sea la misma con la que se cobra.
+BCV_RATE_QUANTUM = Decimal("0.01")
 REQUEST_TIMEOUT_SECONDS = 5
 CACHE_SECONDS = 6 * 60 * 60
 # Tras un fallo no se reintenta en cada petición: se espera este tiempo.
@@ -69,6 +73,33 @@ def get_bcv_rate_or_fail() -> BcvRate:
             status_code=503,
         )
     return bcv_rate
+
+
+def get_cost_rate() -> Decimal | None:
+    """Devuelve la tasa del BCV con la que se pasa a bolívares el costo de una venta.
+
+    El costo se valora siempre con el BCV, aunque el negocio venda con su
+    propia tasa (`RateMode.MANUAL`) o un MANAGER haya fijado una manual.
+
+    - En modo BCV es la última tasa de origen BCV registrada, que mantiene al
+      día la sincronización. Si nunca se registró una, se consulta al BCV.
+    - En modo MANUAL la sincronización no registra nada, así que se consulta
+      al BCV (con caché) y, si falla, vale la última registrada.
+
+    Nunca lanza una excepción: devuelve None si no hay ninguna tasa del BCV.
+    """
+    # Import local: pricing_settings_service llama a su vez a este módulo.
+    from apps.exchange_rate.services import pricing_settings_service
+
+    registered = exchange_rate_repository.get_latest_by_source(RateSource.BCV)
+    follows_bcv = pricing_settings_service.get_settings().rate_mode == RateMode.BCV
+    if follows_bcv and registered is not None:
+        return registered.usd_to_ves_rate
+
+    bcv_rate = get_bcv_rate()
+    if bcv_rate is not None:
+        return bcv_rate.rate
+    return registered.usd_to_ves_rate if registered is not None else None
 
 
 def sync_active_rate(*, replace_manual: bool = False) -> ExchangeRate | None:
@@ -134,7 +165,9 @@ def _fetch_bcv_rate() -> BcvRate:
     # Los decimales se leen directamente como Decimal para no pasar por float.
     payload = json.loads(response.text, parse_float=Decimal)
 
-    rate = quantize_rate(payload["promedio"])
+    rate = quantize_rate(
+        to_decimal(payload["promedio"]).quantize(BCV_RATE_QUANTUM, rounding=ROUND_HALF_UP)
+    )
     if rate <= 0:
         raise ValueError(f"Tasa no válida en la respuesta: {payload['promedio']!r}.")
 

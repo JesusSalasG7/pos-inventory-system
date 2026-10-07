@@ -113,7 +113,9 @@ void main() {
   });
 
   group('cobro con redondeo', () {
-    testWidgets('el total y el pago en bolívares usan el monto redondeado', (tester) async {
+    testWidgets('el total y el pago en bolívares usan el precio unitario redondeado', (
+      tester,
+    ) async {
       rates.settings = const PricingSettings(roundVesUp: true);
       await pump(tester, const SizedBox.shrink());
       container.read(cartControllerProvider.notifier)
@@ -127,9 +129,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 2,5 × 181 = 453 y 677: total 1.130 Bs (sin redondeo serían 1.127,25).
+      // 2,5 × 181 = 452,50 y 677: total 1.129,50 Bs (sin redondeo serían 1.127,25).
       expect(find.text(r'$ 7,50'), findsWidgets);
-      expect(find.text('Bs 1.130,00'), findsWidgets);
+      expect(find.text('Bs 1.129,50'), findsWidgets);
       expect(find.text('Bs 1.127,25'), findsNothing);
 
       await tester.tap(find.text(Strings.paymentMethod(PaymentMethod.cashVes)));

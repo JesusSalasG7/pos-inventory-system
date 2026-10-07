@@ -200,7 +200,8 @@ abstract final class Strings {
   static const String loss = 'Pérdida';
   static const String investmentNote =
       'La inversión es lo que costaron los productos vendidos, con el costo que tenían al '
-      'venderse. Los bolívares usan la tasa de cada venta. Los gastos de caja no se descuentan.';
+      'venderse. En bolívares, la inversión se calcula siempre con la tasa del BCV del momento '
+      'de la venta. Los gastos de caja no se descuentan.';
   static const String soldByProduct = 'Por producto';
   static String soldQuantity(String quantity) => 'Vendido: $quantity';
   static String soldAmount(String amount) => 'Venta $amount';
@@ -449,7 +450,9 @@ abstract final class Strings {
   static const String rateModeManualSaved = 'Ahora se vende con tu tasa. Regístrala si hace falta.';
   static const String ownRateNote = 'Tasa propia del negocio. El BCV no la reemplaza.';
   static const String roundVesUp = 'Redondear los Bs hacia arriba';
-  static const String roundVesUpHint = r'Bs 180,37 pasa a Bs 181. Los precios en $ no cambian.';
+  static const String roundVesUpHint =
+      r'El precio de la unidad sube al bolívar entero: Bs 180,37 pasa a Bs 181. '
+      r'Las fracciones se calculan sobre ese precio. Los precios en $ no cambian.';
   static const String roundVesUpOn = 'Los precios en Bs se redondean hacia arriba';
   static const String roundVesUpOff = 'Los precios en Bs ya no se redondean';
 

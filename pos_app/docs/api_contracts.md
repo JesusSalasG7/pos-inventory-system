@@ -11,7 +11,8 @@ el backend y este archivo se regenera.
   `auth/refresh/` son públicas.
 - **Roles**: `MANAGER`, `SUPERVISOR`. "Operador" = cualquiera de los dos.
 - **Decimales**: montos (2 decimales), cantidades (3) y tasas (4) llegan y se envían como
-  **string decimal** (`"12.50"`, `"3.000"`, `"872.3927"`). Única excepción: `sales_count` es entero.
+  **string decimal** (`"12.50"`, `"3.000"`, `"872.3900"`). Única excepción: `sales_count` es entero.
+  La tasa del BCV llega ya redondeada a 2 decimales (`"872.3900"`); una manual puede traer hasta 4.
 - **Fechas**: ISO 8601 con zona (`"2026-10-06T10:15:00-04:00"`), zona `America/Caracas`.
 - **IDs**: enteros. Las relaciones (`user`, `product`, `cash_session`, `sale`, `created_by`) llegan
   como id entero, **sin objeto anidado ni nombre**. La sucursal llega como su `code` (string).
@@ -218,9 +219,10 @@ consulta, con caché de 6 horas.
   la tasa que registre un MANAGER; `sync_bcv_rate` y `bcv/sync/` no registran nada. Al volver a
   `BCV` se registra de inmediato la tasa del BCV como activa; si no se puede consultar responde
   `bcv_rate_unavailable` (503) y no cambia nada.
-- `round_ves_up`: los precios en VES se redondean **hacia arriba al bolívar entero**. Regla del
-  backend, que la app replica en `VesPricing`: precio unitario VES = techo(precio USD × tasa);
-  subtotal de línea VES = techo(cantidad × precio unitario VES); total VES = suma de subtotales.
+- `round_ves_up`: el **precio unitario** en VES se redondea **hacia arriba al bolívar entero**; el
+  subtotal no vuelve a subir. Regla del backend, que la app replica en `VesPricing`: precio
+  unitario VES = techo(precio USD × tasa); subtotal de línea VES = cantidad × precio unitario VES
+  a 2 decimales (litro a 797 Bs → medio litro 398,50 Bs); total VES = suma de subtotales.
   Los importes en USD no cambian. Solo afecta a ventas nuevas.
 - Con el redondeo, `total_ves` ya no es `total_usd × tasa`. Los pagos en VES se convierten a USD
   con la proporción de la venta (`total_ves ÷ total_usd`) en vez de con la tasa, de modo que pagar
@@ -253,7 +255,9 @@ o cerrada.
 - `cost_*` es la inversión: cantidad × costo del producto **al facturar** (cada línea de venta
   guarda su `unit_cost_usd`; no se expone en `Sale`). `profit_*` = total − costo. Los gastos de
   caja no se descuentan.
-- Los bolívares de costo y de cada producto usan la tasa congelada de su venta.
+- Los bolívares vendidos de cada producto son los facturados, a la tasa de su venta. Los del
+  costo usan **siempre la tasa del BCV** congelada en la venta, aunque se haya cobrado con una
+  tasa manual: `profit_ves` = facturado − costo al BCV.
 - `payments` agrupa lo cobrado por método, en la moneda del método. `products` va del que más
   vendió al que menos.
 - Esperado USD = fondo + ventas efectivo USD − egresos USD. Esperado VES = ventas efectivo VES −

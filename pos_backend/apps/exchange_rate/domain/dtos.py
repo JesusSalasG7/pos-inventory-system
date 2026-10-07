@@ -9,6 +9,6 @@ from decimal import Decimal
 class BcvRate:
     """Tasa oficial del BCV tal como la publica la fuente externa."""
 
-    # Cantidad de VES equivalente a 1 USD, redondeada a 4 decimales.
+    # Cantidad de VES equivalente a 1 USD, redondeada a 2 decimales: así se cobra.
     rate: Decimal
     updated_at: datetime

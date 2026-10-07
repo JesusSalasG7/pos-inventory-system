@@ -1,4 +1,4 @@
-"""Cabecera de la venta. Los totales y la tasa quedan congelados al facturar."""
+"""Cabecera de la venta. Los totales y las tasas quedan congelados al facturar."""
 
 from django.conf import settings
 from django.db import models
@@ -24,6 +24,9 @@ class Sale(TimeStampedModel):
     customer_tax_id = models.CharField(max_length=20, blank=True)
     customer_name = models.CharField(max_length=150, blank=True)
     exchange_rate_at_invoice = models.DecimalField(max_digits=14, decimal_places=4)
+    # Tasa del BCV al facturar: con ella se pasa el costo a bolívares, aunque la
+    # venta se haya cobrado con una tasa manual.
+    bcv_rate_at_invoice = models.DecimalField(max_digits=14, decimal_places=4)
     total_usd = models.DecimalField(max_digits=14, decimal_places=2)
     total_ves = models.DecimalField(max_digits=14, decimal_places=2)
 

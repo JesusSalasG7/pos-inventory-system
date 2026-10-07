@@ -18,8 +18,9 @@ def build_session_report(cash_session_id: int) -> SessionSalesReport:
     - El costo ("inversión") de cada línea es cantidad × costo unitario
       congelado en la venta, redondeado a 2 decimales.
     - Los bolívares vendidos de cada línea son los que se facturaron
-      (`subtotal_ves`); los del costo se obtienen con la tasa congelada de su
-      venta, nunca con la tasa de hoy.
+      (`subtotal_ves`); los del costo se obtienen siempre con la tasa del BCV
+      congelada en su venta (`bcv_rate_at_invoice`), nunca con la tasa manual
+      con la que se cobró ni con la de hoy.
     - Ganancia = total facturado − costo, en cada moneda.
 
     El acceso del usuario a la caja lo valida quien llama
@@ -45,7 +46,7 @@ def build_session_report(cash_session_id: int) -> SessionSalesReport:
         row["sales_usd"] += line["subtotal_usd"]
         row["sales_ves"] += line["subtotal_ves"]
         row["cost_usd"] += cost_usd
-        row["cost_ves"] += usd_to_ves(cost_usd, line["rate"])
+        row["cost_ves"] += usd_to_ves(cost_usd, line["cost_rate"])
 
     products = tuple(
         ProductSales(

@@ -114,9 +114,9 @@ def test_no_payments_fails() -> None:
 ODD_RATE = Decimal("150.3000")
 
 
-def test_rounding_up_raises_each_ves_price_to_the_whole_bolivar() -> None:
+def test_rounding_up_raises_only_the_unit_price_to_the_whole_bolivar() -> None:
     lines = [
-        # 1,20 $ × 150,30 = 180,36 → 181 Bs por litro; 2,5 L = 452,50 → 453 Bs.
+        # 1,20 $ × 150,30 = 180,36 → 181 Bs por litro; 2,5 L = 452,50 Bs, sin volver a subir.
         PricedLine(product_id=1, quantity=Decimal("2.500"), unit_price_usd=Decimal("1.20")),
         # 4,50 $ × 150,30 = 676,35 → 677 Bs.
         PricedLine(product_id=2, quantity=Decimal("1"), unit_price_usd=Decimal("4.50")),
@@ -124,10 +124,24 @@ def test_rounding_up_raises_each_ves_price_to_the_whole_bolivar() -> None:
 
     totals = sale_calculator.calculate_totals(lines, ODD_RATE, round_ves_up=True)
 
-    assert [line.subtotal_ves for line in totals.lines] == [Decimal("453.00"), Decimal("677.00")]
-    assert totals.total_ves == Decimal("1130.00")
+    assert [line.subtotal_ves for line in totals.lines] == [Decimal("452.50"), Decimal("677.00")]
+    assert totals.total_ves == Decimal("1129.50")
     # Los dólares no cambian con el redondeo.
     assert totals.total_usd == Decimal("7.50")
+
+
+def test_rounding_up_keeps_the_cents_of_a_fraction_of_the_unit() -> None:
+    # 0,90 $ × 885 = 796,50 → 797 Bs el litro; medio litro son 398,50 Bs.
+    rate = Decimal("885.0000")
+    liter = [PricedLine(product_id=1, quantity=Decimal("1"), unit_price_usd=Decimal("0.90"))]
+    half = [PricedLine(product_id=1, quantity=Decimal("0.500"), unit_price_usd=Decimal("0.90"))]
+
+    assert sale_calculator.calculate_totals(liter, rate, round_ves_up=True).total_ves == Decimal(
+        "797.00"
+    )
+    assert sale_calculator.calculate_totals(half, rate, round_ves_up=True).total_ves == Decimal(
+        "398.50"
+    )
 
 
 def test_without_rounding_lines_keep_their_cents() -> None:

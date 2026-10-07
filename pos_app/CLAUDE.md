@@ -28,7 +28,8 @@ Android, para tiendas de productos de limpieza en Venezuela.
 - **Sucursal**: los repositorios envían siempre el `code` de `activeBranchProvider` en `branch`
   (query en los `GET`, body en `POST`/`PATCH`). Así un MANAGER con acceso a todas ve solo su sede.
 - **Bolívares**: los precios en VES se calculan con `VesPricing` (`core/currency/`), que replica
-  el redondeo hacia arriba opcional del backend. Un precio unitario se pinta con
+  el redondeo hacia arriba opcional del backend (solo sube el precio unitario; el subtotal es
+  cantidad × ese precio, con sus céntimos). Un precio unitario se pinta con
   `DualCurrencyText(isUnitPrice: true)`; un total del carrito con `Cart.totalVes` pasado como
   `amountVes`; una venta pasada con sus propios `totalVes` / `subtotalVes`. La configuración
   (modo de tasa y redondeo) está en `pricingSettingsControllerProvider` y `roundVesUpProvider`.

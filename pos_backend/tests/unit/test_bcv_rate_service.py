@@ -36,7 +36,7 @@ def test_returns_rate_as_decimal_with_aware_datetime() -> None:
     with _patch_get(return_value=_response(VALID_BODY)):
         result = bcv_rate_service.get_bcv_rate()
 
-    assert result.rate == Decimal("872.3928")  # 4 decimales, sin pasar por float
+    assert result.rate == Decimal("872.3900")  # 2 decimales, como se cobra; sin pasar por float
     assert isinstance(result.rate, Decimal)
     assert result.updated_at == datetime.fromisoformat("2026-10-06T00:00:00-04:00")
     assert result.updated_at.tzinfo is not None

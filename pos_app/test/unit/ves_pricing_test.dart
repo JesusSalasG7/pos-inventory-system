@@ -35,10 +35,17 @@ void main() {
       expect(VesPricing.lineSubtotal(dec('2.5'), dec('1.20'), rate, roundUp: false), dec('450.9'));
     });
 
-    test('con redondeo suben al bolívar entero, precio y subtotal', () {
+    test('con redondeo solo el precio unitario sube al bolívar entero', () {
       expect(VesPricing.unitPrice(dec('1.20'), rate, roundUp: true), dec('181'));
-      // 2,5 × 181 = 452,5 → 453.
-      expect(VesPricing.lineSubtotal(dec('2.5'), dec('1.20'), rate, roundUp: true), dec('453'));
+      // 2,5 × 181 = 452,5: el subtotal no vuelve a subir.
+      expect(VesPricing.lineSubtotal(dec('2.5'), dec('1.20'), rate, roundUp: true), dec('452.5'));
+    });
+
+    test('una fracción de la unidad conserva sus céntimos', () {
+      // 0,90 $ × 885 = 796,5 → 797 Bs el litro; medio litro son 398,50 Bs.
+      final bcv = dec('885');
+      expect(VesPricing.lineSubtotal(dec('1'), dec('0.90'), bcv, roundUp: true), dec('797'));
+      expect(VesPricing.lineSubtotal(dec('0.5'), dec('0.90'), bcv, roundUp: true), dec('398.5'));
     });
 
     test('un precio que ya es entero no sube', () {
@@ -50,7 +57,7 @@ void main() {
 
       expect(cart.totalUsd, dec('7.50'));
       expect(cart.totalVes(rate, roundUp: false), dec('1127.25'));
-      expect(cart.totalVes(rate, roundUp: true), dec('1130'));
+      expect(cart.totalVes(rate, roundUp: true), dec('1129.5'));
     });
   });
 

@@ -5,9 +5,10 @@ import 'package:pos_app/core/currency/money.dart';
 
 /// Precios en bolívares, con el redondeo hacia arriba opcional del negocio.
 ///
-/// Replica `sale_calculator` del backend: con el redondeo activo, el precio
-/// unitario en VES se sube al bolívar entero y el subtotal de cada línea
-/// también. Los importes en USD nunca cambian.
+/// Replica `sale_calculator` del backend: con el redondeo activo, solo el
+/// precio unitario en VES se sube al bolívar entero. El subtotal de cada línea
+/// es cantidad × ese precio, sin volver a subir: si el litro queda en 797 Bs,
+/// medio litro son 398,50 Bs. Los importes en USD nunca cambian.
 abstract final class VesPricing {
   /// Redondea hacia arriba al bolívar entero: `180,37` → `181`.
   static Decimal ceilVes(Decimal amountVes) => amountVes.ceil();
@@ -24,7 +25,7 @@ abstract final class VesPricing {
     required bool roundUp,
   }) {
     if (!roundUp) return CurrencyConverter.usdToVes(quantizeMoney(quantity * priceUsd), rate);
-    return ceilVes(quantity * unitPrice(priceUsd, rate, roundUp: true));
+    return quantizeMoney(quantity * unitPrice(priceUsd, rate, roundUp: true));
   }
 
   /// VES que equivalen a 1 USD al cobrar una venta.

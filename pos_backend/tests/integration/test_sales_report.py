@@ -1,15 +1,19 @@
+from datetime import datetime
 from decimal import Decimal
+from unittest.mock import patch
 
 import pytest
 from rest_framework.test import APIClient
 
 from apps.auth.models import User
 from apps.cash_sessions.models import CashSession
+from apps.exchange_rate.domain.dtos import BcvRate
+from apps.exchange_rate.services import bcv_rate_service, pricing_settings_service
 from apps.inventory.services import product_service
 from apps.sales.domain.dtos import CreateSaleInput, PaymentInput, SaleItemInput
-from apps.sales.models import SaleDetail
+from apps.sales.models import Sale, SaleDetail
 from apps.sales.services import sale_service, sales_report_service
-from core.enums import Currency, PaymentMethod
+from core.enums import Currency, PaymentMethod, RateMode, RateSource
 from tests.factories import (
     LAS_AMERICAS,
     BranchInventoryFactory,
@@ -103,6 +107,68 @@ def test_report_totals_payments_cost_and_profit(supervisor: User, session: CashS
         Decimal("3.00"),
         Decimal("525.00"),
     )
+
+
+def test_cost_in_ves_uses_the_bcv_rate_when_selling_with_an_own_rate(
+    supervisor: User, session: CashSession
+) -> None:
+    pricing_settings_service.update_settings(rate_mode=RateMode.MANUAL)
+    ExchangeRateFactory(usd_to_ves_rate=Decimal("200.0000"))
+    bleach = stocked("Bleach", cost="0.80", price="1.20")
+    bcv = BcvRate(rate=Decimal("150.0000"), updated_at=datetime.fromisoformat("2026-10-06T00:00"))
+
+    # Se cobra a la tasa propia (200) y el costo se valora con la del BCV (150).
+    with patch.object(bcv_rate_service, "_fetch_bcv_rate", return_value=bcv):
+        sell(supervisor, {bleach: "2"}, [mobile("480.00")])
+
+    sale = Sale.objects.get()
+    assert (sale.exchange_rate_at_invoice, sale.bcv_rate_at_invoice) == (
+        Decimal("200.0000"),
+        Decimal("150.0000"),
+    )
+    report = sales_report_service.build_session_report(session.pk)
+    assert (report.total_ves, report.cost_ves, report.profit_ves) == (
+        Decimal("480.00"),
+        Decimal("240.00"),
+        Decimal("240.00"),
+    )
+    assert (report.cost_usd, report.profit_usd) == (Decimal("1.60"), Decimal("0.80"))
+
+
+def test_cost_in_ves_ignores_a_manual_rate_set_over_the_bcv_one(
+    supervisor: User, session: CashSession
+) -> None:
+    ExchangeRateFactory(usd_to_ves_rate=Decimal("160.0000"), source=RateSource.BCV, created_by=None)
+    ExchangeRateFactory(usd_to_ves_rate=Decimal("200.0000"))
+    bleach = stocked("Bleach", cost="0.80", price="1.20")
+
+    sell(supervisor, {bleach: "2"}, [mobile("480.00")])
+
+    report = sales_report_service.build_session_report(session.pk)
+    assert (report.cost_ves, report.profit_ves) == (Decimal("256.00"), Decimal("224.00"))
+
+
+def test_cost_in_ves_keeps_the_bcv_rate_of_the_sale(supervisor: User, session: CashSession) -> None:
+    ExchangeRateFactory(usd_to_ves_rate=Decimal("160.0000"), source=RateSource.BCV, created_by=None)
+    bleach = stocked("Bleach", cost="0.80", price="1.20")
+    sell(supervisor, {bleach: "2"}, [mobile("384.00")])
+
+    # El BCV publica otra tasa después: la venta ya hecha no cambia.
+    ExchangeRateFactory(usd_to_ves_rate=Decimal("180.0000"), source=RateSource.BCV, created_by=None)
+
+    assert sales_report_service.build_session_report(session.pk).cost_ves == Decimal("256.00")
+
+
+def test_cost_in_ves_falls_back_to_the_sale_rate_without_a_bcv_rate(
+    supervisor: User, session: CashSession
+) -> None:
+    bleach = stocked("Bleach", cost="0.80", price="1.20")
+
+    # Sin tasa del BCV registrada y con el BCV caído, la venta no se bloquea.
+    sell(supervisor, {bleach: "2"}, [cash_usd("2.40")])
+
+    assert Sale.objects.get().bcv_rate_at_invoice == Decimal("150.0000")
+    assert sales_report_service.build_session_report(session.pk).cost_ves == Decimal("240.00")
 
 
 def test_report_of_a_session_without_sales(session: CashSession) -> None:

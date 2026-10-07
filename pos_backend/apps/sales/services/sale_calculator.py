@@ -22,13 +22,14 @@ def calculate_line_subtotal_ves(
     """Subtotal de una línea en VES.
 
     Sin redondeo es el subtotal en USD convertido con la tasa. Con redondeo,
-    el precio unitario en VES se sube al bolívar entero y el subtotal
-    (cantidad × ese precio) también, para que nunca queden céntimos.
+    solo el precio unitario en VES se sube al bolívar entero; el subtotal es
+    cantidad × ese precio, sin volver a redondear hacia arriba: si el litro
+    queda en 797 Bs, medio litro son 398,50 Bs.
     """
     if not round_ves_up:
         return usd_to_ves(calculate_line_subtotal(quantity, unit_price_usd), usd_to_ves_rate)
     unit_price_ves = ceil_ves(unit_price_usd * usd_to_ves_rate)
-    return ceil_ves(quantity * unit_price_ves)
+    return quantize_money(quantity * unit_price_ves)
 
 
 def calculate_totals(
@@ -39,8 +40,8 @@ def calculate_totals(
     El total en USD es la suma de los subtotales ya redondeados, de modo que la
     cabecera siempre coincide con sus líneas. El total en VES se obtiene del
     total en USD con la tasa congelada de la venta; con `round_ves_up` es la
-    suma de los subtotales en VES, ya redondeados hacia arriba. Los importes
-    en USD no cambian con el redondeo.
+    suma de los subtotales en VES, calculados con el precio unitario ya
+    redondeado hacia arriba. Los importes en USD no cambian con el redondeo.
     """
     line_totals = tuple(
         LineTotal(
