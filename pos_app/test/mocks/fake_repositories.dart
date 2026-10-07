@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:pos_app/core/currency/currency_converter.dart';
 import 'package:pos_app/core/currency/money.dart';
+import 'package:pos_app/core/currency/ves_pricing.dart';
 import 'package:pos_app/core/domain/app_user.dart';
 import 'package:pos_app/core/domain/branch.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/network/api_exception.dart';
@@ -19,18 +21,23 @@ import 'package:pos_app/features/branches/domain/repositories/branch_repository.
 import 'package:pos_app/features/cash_session/data/repositories/cash_session_repository_impl.dart';
 import 'package:pos_app/features/cash_session/domain/cash_count.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
+import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 import 'package:pos_app/features/cash_session/domain/repositories/cash_session_repository.dart';
 import 'package:pos_app/features/exchange_rate/data/repositories/exchange_rate_repository_impl.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
+import 'package:pos_app/features/exchange_rate/domain/entities/pricing_settings.dart';
 import 'package:pos_app/features/exchange_rate/domain/repositories/exchange_rate_repository.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/rate_change_notice_provider.dart';
 import 'package:pos_app/features/inventory/data/repositories/inventory_repository_impl.dart';
+import 'package:pos_app/features/inventory/domain/entities/inventory_movement.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 import 'package:pos_app/features/inventory/domain/repositories/inventory_repository.dart';
 import 'package:pos_app/features/sales/data/repositories/sales_repository_impl.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/domain/entities/sales_summary.dart';
 import 'package:pos_app/features/sales/domain/repositories/sales_repository.dart';
+import 'package:pos_app/features/users/data/repositories/users_repository_impl.dart';
+import 'package:pos_app/features/users/domain/repositories/users_repository.dart';
 
 const villaLibertad = Branch(code: 'VILLA_LIBERTAD', name: 'Villa Libertad');
 const lasAmericas = Branch(code: 'LAS_AMERICAS', name: 'Las Américas');
@@ -108,8 +115,30 @@ class FakeBranchRepository implements BranchRepository {
   List<Branch> branches;
   Failure? createFailure;
 
+  /// Si se asigna, `updateBranch` falla con este error.
+  Failure? updateFailure;
+
   @override
-  Future<List<Branch>> fetchActiveBranches() async => [...branches];
+  Future<List<Branch>> fetchActiveBranches() async => [
+    for (final branch in branches)
+      if (branch.active) branch,
+  ];
+
+  @override
+  Future<List<Branch>> fetchAllBranches() async => [...branches];
+
+  @override
+  Future<Branch> updateBranch(String code, {String? name, bool? active}) async {
+    final failure = updateFailure;
+    if (failure != null) throw failure;
+    final index = branches.indexWhere((branch) => branch.code == code);
+    final current = branches[index];
+    return branches[index] = Branch(
+      code: code,
+      name: name ?? current.name,
+      active: active ?? current.active,
+    );
+  }
 
   @override
   Future<Branch> createBranch({required String code, required String name}) async {
@@ -134,6 +163,36 @@ class FakeExchangeRateRepository implements ExchangeRateRepository {
 
   /// Lo que devolverá la próxima sincronización con el BCV.
   ExchangeRate? nextBcvRate;
+
+  /// Modo de tasa y redondeo en bolívares del negocio.
+  PricingSettings settings = const PricingSettings();
+
+  /// Si se asigna, cambiar la configuración falla con este error.
+  Failure? settingsFailure;
+
+  @override
+  Future<PricingSettings> fetchPricingSettings() async => settings;
+
+  @override
+  Future<PricingSettings> updatePricingSettings({RateMode? rateMode, bool? roundVesUp}) async {
+    final failure = settingsFailure;
+    if (failure != null) throw failure;
+    // Al volver al BCV el backend activa su tasa de inmediato.
+    final bcvRate = bcv;
+    if (rateMode == RateMode.bcv && settings.rateMode != RateMode.bcv && bcvRate != null) {
+      active = ExchangeRate(
+        id: 2000,
+        rate: bcvRate.rate,
+        source: RateSource.bcv,
+        createdAt: DateTime.utc(2026, 10, 6, 14),
+      );
+      rate = bcvRate.rate;
+    }
+    return settings = PricingSettings(
+      rateMode: rateMode ?? settings.rateMode,
+      roundVesUp: roundVesUp ?? settings.roundVesUp,
+    );
+  }
 
   @override
   Future<ExchangeRate?> fetchActive() async {
@@ -198,6 +257,19 @@ class FakeCashSessionRepository implements CashSessionRepository {
   Decimal cashSalesVes = Decimal.zero;
   Failure? openFailure;
   Failure? closeFailure;
+
+  /// Resumen de ventas que devuelve cualquier caja; por defecto, sin ventas.
+  SessionSalesReport salesReport = SessionSalesReport(
+    salesCount: 0,
+    totalUsd: Decimal.zero,
+    totalVes: Decimal.zero,
+    costUsd: Decimal.zero,
+    costVes: Decimal.zero,
+    profitUsd: Decimal.zero,
+    profitVes: Decimal.zero,
+    payments: const [],
+    products: const [],
+  );
   int summaryCalls = 0;
 
   @override
@@ -277,6 +349,9 @@ class FakeCashSessionRepository implements CashSessionRepository {
   }
 
   @override
+  Future<SessionSalesReport> fetchSalesReport(int sessionId) async => salesReport;
+
+  @override
   Future<CashSession> close({
     required int sessionId,
     required Decimal countedAmountUsd,
@@ -309,12 +384,17 @@ class FakeCashSessionRepository implements CashSessionRepository {
   }
 }
 
+const liquids = ProductCategory(id: 1, name: 'Líquidos');
+const powders = ProductCategory(id: 2, name: 'Polvos');
+const accessories = ProductCategory(id: 3, name: 'Accesorios');
+
 Product product(
   int id,
   String name, {
   String price = '1.00',
   UnitOfMeasure unit = UnitOfMeasure.unit,
-  ProductCategory category = ProductCategory.liquids,
+  ProductCategory category = liquids,
+  bool active = true,
 }) => Product(
   id: id,
   name: name,
@@ -322,7 +402,7 @@ Product product(
   unit: unit,
   costPriceUsd: dec('0.50'),
   salePriceUsd: dec(price),
-  active: true,
+  active: active,
 );
 
 StockedProduct stocked(Product product, String stock, {String minimum = '0'}) =>
@@ -337,11 +417,20 @@ class FakeSalesRepository implements SalesRepository {
   String? lastBranchCode;
   DateTime? lastDateFrom;
 
+  /// Ventas registradas, de la más reciente a la más antigua.
+  final List<Sale> sales = [];
+
+  /// Tamaño de página del historial.
+  int pageSize = 25;
+
   /// Precios "de la base de datos" con los que se calculan las ventas.
   final Map<int, Decimal> prices = {};
 
   /// Tasa que el backend congela en la venta.
   Decimal rate = Decimal.parse('150');
+
+  /// El negocio redondea los bolívares hacia arriba.
+  bool roundVesUp = false;
   Failure? saleFailure;
   final List<NewSale> createdSales = [];
 
@@ -357,6 +446,28 @@ class FakeSalesRepository implements SalesRepository {
   }
 
   @override
+  Future<Paginated<Sale>> fetchSales({
+    required String branchCode,
+    required int page,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) async {
+    final matching = [
+      for (final sale in sales)
+        if (sale.branchCode == branchCode &&
+            (dateFrom == null || !sale.createdAt.isBefore(dateFrom)) &&
+            (dateTo == null || !sale.createdAt.isAfter(dateTo)))
+          sale,
+    ];
+    final start = (page - 1) * pageSize;
+    return Paginated(
+      count: matching.length,
+      results: matching.skip(start).take(pageSize).toList(),
+      next: start + pageSize < matching.length ? 'next' : null,
+    );
+  }
+
+  @override
   Future<Sale> createSale(NewSale sale) async {
     final failure = saleFailure;
     if (failure != null) throw failure;
@@ -369,10 +480,16 @@ class FakeSalesRepository implements SalesRepository {
           quantity: item.quantity,
           unitPriceUsd: prices[item.productId] ?? Decimal.one,
           subtotalUsd: quantizeMoney(item.quantity * (prices[item.productId] ?? Decimal.one)),
+          subtotalVes: VesPricing.lineSubtotal(
+            item.quantity,
+            prices[item.productId] ?? Decimal.one,
+            rate,
+            roundUp: roundVesUp,
+          ),
         ),
     ];
     final totalUsd = details.fold(Decimal.zero, (sum, detail) => sum + detail.subtotalUsd);
-    return Sale(
+    final created = Sale(
       id: createdSales.length,
       cashSessionId: 1,
       userId: 1,
@@ -381,7 +498,9 @@ class FakeSalesRepository implements SalesRepository {
       customerName: sale.customerName,
       exchangeRateAtInvoice: rate,
       totalUsd: totalUsd,
-      totalVes: CurrencyConverter.usdToVes(totalUsd, rate),
+      totalVes: roundVesUp
+          ? details.fold(Decimal.zero, (sum, detail) => sum + detail.subtotalVes)
+          : CurrencyConverter.usdToVes(totalUsd, rate),
       createdAt: DateTime.utc(2026, 10, 6, 16),
       details: details,
       payments: [
@@ -395,14 +514,86 @@ class FakeSalesRepository implements SalesRepository {
           ),
       ],
     );
+    sales.insert(0, created);
+    return created;
   }
 }
 
+class FakeUsersRepository implements UsersRepository {
+  FakeUsersRepository([List<AppUser> users = const []]) : users = [...users];
+
+  List<AppUser> users;
+
+  /// Contraseñas asignadas, por id de usuario.
+  final Map<int, String> passwords = {};
+  Failure? writeFailure;
+
+  @override
+  Future<List<AppUser>> fetchUsers() async => [...users];
+
+  @override
+  Future<AppUser> createUser({
+    required String username,
+    required String password,
+    required String fullName,
+    required UserRole role,
+    required String? assignedBranch,
+  }) async {
+    final failure = writeFailure;
+    if (failure != null) throw failure;
+    final user = AppUser(
+      id: users.fold(0, (highest, u) => u.id > highest ? u.id : highest) + 1,
+      username: username,
+      fullName: fullName,
+      role: role,
+      assignedBranch: assignedBranch,
+      isActive: true,
+    );
+    users.add(user);
+    passwords[user.id] = password;
+    return user;
+  }
+
+  @override
+  Future<AppUser> updateUser(
+    int userId, {
+    required String fullName,
+    required UserRole role,
+    required String? assignedBranch,
+    required bool isActive,
+    String? password,
+  }) async {
+    final failure = writeFailure;
+    if (failure != null) throw failure;
+    final index = users.indexWhere((user) => user.id == userId);
+    if (password != null) passwords[userId] = password;
+    return users[index] = AppUser(
+      id: userId,
+      username: users[index].username,
+      fullName: fullName,
+      role: role,
+      assignedBranch: assignedBranch,
+      isActive: isActive,
+    );
+  }
+}
+
+/// Inventario en memoria que replica las reglas del backend que la app necesita.
 class FakeInventoryRepository implements InventoryRepository {
   int lowStock = 0;
+  List<ProductCategory> categories = [liquids, powders, accessories];
   List<Product> products = [];
   List<BranchStock> stock = [];
   int catalogCalls = 0;
+
+  /// Kardex, del movimiento más reciente al más antiguo.
+  final List<InventoryMovement> movements = [];
+
+  /// Tamaño de página del Kardex.
+  int pageSize = 25;
+
+  /// Si se asigna, las operaciones de escritura fallan con este error.
+  Failure? writeFailure;
 
   /// Carga el catálogo y su stock en una sucursal a partir de productos con stock.
   void seed(String branchCode, List<StockedProduct> items) {
@@ -417,6 +608,110 @@ class FakeInventoryRepository implements InventoryRepository {
           minimumStock: item.minimumStock,
         ),
     ];
+  }
+
+  /// Añade el stock de los mismos productos en otra sucursal.
+  void seedStock(String branchCode, Map<int, String> stockByProduct) {
+    stock.addAll([
+      for (final MapEntry(key: productId, value: amount) in stockByProduct.entries)
+        BranchStock(
+          productId: productId,
+          productName: products.firstWhere((p) => p.id == productId).name,
+          branchCode: branchCode,
+          currentStock: dec(amount),
+          minimumStock: Decimal.zero,
+        ),
+    ]);
+  }
+
+  BranchStock? stockOf(String branchCode, int productId) =>
+      stock.where((row) => row.branchCode == branchCode && row.productId == productId).firstOrNull;
+
+  void _failIfRequested() {
+    final failure = writeFailure;
+    if (failure != null) throw failure;
+  }
+
+  void _putStock(String branchCode, int productId, {Decimal? current, Decimal? minimum}) {
+    final previous = stockOf(branchCode, productId);
+    stock
+      ..removeWhere((row) => row.branchCode == branchCode && row.productId == productId)
+      ..add(
+        BranchStock(
+          productId: productId,
+          productName: products.firstWhere((p) => p.id == productId).name,
+          branchCode: branchCode,
+          currentStock: current ?? previous?.currentStock ?? Decimal.zero,
+          minimumStock: minimum ?? previous?.minimumStock ?? Decimal.zero,
+        ),
+      );
+  }
+
+  Product _replace(int productId, Product Function(Product current) change) {
+    final index = products.indexWhere((p) => p.id == productId);
+    return products[index] = change(products[index]);
+  }
+
+  ProductCategory _category(int categoryId) =>
+      categories.firstWhere((category) => category.id == categoryId);
+
+  @override
+  Future<List<ProductCategory>> fetchCategories() async =>
+      [...categories]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+  @override
+  Future<ProductCategory> createCategory(String name, {String icon = ''}) async {
+    _failIfRequested();
+    if (categories.any((c) => c.name.toLowerCase() == name.trim().toLowerCase())) {
+      throw const Failure(
+        code: 'category_name_taken',
+        message: 'Ya existe una categoría con ese nombre.',
+        type: ApiErrorType.api,
+        statusCode: 409,
+      );
+    }
+    final created = ProductCategory(
+      id: categories.fold(0, (highest, c) => c.id > highest ? c.id : highest) + 1,
+      name: name.trim(),
+      icon: icon,
+    );
+    categories.add(created);
+    return created;
+  }
+
+  @override
+  Future<ProductCategory> updateCategory(
+    int categoryId, {
+    String? name,
+    String? icon,
+    bool? active,
+  }) async {
+    _failIfRequested();
+    final index = categories.indexWhere((category) => category.id == categoryId);
+    final current = categories[index];
+    final updated = ProductCategory(
+      id: current.id,
+      name: name?.trim() ?? current.name,
+      icon: icon ?? current.icon,
+      active: active ?? current.active,
+    );
+    categories[index] = updated;
+    // Los productos devuelven el nombre de su categoría.
+    products = [
+      for (final p in products)
+        p.category.id == categoryId
+            ? Product(
+                id: p.id,
+                name: p.name,
+                category: ProductCategory(id: updated.id, name: updated.name, icon: updated.icon),
+                unit: p.unit,
+                costPriceUsd: p.costPriceUsd,
+                salePriceUsd: p.salePriceUsd,
+                active: p.active,
+              )
+            : p,
+    ];
+    return updated;
   }
 
   @override
@@ -436,6 +731,131 @@ class FakeInventoryRepository implements InventoryRepository {
     for (final row in stock)
       if (row.branchCode == branchCode) row,
   ];
+
+  @override
+  Future<Product> createProduct(ProductDraft draft) async {
+    _failIfRequested();
+    final created = Product(
+      id: products.fold(0, (highest, p) => p.id > highest ? p.id : highest) + 1,
+      name: draft.name,
+      category: _category(draft.categoryId),
+      unit: draft.unit,
+      costPriceUsd: draft.costPriceUsd,
+      salePriceUsd: draft.salePriceUsd,
+      active: true,
+    );
+    products.add(created);
+    return created;
+  }
+
+  @override
+  Future<Product> updateProduct(int productId, ProductDraft draft) async {
+    _failIfRequested();
+    return _replace(
+      productId,
+      (current) => Product(
+        id: current.id,
+        name: draft.name,
+        category: _category(draft.categoryId),
+        unit: draft.unit,
+        costPriceUsd: draft.costPriceUsd,
+        salePriceUsd: draft.salePriceUsd,
+        active: current.active,
+      ),
+    );
+  }
+
+  @override
+  Future<Product> toggleProductActive(int productId) async {
+    _failIfRequested();
+    return _replace(
+      productId,
+      (current) => Product(
+        id: current.id,
+        name: current.name,
+        category: current.category,
+        unit: current.unit,
+        costPriceUsd: current.costPriceUsd,
+        salePriceUsd: current.salePriceUsd,
+        active: !current.active,
+      ),
+    );
+  }
+
+  @override
+  Future<BranchStock> setMinimumStock({
+    required String branchCode,
+    required int productId,
+    required Decimal minimumStock,
+  }) async {
+    _failIfRequested();
+    _putStock(branchCode, productId, minimum: minimumStock);
+    return stockOf(branchCode, productId)!;
+  }
+
+  @override
+  Future<Paginated<InventoryMovement>> fetchMovements({
+    required String branchCode,
+    required int page,
+    int? productId,
+    MovementType? type,
+  }) async {
+    final matching = [
+      for (final movement in movements)
+        if (movement.branchCode == branchCode &&
+            (productId == null || movement.productId == productId) &&
+            (type == null || movement.type == type))
+          movement,
+    ];
+    final start = (page - 1) * pageSize;
+    final results = matching.skip(start).take(pageSize).toList();
+    return Paginated(
+      count: matching.length,
+      results: results,
+      next: start + pageSize < matching.length ? 'next' : null,
+    );
+  }
+
+  @override
+  Future<InventoryMovement?> registerMovement({
+    required String branchCode,
+    required int productId,
+    required MovementType type,
+    required Decimal quantity,
+    String notes = '',
+  }) async {
+    _failIfRequested();
+    final before = stockOf(branchCode, productId)?.currentStock ?? Decimal.zero;
+    if (type == MovementType.waste && quantity > before) {
+      throw const Failure(
+        code: 'insufficient_stock',
+        message: 'No hay stock suficiente para completar la operación.',
+        type: ApiErrorType.api,
+        statusCode: 422,
+      );
+    }
+    final after = switch (type) {
+      MovementType.entry => before + quantity,
+      MovementType.waste || MovementType.sale => before - quantity,
+      MovementType.adjustment => quantity,
+    };
+    if (type == MovementType.adjustment && after == before) return null;
+    _putStock(branchCode, productId, current: after);
+    final movement = InventoryMovement(
+      id: movements.length + 1,
+      productId: productId,
+      branchCode: branchCode,
+      type: type,
+      quantity: (after - before).abs(),
+      stockBefore: before,
+      stockAfter: after,
+      userId: 1,
+      notes: notes,
+      createdAt: DateTime.utc(2026, 10, 6, 15, movements.length),
+    );
+    movements.insert(0, movement);
+    return movement;
+  }
 }
 
 /// Overrides para montar la sesión con repositorios falsos.
@@ -448,12 +868,14 @@ List<Override> sessionOverrides({
   FakeCashSessionRepository? cash,
   FakeSalesRepository? sales,
   FakeInventoryRepository? inventory,
+  FakeUsersRepository? users,
   InMemoryRateNoticeStorage? rateNotice,
 }) => [
   rateNoticeStorageProvider.overrideWithValue(rateNotice ?? InMemoryRateNoticeStorage()),
   cashSessionRepositoryProvider.overrideWithValue(cash ?? FakeCashSessionRepository()),
   salesRepositoryProvider.overrideWithValue(sales ?? FakeSalesRepository()),
   inventoryRepositoryProvider.overrideWithValue(inventory ?? FakeInventoryRepository()),
+  usersRepositoryProvider.overrideWithValue(users ?? FakeUsersRepository()),
   authRepositoryProvider.overrideWithValue(auth),
   branchRepositoryProvider.overrideWithValue(branches),
   branchPreferenceStorageProvider.overrideWithValue(

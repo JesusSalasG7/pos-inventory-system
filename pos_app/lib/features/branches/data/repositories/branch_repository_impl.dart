@@ -29,6 +29,21 @@ class BranchRepositoryImpl implements BranchRepository {
   }
 
   @override
+  Future<List<Branch>> fetchAllBranches() {
+    return Failure.guard(() async {
+      final dtos = await Paginated.fetchAll((page) => _remote.fetchBranches(page: page));
+      return [for (final dto in dtos) dto.toEntity()];
+    });
+  }
+
+  @override
+  Future<Branch> updateBranch(String code, {String? name, bool? active}) {
+    return Failure.guard(
+      () async => (await _remote.updateBranch(code, name: name?.trim(), active: active)).toEntity(),
+    );
+  }
+
+  @override
   Future<Branch> createBranch({required String code, required String name}) {
     return Failure.guard(
       () async => (await _remote.createBranch(code: code, name: name.trim())).toEntity(),

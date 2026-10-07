@@ -1,9 +1,11 @@
 import 'package:decimal/decimal.dart';
+import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/network/api_client.dart';
 import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/exchange_rate/data/datasources/exchange_rate_remote_datasource.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
+import 'package:pos_app/features/exchange_rate/domain/entities/pricing_settings.dart';
 import 'package:pos_app/features/exchange_rate/domain/repositories/exchange_rate_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -49,6 +51,22 @@ class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
     return Failure.guard(() async {
       final (dto, changed) = await _remote.syncBcv();
       return BcvSyncResult(rate: dto.toEntity(), changed: changed);
+    });
+  }
+
+  @override
+  Future<PricingSettings> fetchPricingSettings() {
+    return Failure.guard(() async => (await _remote.fetchPricingSettings()).toEntity());
+  }
+
+  @override
+  Future<PricingSettings> updatePricingSettings({RateMode? rateMode, bool? roundVesUp}) {
+    return Failure.guard(() async {
+      final dto = await _remote.updatePricingSettings(
+        rateMode: rateMode?.apiValue,
+        roundVesUp: roundVesUp,
+      );
+      return dto.toEntity();
     });
   }
 

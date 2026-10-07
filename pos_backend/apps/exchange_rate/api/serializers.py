@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.exchange_rate.models import ExchangeRate
+from apps.exchange_rate.models import ExchangeRate, PricingSettings
 
 
 class ExchangeRateSerializer(serializers.ModelSerializer):
@@ -15,3 +15,9 @@ class BcvRateSerializer(serializers.Serializer):
 
     rate = serializers.DecimalField(max_digits=14, decimal_places=4, read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
+
+
+class PricingSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PricingSettings
+        fields = ["rate_mode", "round_ves_up"]

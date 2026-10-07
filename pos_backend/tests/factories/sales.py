@@ -16,6 +16,7 @@ class SaleFactory(factory.django.DjangoModelFactory):
     user = factory.SelfAttribute("cash_session.user")
     branch = factory.SelfAttribute("cash_session.branch")
     exchange_rate_at_invoice = Decimal("150.0000")
+    bcv_rate_at_invoice = Decimal("150.0000")
     total_usd = Decimal("10.00")
     total_ves = Decimal("1500.00")
 

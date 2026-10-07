@@ -6,6 +6,7 @@ import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/features/auth/presentation/providers/session_controller.dart';
 import 'package:pos_app/features/cash_session/data/repositories/cash_session_repository_impl.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
+import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 import 'package:pos_app/features/home/presentation/providers/dashboard_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -87,6 +88,11 @@ Future<List<CashExpense>> sessionExpenses(Ref ref, int sessionId) =>
 @riverpod
 Future<CashCountSummary> sessionSummary(Ref ref, int sessionId) =>
     ref.watch(cashSessionRepositoryProvider).fetchSummary(sessionId);
+
+/// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+@riverpod
+Future<SessionSalesReport> sessionSalesReport(Ref ref, int sessionId) =>
+    ref.watch(cashSessionRepositoryProvider).fetchSalesReport(sessionId);
 
 /// Historial de cajas de la sucursal activa, cargado página a página.
 @riverpod

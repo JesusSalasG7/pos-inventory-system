@@ -58,3 +58,34 @@ class EmptyState extends StatelessWidget {
     );
   }
 }
+
+/// [EmptyState] que ocupa todo el alto disponible y se puede desplazar: sigue
+/// permitiendo el gesto de deslizar para refrescar y no desborda cuando el
+/// teclado deja poco espacio.
+class ScrollableEmptyState extends StatelessWidget {
+  const ScrollableEmptyState({
+    required this.icon,
+    required this.title,
+    required this.message,
+    super.key,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        // Altura mínima, no fija: con el teclado abierto el hueco es más bajo
+        // que el contenido y este debe poder desplazarse en vez de desbordar.
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: EmptyState(icon: icon, title: title, message: message),
+        ),
+      ),
+    );
+  }
+}

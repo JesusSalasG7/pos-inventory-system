@@ -18,10 +18,13 @@ import 'package:pos_app/features/cash_session/domain/cash_count.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/widgets/cash_summary_view.dart';
+import 'package:pos_app/features/cash_session/presentation/widgets/sales_report_view.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 
 /// Arqueo y cierre: se compara lo esperado con lo contado en cada moneda y se
 /// muestra en vivo la diferencia estimada. La definitiva la calcula el backend.
+/// Al cerrar, la misma pantalla muestra el resultado: la diferencia del
+/// arqueo y el resumen de lo vendido en el turno.
 class CloseSessionScreen extends ConsumerStatefulWidget {
   const CloseSessionScreen({required this.sessionId, super.key});
 
@@ -37,6 +40,9 @@ class _CloseSessionScreenState extends ConsumerState<CloseSessionScreen> {
   Decimal? _countedVes;
   bool _isSubmitting = false;
   String? _errorMessage;
+
+  /// Caja ya cerrada: la pantalla pasa a mostrar el resultado del cierre.
+  CashSession? _closed;
 
   String? _validate(Decimal? value) {
     if (value == null) return Strings.amountRequired;
@@ -84,8 +90,10 @@ class _CloseSessionScreenState extends ConsumerState<CloseSessionScreen> {
             countedAmountVes: _countedVes!,
           );
       if (!mounted) return;
-      await _showResult(closed);
-      if (mounted) context.pop();
+      setState(() {
+        _isSubmitting = false;
+        _closed = closed;
+      });
     } on Failure catch (failure) {
       if (!mounted) return;
       setState(() {
@@ -95,40 +103,13 @@ class _CloseSessionScreenState extends ConsumerState<CloseSessionScreen> {
     }
   }
 
-  /// Muestra la diferencia definitiva, la que devolvió el backend.
-  Future<void> _showResult(CashSession closed) {
-    final difference = closed.differenceUsd ?? Decimal.zero;
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(Strings.cashClosedTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(Strings.cashClosedMessage),
-            const SizedBox(height: AppSpacing.lg),
-            Text(Strings.finalDifference, style: AppTypography.bodySmall),
-            const SizedBox(height: AppSpacing.xs),
-            DifferenceBadge(differenceUsd: difference, large: true),
-          ],
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text(Strings.accept),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final summary = ref.watch(sessionSummaryProvider(widget.sessionId));
     final rate = ref.watch(activeRateProvider).value;
     final errorMessage = _errorMessage;
+    final closed = _closed;
+    if (closed != null) return _ClosedResult(session: closed);
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.cashCountTitle)),
@@ -212,6 +193,54 @@ class _CloseSessionScreenState extends ConsumerState<CloseSessionScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Resultado del cierre: diferencia definitiva (la que devolvió el backend) y
+/// resumen de lo vendido, con inversión y ganancia.
+class _ClosedResult extends StatelessWidget {
+  const _ClosedResult({required this.session});
+
+  final CashSession session;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(Strings.cashClosedTitle)),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
+        child: PrimaryButton(
+          label: Strings.done,
+          icon: Icons.check_rounded,
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          SectionCard(
+            title: Strings.finalDifference.toUpperCase(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(Strings.cashClosedMessage, style: AppTypography.bodySmall),
+                const SizedBox(height: AppSpacing.md),
+                DifferenceBadge(differenceUsd: session.differenceUsd ?? Decimal.zero, large: true),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(Strings.salesReportTitle, style: AppTypography.title),
+          const SizedBox(height: AppSpacing.md),
+          SessionSalesReportSection(sessionId: session.id),
+        ],
       ),
     );
   }

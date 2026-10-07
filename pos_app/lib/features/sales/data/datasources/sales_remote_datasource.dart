@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pos_app/core/currency/money.dart';
 import 'package:pos_app/core/formatting/date_formatter.dart';
+import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/sales/data/dtos/sale_dto.dart';
 import 'package:pos_app/features/sales/data/dtos/sales_summary_dto.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
@@ -24,6 +25,24 @@ class SalesRemoteDataSource {
       },
     );
     return SalesSummaryDto.fromJson(response.data!);
+  }
+
+  Future<Paginated<SaleDto>> fetchSales({
+    required String branchCode,
+    required int page,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'sales/',
+      queryParameters: {
+        'branch': branchCode,
+        'page': page,
+        if (dateFrom != null) 'date_from': DateFormatter.toApi(dateFrom),
+        if (dateTo != null) 'date_to': DateFormatter.toApi(dateTo),
+      },
+    );
+    return Paginated.fromJson(response.data!, SaleDto.fromJson);
   }
 
   /// Cuerpo de `POST sales/`. Montos y cantidades van como string decimal; el

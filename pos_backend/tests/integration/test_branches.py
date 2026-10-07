@@ -12,13 +12,14 @@ from apps.cash_sessions.services import cash_session_service
 from apps.inventory.models import BranchInventory
 from apps.inventory.services import product_service
 from core.branch_scope import resolve_branch
-from core.enums import ProductCategory, Role, UnitOfMeasure
+from core.enums import Role, UnitOfMeasure
 from core.exceptions import DomainError
 from tests.factories import (
     LAS_AMERICAS,
     VILLA_LIBERTAD,
     BranchFactory,
     CashSessionFactory,
+    CategoryFactory,
     ProductFactory,
 )
 
@@ -27,13 +28,18 @@ pytestmark = pytest.mark.django_db
 BRANCHES_URL = "/api/v1/branches/"
 INVENTORY_URL = "/api/v1/inventory/"
 SESSIONS_URL = "/api/v1/cash-sessions/"
-NEW_PRODUCT = {
-    "name": "Detergent",
-    "category": ProductCategory.LIQUIDS,
-    "unit_of_measure": UnitOfMeasure.LITER,
-    "cost_price_usd": Decimal("1.20"),
-    "sale_price_usd": Decimal("2.00"),
-}
+
+
+@pytest.fixture
+def new_product() -> dict:
+    """Datos de alta de un producto en una categoría activa."""
+    return {
+        "name": "Detergent",
+        "category_id": CategoryFactory().pk,
+        "unit_of_measure": UnitOfMeasure.LITER,
+        "cost_price_usd": Decimal("1.20"),
+        "sale_price_usd": Decimal("2.00"),
+    }
 
 
 @pytest.fixture
@@ -73,18 +79,18 @@ def test_create_branch_validates_input(override: dict, code: str, status_code: i
     assert Branch.objects.count() == 2
 
 
-def test_new_products_are_stocked_only_in_active_branches() -> None:
+def test_new_products_are_stocked_only_in_active_branches(new_product: dict) -> None:
     branch_service.update_branch(LAS_AMERICAS, active=False)
 
-    product = product_service.create_product(**NEW_PRODUCT)
+    product = product_service.create_product(**new_product)
 
     rows = BranchInventory.objects.filter(product=product)
     assert {row.branch_id for row in rows} == {VILLA_LIBERTAD}
 
 
-def test_reactivating_a_branch_completes_its_inventory() -> None:
+def test_reactivating_a_branch_completes_its_inventory(new_product: dict) -> None:
     branch_service.update_branch(LAS_AMERICAS, active=False)
-    product = product_service.create_product(**NEW_PRODUCT)
+    product = product_service.create_product(**new_product)
 
     branch = branch_service.update_branch(LAS_AMERICAS, active=True, name="Américas")
 

@@ -8,13 +8,6 @@ class Role(models.TextChoices):
     SUPERVISOR = "SUPERVISOR", "Supervisor"
 
 
-class ProductCategory(models.TextChoices):
-    # Ampliable: agregar aquí nuevas categorías y generar la migración.
-    LIQUIDS = "LIQUIDS", "Líquidos"
-    POWDERS = "POWDERS", "Polvos"
-    ACCESSORIES = "ACCESSORIES", "Accesorios"
-
-
 class UnitOfMeasure(models.TextChoices):
     LITER = "LITER", "Litro"
     KILOGRAM = "KILOGRAM", "Kilogramo"
@@ -40,6 +33,15 @@ class RateSource(models.TextChoices):
 
     MANUAL = "MANUAL", "Manual"
     BCV = "BCV", "BCV"
+
+
+class RateMode(models.TextChoices):
+    """Con qué tasa se calculan los bolívares del negocio."""
+
+    # La tasa activa sigue sola a la del BCV.
+    BCV = "BCV", "BCV automática"
+    # La tasa activa es la que fija un MANAGER; el BCV no la reemplaza.
+    MANUAL = "MANUAL", "Tasa propia"
 
 
 class Currency(models.TextChoices):

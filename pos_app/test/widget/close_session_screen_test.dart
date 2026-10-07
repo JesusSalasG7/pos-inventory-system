@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_theme.dart';
+import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/screens/close_session_screen.dart';
 
@@ -106,14 +108,88 @@ void main() {
     expect(cash.current, isNotNull);
 
     await tester.tap(find.widgetWithText(FilledButton, Strings.closeCash).last);
-    // El botón sigue girando bajo el diálogo de resultado: no hay reposo que esperar.
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
     expect(find.text(Strings.cashClosedTitle), findsOneWidget);
     expect(find.text('${Strings.shortage}  \$ 3,00'), findsOneWidget);
     expect(cash.current, isNull);
     expect(container.read(currentSessionProvider).value, isNull);
+  });
+
+  testWidgets('al cerrar muestra el resumen de ventas con inversión y ganancia', (tester) async {
+    await pumpClose(tester);
+    cash.salesReport = SessionSalesReport(
+      salesCount: 2,
+      totalUsd: dec('12.00'),
+      totalVes: dec('2025.00'),
+      costUsd: dec('8.00'),
+      costVes: dec('1350.00'),
+      profitUsd: dec('4.00'),
+      profitVes: dec('675.00'),
+      payments: [
+        PaymentTotal(method: PaymentMethod.cashUsd, currency: Currency.usd, amount: dec('3.00')),
+        PaymentTotal(
+          method: PaymentMethod.mobilePayment,
+          currency: Currency.ves,
+          amount: dec('1575.00'),
+        ),
+      ],
+      products: [
+        ProductSales(
+          productId: 2,
+          productName: 'Escoba',
+          quantity: dec('2'),
+          salesUsd: dec('9.00'),
+          salesVes: dec('1575.00'),
+          costUsd: dec('6.00'),
+          costVes: dec('1050.00'),
+          profitUsd: dec('3.00'),
+          profitVes: dec('525.00'),
+        ),
+      ],
+    );
+
+    await tester.enterText(field(Strings.countedUsd), '120');
+    await tester.enterText(field(Strings.countedVes), '3000');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.closeCash));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.closeCash).last);
+    await tester.pumpAndSettle();
+
+    // Ventas totales en las dos monedas y cantidad de ventas.
+    expect(find.text(r'$ 12,00'), findsWidgets);
+    expect(find.text('Bs 2.025,00'), findsWidgets);
+    expect(find.text(Strings.salesCount(2)), findsOneWidget);
+    // Cobrado por forma de pago, cada una en su moneda.
+    expect(find.text(Strings.paymentMethod(PaymentMethod.cashUsd)), findsOneWidget);
+    expect(find.text(r'$ 3,00'), findsWidgets);
+    expect(find.text('Bs 1.575,00'), findsWidgets);
+    // Inversión y ganancia.
+    expect(find.text('− ${Strings.investment}'), findsOneWidget);
+    expect(find.text('Bs 1.350,00'), findsOneWidget);
+    expect(find.text(r'$ 4,00'), findsOneWidget);
+    expect(find.text('Bs 675,00'), findsOneWidget);
+    // Desglose por producto, con su costo en bolívares.
+    expect(find.text('Escoba'), findsOneWidget);
+    expect(find.text(Strings.costAmount('Bs 1.050,00')), findsOneWidget);
+    expect(find.text('Bs 525,00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('un turno sin ventas lo dice en vez de mostrar tablas vacías', (tester) async {
+    await pumpClose(tester);
+
+    await tester.enterText(field(Strings.countedUsd), '120');
+    await tester.enterText(field(Strings.countedVes), '3000');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.closeCash));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.closeCash).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text(Strings.noSalesInSession), findsOneWidget);
+    expect(find.text(Strings.investmentAndProfit.toUpperCase()), findsNothing);
   });
 
   testWidgets('sin tasa activa no se puede cerrar', (tester) async {

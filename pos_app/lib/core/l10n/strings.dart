@@ -62,8 +62,6 @@ abstract final class Strings {
   static const String navInventory = 'Inventario';
   static const String navCash = 'Caja';
   static const String navMore = 'Más';
-  static const String comingSoonTitle = 'Muy pronto';
-  static const String comingSoonMessage = 'Esta sección estará lista en la próxima entrega.';
   static String greeting(String name) => '¡Hola, $name!';
   static const String homeReadyTitle = 'Todo listo para empezar';
   static const String homeReadyMessage =
@@ -192,6 +190,25 @@ abstract final class Strings {
   static const String emptyCashHistoryMessage = 'Las cajas que abras aparecerán aquí.';
   static const String sessionDetail = 'Detalle de caja';
 
+  // Resumen de ventas de la caja.
+  static const String salesReportTitle = 'Resumen de ventas';
+  static const String totalSales = 'Ventas totales';
+  static const String paymentBreakdown = 'Cobrado por forma de pago';
+  static const String investmentAndProfit = 'Inversión y ganancia';
+  static const String investment = 'Inversión (costo)';
+  static const String profit = 'Ganancia';
+  static const String loss = 'Pérdida';
+  static const String investmentNote =
+      'La inversión es lo que costaron los productos vendidos, con el costo que tenían al '
+      'venderse. En bolívares, la inversión se calcula siempre con la tasa del BCV del momento '
+      'de la venta. Los gastos de caja no se descuentan.';
+  static const String soldByProduct = 'Por producto';
+  static String soldQuantity(String quantity) => 'Vendido: $quantity';
+  static String soldAmount(String amount) => 'Venta $amount';
+  static String costAmount(String amount) => 'Costo $amount';
+  static const String noSalesInSession = 'No se registraron ventas en este turno.';
+  static const String done = 'Listo';
+
   // Vender (POS).
   static const String needOpenCashSnack = 'Abre la caja para empezar a vender';
   static const String emptyCatalogTitle = 'Aún no hay productos';
@@ -290,6 +307,178 @@ abstract final class Strings {
   static String maxAvailable(String amount) => 'Máximo disponible: $amount';
   static String stockOf(String amount, String unit) => '$amount $unit';
 
+  // Inventario.
+  static const String emptyInventoryMessage =
+      'Cuando un gerente registre productos aparecerán aquí con su stock.';
+  static const String onlyLowStock = 'Por reponer';
+  static String onlyLowStockCount(int count) => 'Por reponer ($count)';
+  static const String noLowStockTitle = 'Nada por reponer';
+  static const String noFilterResultsMessage = 'Ningún producto coincide con estos filtros.';
+  static const String viewMovements = 'Ver movimientos';
+  static const String newProduct = 'Nuevo producto';
+  static const String editProduct = 'Editar producto';
+  static const String inactiveProduct = 'Inactivo';
+  static const String productDetail = 'Producto';
+  static const String productNotFoundTitle = 'Producto no encontrado';
+  static const String productNotFoundMessage = 'Puede que ya no exista. Vuelve al inventario.';
+  static const String salePrice = 'Precio de venta';
+  static const String costPrice = 'Costo';
+  static String perUnit(String unit) => 'por $unit';
+  static String stockInBranch(String branch) => 'Stock en $branch';
+  static const String minimumStock = 'Stock mínimo';
+  static String minimumStockOf(String amount) => 'Mínimo: $amount';
+  static const String changeMinimum = 'Cambiar mínimo';
+  static const String minimumStockHint =
+      'Cuando el stock llegue a esta cantidad, el producto se marca por reponer.';
+  static const String minimumSaved = 'Stock mínimo actualizado';
+  static const String registerEntry = 'Registrar entrada';
+  static const String registerWaste = 'Registrar merma';
+  static const String adjustStock = 'Ajustar stock';
+  static const String entryQuantity = 'Cantidad que entra';
+  static const String wasteQuantity = 'Cantidad perdida';
+  static const String countedStock = 'Stock contado';
+  static const String adjustmentHint =
+      'Escribe lo que contaste en el estante. El sistema calcula la diferencia.';
+  static const String movementNotes = 'Nota (opcional)';
+  static const String movementNotesHint = 'Ej. Factura 123, envase roto';
+  static String currentStockOf(String amount) => 'Stock actual: $amount';
+  static String resultingStock(String amount) => 'Quedará en: $amount';
+  static String stockChange(String before, String after) => '$before → $after';
+  static const String quantityRequired = 'Escribe una cantidad';
+  static const String movementSaved = 'Movimiento registrado';
+  static const String adjustmentUnchanged = 'El stock ya coincidía: no se registró ningún ajuste';
+  static const String inactiveEntryNote = 'El producto está inactivo: no admite entradas.';
+  static const String otherBranchesStock = 'En otras tiendas';
+  static const String movementsTitle = 'Movimientos';
+  static const String emptyMovementsTitle = 'Sin movimientos';
+  static const String emptyMovementsMessage =
+      'Las entradas, ventas, mermas y ajustes aparecerán aquí.';
+  static String productNumber(int id) => 'Producto #$id';
+  static const String you = 'Tú';
+  static const String deactivateProduct = 'Desactivar producto';
+  static const String activateProduct = 'Activar producto';
+  static const String deactivate = 'Desactivar';
+  static const String deactivateProductTitle = '¿Desactivar el producto?';
+  static const String deactivateProductMessage =
+      'Dejará de aparecer en Vender. Su stock y su historial se conservan, y puedes volver '
+      'a activarlo cuando quieras.';
+  static const String productActivated = 'Producto activado';
+  static const String productDeactivated = 'Producto desactivado';
+  static const String productName = 'Nombre del producto';
+  static const String productNameHint = 'Ej. Cloro, Desengrasante';
+  static const String productNameRequired = 'Escribe el nombre del producto';
+  static const String categoryLabel = 'Categoría';
+  static const String categoryRequired = 'Elige una categoría';
+  static const String unitLabel = 'Se vende por';
+  static const String costPriceLabel = r'Costo ($)';
+  static const String salePriceLabel = r'Precio de venta ($)';
+  static const String priceRequired = 'Escribe un precio';
+  static const String saleBelowCost = 'Ojo: el precio de venta es menor que el costo.';
+  static const String catalogSharedNote =
+      'El producto y sus precios son los mismos en todas las tiendas. El stock es de cada una.';
+  static const String createProduct = 'Crear producto';
+  static const String saveChanges = 'Guardar cambios';
+  static const String productCreated = 'Producto creado';
+  static const String productSaved = 'Producto guardado';
+
+  // Ventas realizadas.
+  static const String salesHistoryTitle = 'Ventas';
+  static const String saleDetailTitle = 'Detalle de venta';
+  static const String today = 'Hoy';
+  static const String yesterday = 'Ayer';
+  static const String previousDay = 'Día anterior';
+  static const String nextDay = 'Día siguiente';
+  static const String pickDay = 'Elegir día';
+  static const String dayTotal = 'Total del día';
+  static const String emptySalesTitle = 'Sin ventas este día';
+  static const String emptySalesMessage = 'Las ventas que se registren aparecerán aquí.';
+  static String saleLine(int id, String time) => 'Venta #$id · $time';
+
+  // Administración.
+  static const String administration = 'Administración';
+  static const String usersTitle = 'Usuarios';
+  static const String newUser = 'Nuevo usuario';
+  static const String editUser = 'Editar usuario';
+  static const String createUser = 'Crear usuario';
+  static const String userCreated = 'Usuario creado';
+  static const String userSaved = 'Usuario guardado';
+  static const String inactiveUser = 'Inactivo';
+  static const String fullName = 'Nombre completo';
+  static const String fullNameRequired = 'Escribe el nombre completo';
+  static const String usernameHelper = 'Con él entra a la app. No se puede cambiar después.';
+  static const String roleLabel = 'Rol';
+  static const String managerRoleHint = 'Administra productos, precios, tasa, usuarios y tiendas.';
+  static const String supervisorRoleHint = 'Vende, maneja su caja y mueve inventario en su tienda.';
+  static const String userBranch = 'Tienda';
+  static const String userBranchRequired = 'Elige una tienda';
+  static const String newPassword = 'Nueva contraseña';
+  static const String newPasswordHelper = 'Déjala vacía para no cambiarla.';
+  static String passwordTooShort(int length) => 'Mínimo $length caracteres';
+  static const String activeUser = 'Usuario activo';
+  static const String activeUserHint = 'Un usuario inactivo no puede entrar a la app.';
+  static const String cannotDeactivateSelf = 'No puedes desactivar tu propio usuario.';
+  static const String branchesTitle = 'Tiendas';
+  static const String newBranch = 'Nueva tienda';
+  static const String renameBranch = 'Cambiar nombre';
+  static const String branchCreated = 'Tienda creada';
+  static const String branchRenamed = 'Tienda actualizada';
+  static const String branchActivated = 'Tienda activada';
+  static const String branchDeactivated = 'Tienda desactivada';
+  static const String branchInUse = 'Estás trabajando en esta tienda';
+  static const String inactiveBranch = 'Inactiva';
+  static const String branchesHint =
+      'Cada tienda tiene su propio stock y sus cajas. Una tienda inactiva no admite ventas '
+      'ni se puede asignar a usuarios.';
+
+  // Lista de precios.
+  static const String priceListTitle = 'Lista de precios';
+  static const String sharePriceList = 'Compartir lista';
+  static String priceListHeader(String branch) => 'Lista de precios — $branch';
+  static String priceListLine(String name, String unit, String usd, String ves) =>
+      '• $name ($unit): $usd / $ves';
+  static const String emptyPriceListMessage = 'Cuando haya productos activos aparecerán aquí.';
+
+  // Cómo se calculan los bolívares.
+  static const String pricingSettingsTitle = 'Cómo se calculan los bolívares';
+  static const String rateModeBcv = 'Tasa BCV';
+  static const String rateModeManual = 'Mi tasa';
+  static const String rateModeBcvHint =
+      'Los precios en Bs siguen a la tasa del BCV, que se actualiza sola.';
+  static const String rateModeManualHint =
+      'Los precios en Bs usan la tasa que tú registres. El BCV no la cambia.';
+  static const String rateModeBcvSaved = 'Ahora se vende con la tasa del BCV';
+  static const String rateModeManualSaved = 'Ahora se vende con tu tasa. Regístrala si hace falta.';
+  static const String ownRateNote = 'Tasa propia del negocio. El BCV no la reemplaza.';
+  static const String roundVesUp = 'Redondear los Bs hacia arriba';
+  static const String roundVesUpHint =
+      r'El precio de la unidad sube al bolívar entero: Bs 180,37 pasa a Bs 181. '
+      r'Las fracciones se calculan sobre ese precio. Los precios en $ no cambian.';
+  static const String roundVesUpOn = 'Los precios en Bs se redondean hacia arriba';
+  static const String roundVesUpOff = 'Los precios en Bs ya no se redondean';
+
+  // Categorías.
+  static const String categoriesTitle = 'Categorías';
+  static const String categoriesHint =
+      'Agrupan los productos en Vender e Inventario. Una categoría inactiva conserva sus '
+      'productos, pero no se le pueden asignar nuevos.';
+  static const String newCategory = 'Nueva categoría';
+  static const String editCategory = 'Editar categoría';
+  static const String categorySticker = 'Sticker (opcional)';
+  static const String categoryStickerHint =
+      'Elige uno para reconocerla rápido. Si no eliges, la app le pone un ícono.';
+  static const String automaticSticker = 'Automático';
+  static const String categoryName = 'Nombre de la categoría';
+  static const String categoryNameHint = 'Ej. Aromatizantes';
+  static const String categoryNameRequired = 'Escribe el nombre de la categoría';
+  static const String categoryCreated = 'Categoría creada';
+  static const String categoryRenamed = 'Categoría actualizada';
+  static const String categoryActivated = 'Categoría activada';
+  static const String categoryDeactivated = 'Categoría desactivada';
+  static const String inactiveCategory = 'Inactiva';
+  static const String emptyCategoriesTitle = 'Aún no hay categorías';
+  static const String emptyCategoriesMessage = 'Crea la primera para poder registrar productos.';
+  static const String noCategoriesYet = 'Todavía no hay categorías. Crea una para continuar.';
+
   // Carrito.
   static const String viewCart = 'Ver carrito';
   static String cartItems(int count) => count == 1 ? '1 producto' : '$count productos';
@@ -338,13 +527,6 @@ abstract final class Strings {
   static String role(UserRole role) => switch (role) {
     UserRole.manager => 'Gerente',
     UserRole.supervisor => 'Supervisor',
-  };
-
-  static String category(ProductCategory category) => switch (category) {
-    ProductCategory.liquids => 'Líquidos',
-    ProductCategory.powders => 'Polvos',
-    ProductCategory.accessories => 'Accesorios',
-    ProductCategory.other => 'Otros',
   };
 
   static String unit(UnitOfMeasure unit) => switch (unit) {

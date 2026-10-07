@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/l10n/strings.dart';
@@ -64,61 +65,25 @@ class _SampleProduct {
   final String minimum;
 }
 
+const _liquids = ProductCategory(id: 1, name: 'Líquidos');
+const _powders = ProductCategory(id: 2, name: 'Polvos');
+const _accessories = ProductCategory(id: 3, name: 'Accesorios');
+
 const List<_SampleProduct> _sampleProducts = [
-  _SampleProduct(
-    1,
-    'Cloro concentrado',
-    ProductCategory.liquids,
-    UnitOfMeasure.liter,
-    '1.20',
-    '48.500',
-    '10',
-  ),
+  _SampleProduct(1, 'Cloro concentrado', _liquids, UnitOfMeasure.liter, '1.20', '48.500', '10'),
   _SampleProduct(
     2,
     'Detergente en polvo multiuso',
-    ProductCategory.powders,
+    _powders,
     UnitOfMeasure.kilogram,
     '2.75',
     '6.250',
     '8',
   ),
-  _SampleProduct(
-    3,
-    'Escoba de cerdas duras',
-    ProductCategory.accessories,
-    UnitOfMeasure.unit,
-    '4.50',
-    '3',
-    '2',
-  ),
-  _SampleProduct(
-    4,
-    'Desinfectante lavanda',
-    ProductCategory.liquids,
-    UnitOfMeasure.liter,
-    '1.85',
-    '0',
-    '5',
-  ),
-  _SampleProduct(
-    5,
-    'Suavizante de telas',
-    ProductCategory.liquids,
-    UnitOfMeasure.liter,
-    '1.60',
-    '0.750',
-    '5',
-  ),
-  _SampleProduct(
-    6,
-    'Paño de microfibra',
-    ProductCategory.accessories,
-    UnitOfMeasure.unit,
-    '0.90',
-    '120',
-    '20',
-  ),
+  _SampleProduct(3, 'Escoba de cerdas duras', _accessories, UnitOfMeasure.unit, '4.50', '3', '2'),
+  _SampleProduct(4, 'Desinfectante lavanda', _liquids, UnitOfMeasure.liter, '1.85', '0', '5'),
+  _SampleProduct(5, 'Suavizante de telas', _liquids, UnitOfMeasure.liter, '1.60', '0.750', '5'),
+  _SampleProduct(6, 'Paño de microfibra', _accessories, UnitOfMeasure.unit, '0.90', '120', '20'),
 ];
 
 enum _DemoState { loading, empty, error, data }
@@ -335,6 +300,7 @@ class _PreviewBodyState extends ConsumerState<_PreviewBody> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 CategoryFilterChips(
+                  categories: const [_accessories, _liquids, _powders],
                   selected: _category,
                   onSelected: (category) => setState(() => _category = category),
                 ),

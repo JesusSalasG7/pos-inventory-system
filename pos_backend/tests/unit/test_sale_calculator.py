@@ -107,3 +107,74 @@ def test_custom_tolerance() -> None:
 def test_no_payments_fails() -> None:
     with pytest.raises(PaymentMismatchError):
         sale_calculator.validate_payments(Decimal("13.75"), [], RATE)
+
+
+# --- Redondeo de los bolívares hacia arriba ---------------------------------
+
+ODD_RATE = Decimal("150.3000")
+
+
+def test_rounding_up_raises_only_the_unit_price_to_the_whole_bolivar() -> None:
+    lines = [
+        # 1,20 $ × 150,30 = 180,36 → 181 Bs por litro; 2,5 L = 452,50 Bs, sin volver a subir.
+        PricedLine(product_id=1, quantity=Decimal("2.500"), unit_price_usd=Decimal("1.20")),
+        # 4,50 $ × 150,30 = 676,35 → 677 Bs.
+        PricedLine(product_id=2, quantity=Decimal("1"), unit_price_usd=Decimal("4.50")),
+    ]
+
+    totals = sale_calculator.calculate_totals(lines, ODD_RATE, round_ves_up=True)
+
+    assert [line.subtotal_ves for line in totals.lines] == [Decimal("452.50"), Decimal("677.00")]
+    assert totals.total_ves == Decimal("1129.50")
+    # Los dólares no cambian con el redondeo.
+    assert totals.total_usd == Decimal("7.50")
+
+
+def test_rounding_up_keeps_the_cents_of_a_fraction_of_the_unit() -> None:
+    # 0,90 $ × 885 = 796,50 → 797 Bs el litro; medio litro son 398,50 Bs.
+    rate = Decimal("885.0000")
+    liter = [PricedLine(product_id=1, quantity=Decimal("1"), unit_price_usd=Decimal("0.90"))]
+    half = [PricedLine(product_id=1, quantity=Decimal("0.500"), unit_price_usd=Decimal("0.90"))]
+
+    assert sale_calculator.calculate_totals(liter, rate, round_ves_up=True).total_ves == Decimal(
+        "797.00"
+    )
+    assert sale_calculator.calculate_totals(half, rate, round_ves_up=True).total_ves == Decimal(
+        "398.50"
+    )
+
+
+def test_without_rounding_lines_keep_their_cents() -> None:
+    lines = [PricedLine(product_id=1, quantity=Decimal("1"), unit_price_usd=Decimal("1.20"))]
+
+    totals = sale_calculator.calculate_totals(lines, ODD_RATE)
+
+    assert totals.lines[0].subtotal_ves == Decimal("180.36")
+    assert totals.total_ves == Decimal("180.36")
+    assert sale_calculator.payment_rate(totals, ODD_RATE) == ODD_RATE
+
+
+def test_whole_prices_are_not_raised() -> None:
+    lines = [PricedLine(product_id=1, quantity=Decimal("2"), unit_price_usd=Decimal("1.00"))]
+
+    totals = sale_calculator.calculate_totals(lines, RATE, round_ves_up=True)
+
+    assert totals.total_ves == Decimal("300.00")
+
+
+def test_rounded_total_paid_in_ves_matches_exactly() -> None:
+    lines = [PricedLine(product_id=2, quantity=Decimal("1"), unit_price_usd=Decimal("4.50"))]
+    totals = sale_calculator.calculate_totals(lines, ODD_RATE, round_ves_up=True)
+    rate = sale_calculator.payment_rate(totals, ODD_RATE)
+
+    # Paga los 677 Bs redondeados: con la tasa serían 4,504 $, pero cuadra con 4,50 $.
+    assert sale_calculator.validate_payments(totals.total_usd, [ves("677.00")], rate) == Decimal(
+        "4.50"
+    )
+    # Mitad en dólares y el resto en bolívares, en proporción al total redondeado.
+    assert sale_calculator.validate_payments(
+        totals.total_usd, [usd("2.25"), ves("338.50")], rate
+    ) == Decimal("4.50")
+    # Pagar los bolívares sin redondear ya no alcanza.
+    with pytest.raises(PaymentMismatchError):
+        sale_calculator.validate_payments(totals.total_usd, [ves("670.00")], rate)

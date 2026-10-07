@@ -5,6 +5,7 @@ import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/home/presentation/providers/dashboard_providers.dart';
 import 'package:pos_app/features/inventory/presentation/providers/catalog_providers.dart';
 import 'package:pos_app/features/pos/domain/checkout_math.dart';
@@ -12,6 +13,7 @@ import 'package:pos_app/features/pos/domain/sale_receipt.dart';
 import 'package:pos_app/features/pos/presentation/providers/cart_controller.dart';
 import 'package:pos_app/features/sales/data/repositories/sales_repository_impl.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
+import 'package:pos_app/features/sales/presentation/providers/sales_history_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'checkout_controller.g.dart';
@@ -42,8 +44,10 @@ class CheckoutController extends _$CheckoutController {
   CheckoutSummary? summary() {
     final rate = ref.read(activeRateProvider).value;
     if (rate == null) return null;
+    final cart = ref.read(cartControllerProvider);
     return CheckoutMath.compute(
-      totalUsd: ref.read(cartControllerProvider).totalUsd,
+      totalUsd: cart.totalUsd,
+      totalVes: cart.totalVes(rate, roundUp: ref.read(roundVesUpProvider)),
       rate: rate,
       lines: state.lines,
     );
@@ -52,11 +56,13 @@ class CheckoutController extends _$CheckoutController {
   /// Agrega una línea del método indicado, prellenada con lo que falta por cobrar.
   void addLine(PaymentMethod method) {
     final rate = ref.read(activeRateProvider).value;
+    final cart = ref.read(cartControllerProvider);
     final prefill = rate == null
         ? null
         : CheckoutMath.prefillFor(
             method: method,
-            totalUsd: ref.read(cartControllerProvider).totalUsd,
+            totalUsd: cart.totalUsd,
+            totalVes: cart.totalVes(rate, roundUp: ref.read(roundVesUpProvider)),
             rate: rate,
             lines: state.lines,
           );
@@ -124,8 +130,11 @@ class CheckoutController extends _$CheckoutController {
       ref
         ..invalidate(sellableCatalogProvider)
         ..invalidate(todaySalesSummaryProvider)
+        ..invalidate(salesHistoryProvider)
+        ..invalidate(daySalesSummaryProvider)
         ..invalidate(lowStockCountProvider)
-        ..invalidate(sessionSummaryProvider(sale.cashSessionId));
+        ..invalidate(sessionSummaryProvider(sale.cashSessionId))
+        ..invalidate(sessionSalesReportProvider(sale.cashSessionId));
       state = const CheckoutState();
       return receipt;
     } on Failure catch (failure) {

@@ -29,7 +29,7 @@ class CreateSaleSerializer(serializers.Serializer):
 class SaleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleDetail
-        fields = ["id", "product", "quantity", "unit_price_usd", "subtotal_usd"]
+        fields = ["id", "product", "quantity", "unit_price_usd", "subtotal_usd", "subtotal_ves"]
         read_only_fields = fields
 
 

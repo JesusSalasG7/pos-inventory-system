@@ -8,8 +8,16 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.exchange_rate.api.serializers import BcvRateSerializer, ExchangeRateSerializer
-from apps.exchange_rate.services import bcv_rate_service, exchange_rate_service
+from apps.exchange_rate.api.serializers import (
+    BcvRateSerializer,
+    ExchangeRateSerializer,
+    PricingSettingsSerializer,
+)
+from apps.exchange_rate.services import (
+    bcv_rate_service,
+    exchange_rate_service,
+    pricing_settings_service,
+)
 from core.permissions import IsManager, IsSupervisorOrManager
 
 
@@ -97,3 +105,33 @@ class BcvRateView(APIView):
         Responde 503 `bcv_rate_unavailable` si la fuente externa no responde.
         """
         return Response(BcvRateSerializer(bcv_rate_service.get_bcv_rate_or_fail()).data)
+
+
+class PricingSettingsView(APIView):
+    def get_permissions(self) -> list[BasePermission]:
+        # Cualquier operador necesita saber cómo se calculan los precios; solo el MANAGER lo cambia.
+        if self.request.method == "GET":
+            return [IsSupervisorOrManager()]
+        return [IsManager()]
+
+    @extend_schema(
+        operation_id="pricing_settings_retrieve",
+        responses=PricingSettingsSerializer,
+        tags=["pricing-settings"],
+    )
+    def get(self, request: Request) -> Response:
+        """Modo de tasa y redondeo en bolívares vigentes."""
+        return Response(PricingSettingsSerializer(pricing_settings_service.get_settings()).data)
+
+    @extend_schema(
+        operation_id="pricing_settings_partial_update",
+        request=PricingSettingsSerializer,
+        responses=PricingSettingsSerializer,
+        tags=["pricing-settings"],
+    )
+    def patch(self, request: Request) -> Response:
+        """Cambia el modo de tasa o el redondeo. Al volver al BCV se activa su tasa."""
+        serializer = PricingSettingsSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        settings = pricing_settings_service.update_settings(**serializer.validated_data)
+        return Response(PricingSettingsSerializer(settings).data)

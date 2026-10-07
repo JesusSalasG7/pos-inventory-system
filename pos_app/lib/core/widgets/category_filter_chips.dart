@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'package:pos_app/core/constants/category_style.dart';
-import 'package:pos_app/core/domain/enums.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_typography.dart';
+import 'package:pos_app/core/widgets/category_avatar.dart';
 
 /// Fila horizontal de chips para filtrar por categoría. `null` es "Todos".
 class CategoryFilterChips extends StatelessWidget {
   const CategoryFilterChips({
     required this.selected,
     required this.onSelected,
-    this.categories = ProductCategory.known,
+    required this.categories,
     this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
     super.key,
   });
@@ -34,18 +34,18 @@ class CategoryFilterChips extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final category = options[index];
-          final isSelected = category == selected;
+          final isSelected = category?.id == selected?.id;
           return ChoiceChip(
             selected: isSelected,
             onSelected: (_) => onSelected(category),
             avatar: category == null
                 ? null
-                : Icon(
-                    CategoryStyle.of(category).icon,
+                : CategoryGlyph(
+                    category: category,
                     size: 18,
-                    color: isSelected ? AppColors.onPrimary : CategoryStyle.of(category).color,
+                    color: isSelected ? AppColors.onPrimary : null,
                   ),
-            label: Text(category == null ? Strings.all : CategoryStyle.labelOf(category)),
+            label: Text(category == null ? Strings.all : category.name),
             labelStyle: AppTypography.label.copyWith(
               fontSize: 14,
               color: isSelected ? AppColors.onPrimary : AppColors.textPrimary,

@@ -16,8 +16,10 @@ from apps.cash_sessions.api.serializers import (
     CashSessionSerializer,
     CloseCashSessionSerializer,
     OpenCashSessionSerializer,
+    SessionSalesReportSerializer,
 )
 from apps.cash_sessions.services import cash_count_service, cash_session_service
+from apps.sales.services import sales_report_service
 from core.permissions import HasBranchAccess, IsSupervisorOrManager
 from core.query_params import is_true
 
@@ -122,6 +124,21 @@ class CashSessionSummaryView(APIView):
         session = cash_session_service.get_session(id, request.user)
         summary = cash_count_service.build_summary(session)
         return Response(CashCountSummarySerializer(asdict(summary)).data)
+
+
+class CashSessionSalesReportView(APIView):
+    permission_classes = [IsSupervisorOrManager, HasBranchAccess]
+
+    @extend_schema(
+        operation_id="cash_sessions_sales_report",
+        responses=SessionSalesReportSerializer,
+        tags=["cash-sessions"],
+    )
+    def get(self, request: Request, id: int) -> Response:
+        """Resumen de lo vendido en la caja: totales, cobros, costo y ganancia."""
+        session = cash_session_service.get_session(id, request.user)
+        report = sales_report_service.build_session_report(session.pk)
+        return Response(SessionSalesReportSerializer(asdict(report)).data)
 
 
 class CashSessionCloseView(APIView):

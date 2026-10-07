@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductDto {
 
- int get id; String get name; String get category; String get unitOfMeasure;@DecimalConverter() Decimal get costPriceUsd;@DecimalConverter() Decimal get salePriceUsd; bool get active;
+ int get id; String get name; int get category; String get categoryName; String get categoryIcon; String get unitOfMeasure;@DecimalConverter() Decimal get costPriceUsd;@DecimalConverter() Decimal get salePriceUsd; bool get active;
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ProductDtoCopyWith<ProductDto> get copyWith => _$ProductDtoCopyWithImpl<Product
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,unitOfMeasure,costPriceUsd,salePriceUsd,active);
+int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,unitOfMeasure,costPriceUsd,salePriceUsd,active);
 
 @override
 String toString() {
-  return 'ProductDto(id: $id, name: $name, category: $category, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
+  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ProductDtoCopyWith<$Res>  {
   factory $ProductDtoCopyWith(ProductDto value, $Res Function(ProductDto) _then) = _$ProductDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String category, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
+ int id, String name, int category, String categoryName, String categoryIcon, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
 });
 
 
@@ -65,11 +65,13 @@ class _$ProductDtoCopyWithImpl<$Res>
 
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as int,categoryName: null == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as String,categoryIcon: null == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
 as String,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
 as String,costPriceUsd: null == costPriceUsd ? _self.costPriceUsd : costPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,salePriceUsd: null == salePriceUsd ? _self.salePriceUsd : salePriceUsd // ignore: cast_nullable_to_non_nullable
@@ -159,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String category,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductDto() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   return orElse();
 
 }
@@ -180,10 +182,10 @@ return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.cos
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String category,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)  $default,) {final _that = this;
 switch (_that) {
 case _ProductDto():
-return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +202,10 @@ return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.cos
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String category,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductDto() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   return null;
 
 }
@@ -215,12 +217,14 @@ return $default(_that.id,_that.name,_that.category,_that.unitOfMeasure,_that.cos
 @JsonSerializable()
 
 class _ProductDto extends ProductDto {
-  const _ProductDto({required this.id, required this.name, required this.category, required this.unitOfMeasure, @DecimalConverter() required this.costPriceUsd, @DecimalConverter() required this.salePriceUsd, required this.active}): super._();
+  const _ProductDto({required this.id, required this.name, required this.category, required this.categoryName, this.categoryIcon = '', required this.unitOfMeasure, @DecimalConverter() required this.costPriceUsd, @DecimalConverter() required this.salePriceUsd, required this.active}): super._();
   factory _ProductDto.fromJson(Map<String, dynamic> json) => _$ProductDtoFromJson(json);
 
 @override final  int id;
 @override final  String name;
-@override final  String category;
+@override final  int category;
+@override final  String categoryName;
+@override@JsonKey() final  String categoryIcon;
 @override final  String unitOfMeasure;
 @override@DecimalConverter() final  Decimal costPriceUsd;
 @override@DecimalConverter() final  Decimal salePriceUsd;
@@ -239,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,unitOfMeasure,costPriceUsd,salePriceUsd,active);
+int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,unitOfMeasure,costPriceUsd,salePriceUsd,active);
 
 @override
 String toString() {
-  return 'ProductDto(id: $id, name: $name, category: $category, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
+  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
 }
 
 
@@ -259,7 +263,7 @@ abstract mixin class _$ProductDtoCopyWith<$Res> implements $ProductDtoCopyWith<$
   factory _$ProductDtoCopyWith(_ProductDto value, $Res Function(_ProductDto) _then) = __$ProductDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String category, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
+ int id, String name, int category, String categoryName, String categoryIcon, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
 });
 
 
@@ -276,11 +280,13 @@ class __$ProductDtoCopyWithImpl<$Res>
 
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
   return _then(_ProductDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as int,categoryName: null == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as String,categoryIcon: null == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
 as String,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
 as String,costPriceUsd: null == costPriceUsd ? _self.costPriceUsd : costPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,salePriceUsd: null == salePriceUsd ? _self.salePriceUsd : salePriceUsd // ignore: cast_nullable_to_non_nullable
@@ -564,6 +570,278 @@ as String,branch: null == branch ? _self.branch : branch // ignore: cast_nullabl
 as String,currentStock: null == currentStock ? _self.currentStock : currentStock // ignore: cast_nullable_to_non_nullable
 as Decimal,minimumStock: null == minimumStock ? _self.minimumStock : minimumStock // ignore: cast_nullable_to_non_nullable
 as Decimal,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$CategoryDto {
+
+ int get id; String get name; bool get active; String get icon;
+/// Create a copy of CategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CategoryDtoCopyWith<CategoryDto> get copyWith => _$CategoryDtoCopyWithImpl<CategoryDto>(this as CategoryDto, _$identity);
+
+  /// Serializes this CategoryDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.active, active) || other.active == active)&&(identical(other.icon, icon) || other.icon == icon));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,active,icon);
+
+@override
+String toString() {
+  return 'CategoryDto(id: $id, name: $name, active: $active, icon: $icon)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CategoryDtoCopyWith<$Res>  {
+  factory $CategoryDtoCopyWith(CategoryDto value, $Res Function(CategoryDto) _then) = _$CategoryDtoCopyWithImpl;
+@useResult
+$Res call({
+ int id, String name, bool active, String icon
+});
+
+
+
+
+}
+/// @nodoc
+class _$CategoryDtoCopyWithImpl<$Res>
+    implements $CategoryDtoCopyWith<$Res> {
+  _$CategoryDtoCopyWithImpl(this._self, this._then);
+
+  final CategoryDto _self;
+  final $Res Function(CategoryDto) _then;
+
+/// Create a copy of CategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? active = null,Object? icon = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,icon: null == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CategoryDto].
+extension CategoryDtoPatterns on CategoryDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CategoryDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CategoryDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CategoryDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _CategoryDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CategoryDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CategoryDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  bool active,  String icon)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CategoryDto() when $default != null:
+return $default(_that.id,_that.name,_that.active,_that.icon);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  bool active,  String icon)  $default,) {final _that = this;
+switch (_that) {
+case _CategoryDto():
+return $default(_that.id,_that.name,_that.active,_that.icon);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  bool active,  String icon)?  $default,) {final _that = this;
+switch (_that) {
+case _CategoryDto() when $default != null:
+return $default(_that.id,_that.name,_that.active,_that.icon);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CategoryDto extends CategoryDto {
+  const _CategoryDto({required this.id, required this.name, required this.active, this.icon = ''}): super._();
+  factory _CategoryDto.fromJson(Map<String, dynamic> json) => _$CategoryDtoFromJson(json);
+
+@override final  int id;
+@override final  String name;
+@override final  bool active;
+@override@JsonKey() final  String icon;
+
+/// Create a copy of CategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CategoryDtoCopyWith<_CategoryDto> get copyWith => __$CategoryDtoCopyWithImpl<_CategoryDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CategoryDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.active, active) || other.active == active)&&(identical(other.icon, icon) || other.icon == icon));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,active,icon);
+
+@override
+String toString() {
+  return 'CategoryDto(id: $id, name: $name, active: $active, icon: $icon)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CategoryDtoCopyWith<$Res> implements $CategoryDtoCopyWith<$Res> {
+  factory _$CategoryDtoCopyWith(_CategoryDto value, $Res Function(_CategoryDto) _then) = __$CategoryDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String name, bool active, String icon
+});
+
+
+
+
+}
+/// @nodoc
+class __$CategoryDtoCopyWithImpl<$Res>
+    implements _$CategoryDtoCopyWith<$Res> {
+  __$CategoryDtoCopyWithImpl(this._self, this._then);
+
+  final _CategoryDto _self;
+  final $Res Function(_CategoryDto) _then;
+
+/// Create a copy of CategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? active = null,Object? icon = null,}) {
+  return _then(_CategoryDto(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,icon: null == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

@@ -33,3 +33,13 @@ Map<String, dynamic> _$BcvRateDtoToJson(_BcvRateDto instance) => <String, dynami
   'rate': const DecimalConverter().toJson(instance.rate),
   'updated_at': instance.updatedAt.toIso8601String(),
 };
+
+_PricingSettingsDto _$PricingSettingsDtoFromJson(Map<String, dynamic> json) => _PricingSettingsDto(
+  rateMode: json['rate_mode'] as String,
+  roundVesUp: json['round_ves_up'] as bool,
+);
+
+Map<String, dynamic> _$PricingSettingsDtoToJson(_PricingSettingsDto instance) => <String, dynamic>{
+  'rate_mode': instance.rateMode,
+  'round_ves_up': instance.roundVesUp,
+};

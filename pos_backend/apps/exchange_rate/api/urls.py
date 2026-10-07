@@ -3,6 +3,7 @@ from django.urls import path
 from apps.exchange_rate.api import views
 
 urlpatterns = [
+    path("pricing-settings/", views.PricingSettingsView.as_view(), name="pricing-settings"),
     path("exchange-rates/", views.ExchangeRateListCreateView.as_view(), name="exchange-rate-list"),
     path(
         "exchange-rates/current/",

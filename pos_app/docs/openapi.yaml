@@ -345,6 +345,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/CashExpense'
           description: ''
+  /api/v1/cash-sessions/{id}/sales-report/:
+    get:
+      operationId: cash_sessions_sales_report
+      description: 'Resumen de lo vendido en la caja: totales, cobros, costo y ganancia.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cash-sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSalesReport'
+          description: ''
   /api/v1/cash-sessions/{id}/summary/:
     get:
       operationId: cash_sessions_summary
@@ -381,6 +402,117 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CashSession'
+          description: ''
+  /api/v1/categories/:
+    get:
+      operationId: categories_list
+      description: Categorías del catálogo, ordenadas por nombre.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo categorías activas.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: categories_create
+      description: Crea una categoría activa.
+      tags:
+      - categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/categories/{id}/:
+    get:
+      operationId: categories_retrieve
+      description: Lectura para SUPERVISOR y MANAGER; escritura solo para MANAGER.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: categories_partial_update
+      description: Cambia el nombre o activa/desactiva la categoría.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
           description: ''
   /api/v1/exchange-rates/:
     get:
@@ -683,6 +815,47 @@ paths:
           description: ''
         '204':
           description: No response body
+  /api/v1/pricing-settings/:
+    get:
+      operationId: pricing_settings_retrieve
+      description: Modo de tasa y redondeo en bolívares vigentes.
+      tags:
+      - pricing-settings
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingSettings'
+          description: ''
+    patch:
+      operationId: pricing_settings_partial_update
+      description: Cambia el modo de tasa o el redondeo. Al volver al BCV se activa
+        su tasa.
+      tags:
+      - pricing-settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingSettings'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingSettings'
+          description: ''
   /api/v1/products/:
     get:
       operationId: products_list
@@ -696,11 +869,8 @@ paths:
       - in: query
         name: category
         schema:
-          type: string
-          enum:
-          - ACCESSORIES
-          - LIQUIDS
-          - POWDERS
+          type: integer
+        description: Id de la categoría.
       - name: page
         required: false
         in: query
@@ -1290,16 +1460,38 @@ components:
       - opened_at
       - opening_float
       - user
-    CategoryEnum:
-      enum:
-      - LIQUIDS
-      - POWDERS
-      - ACCESSORIES
-      type: string
-      description: |-
-        * `LIQUIDS` - Líquidos
-        * `POWDERS` - Polvos
-        * `ACCESSORIES` - Accesorios
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        icon:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+      required:
+      - active
+      - icon
+      - id
+      - name
+    CategoryCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        icon:
+          type: string
+          description: Emoji; vacío para automático.
+          maxLength: 16
+      required:
+      - name
     CloseCashSession:
       type: object
       properties:
@@ -1599,6 +1791,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CashSession'
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
     PaginatedExchangeRateList:
       type: object
       required:
@@ -1722,6 +1937,17 @@ components:
           maxLength: 100
         active:
           type: boolean
+    PatchedCategoryUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        icon:
+          type: string
+          maxLength: 16
+        active:
+          type: boolean
     PatchedMinimumStock:
       type: object
       properties:
@@ -1732,6 +1958,13 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+    PatchedPricingSettings:
+      type: object
+      properties:
+        rate_mode:
+          $ref: '#/components/schemas/RateModeEnum'
+        round_ves_up:
+          type: boolean
     PatchedProduct:
       type: object
       properties:
@@ -1742,7 +1975,14 @@ components:
           type: string
           maxLength: 150
         category:
-          $ref: '#/components/schemas/CategoryEnum'
+          type: integer
+          minimum: 1
+        category_name:
+          type: string
+          readOnly: true
+        category_icon:
+          type: string
+          readOnly: true
         unit_of_measure:
           $ref: '#/components/schemas/UnitOfMeasureEnum'
         cost_price_usd:
@@ -1793,6 +2033,28 @@ components:
       - amount
       - currency
       - method
+    PaymentTotal:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - amount
+      - currency
+      - method
+    PricingSettings:
+      type: object
+      properties:
+        rate_mode:
+          $ref: '#/components/schemas/RateModeEnum'
+        round_ves_up:
+          type: boolean
     Product:
       type: object
       properties:
@@ -1803,7 +2065,14 @@ components:
           type: string
           maxLength: 150
         category:
-          $ref: '#/components/schemas/CategoryEnum'
+          type: integer
+          minimum: 1
+        category_name:
+          type: string
+          readOnly: true
+        category_icon:
+          type: string
+          readOnly: true
         unit_of_measure:
           $ref: '#/components/schemas/UnitOfMeasureEnum'
         cost_price_usd:
@@ -1820,11 +2089,66 @@ components:
       required:
       - active
       - category
+      - category_icon
+      - category_name
       - cost_price_usd
       - id
       - name
       - sale_price_usd
       - unit_of_measure
+    ProductSales:
+      type: object
+      properties:
+        product:
+          type: integer
+        product_name:
+          type: string
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+        sales_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        sales_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cost_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cost_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        profit_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        profit_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - cost_usd
+      - cost_ves
+      - product
+      - product_name
+      - profit_usd
+      - profit_ves
+      - quantity
+      - sales_usd
+      - sales_ves
+    RateModeEnum:
+      enum:
+      - BCV
+      - MANUAL
+      type: string
+      description: |-
+        * `BCV` - BCV automática
+        * `MANUAL` - Tasa propia
     RoleEnum:
       enum:
       - MANAGER
@@ -1920,11 +2244,17 @@ components:
           format: decimal
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
           readOnly: true
+        subtotal_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
       required:
       - id
       - product
       - quantity
       - subtotal_usd
+      - subtotal_ves
       - unit_price_usd
     SaleItemInput:
       type: object
@@ -1982,6 +2312,55 @@ components:
           format: decimal
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
       required:
+      - sales_count
+      - total_usd
+      - total_ves
+    SessionSalesReport:
+      type: object
+      description: Lo vendido en una caja. Los bolívares usan la tasa congelada de
+        cada venta.
+      properties:
+        sales_count:
+          type: integer
+        total_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cost_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        cost_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        profit_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        profit_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTotal'
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSales'
+      required:
+      - cost_usd
+      - cost_ves
+      - payments
+      - products
+      - profit_usd
+      - profit_ves
       - sales_count
       - total_usd
       - total_ves

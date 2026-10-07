@@ -15,6 +15,7 @@ abstract class SaleDetailDto with _$SaleDetailDto {
     @DecimalConverter() required Decimal quantity,
     @DecimalConverter() required Decimal unitPriceUsd,
     @DecimalConverter() required Decimal subtotalUsd,
+    @DecimalConverter() required Decimal subtotalVes,
   }) = _SaleDetailDto;
 
   const SaleDetailDto._();
@@ -27,6 +28,7 @@ abstract class SaleDetailDto with _$SaleDetailDto {
     quantity: quantity,
     unitPriceUsd: unitPriceUsd,
     subtotalUsd: subtotalUsd,
+    subtotalVes: subtotalVes,
   );
 }
 

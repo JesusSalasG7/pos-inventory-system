@@ -20,6 +20,11 @@ urlpatterns = [
         name="cash-session-summary",
     ),
     path(
+        "cash-sessions/<int:id>/sales-report/",
+        views.CashSessionSalesReportView.as_view(),
+        name="cash-session-sales-report",
+    ),
+    path(
         "cash-sessions/<int:id>/close/",
         views.CashSessionCloseView.as_view(),
         name="cash-session-close",

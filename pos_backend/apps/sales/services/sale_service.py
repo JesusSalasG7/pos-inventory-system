@@ -10,7 +10,11 @@ from django.db.models import QuerySet
 
 from apps.auth.models import User
 from apps.cash_sessions.services import cash_session_service
-from apps.exchange_rate.services import exchange_rate_service
+from apps.exchange_rate.services import (
+    bcv_rate_service,
+    exchange_rate_service,
+    pricing_settings_service,
+)
 from apps.inventory.services import product_service, stock_service
 from apps.sales.domain.dtos import CreateSaleInput, PaymentInput, PricedLine, SaleItemInput
 from apps.sales.models import Sale
@@ -41,7 +45,9 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
        (`cash_session_service.get_open_session`). Si no, NoOpenSessionError → 409.
        Sin sucursal explícita se factura en la de la caja abierta.
     2. Obtener la tasa activa (`exchange_rate_service.get_active_rate`) y
-       congelarla en la venta como `exchange_rate_at_invoice`.
+       congelarla en la venta como `exchange_rate_at_invoice`. Se congela
+       también la del BCV (`bcv_rate_at_invoice`), con la que se valora el
+       costo en bolívares; si no hay ninguna del BCV, vale la tasa activa.
     3. Cargar los productos activos solicitados (`product_service`). El precio
        SIEMPRE sale de la base de datos, nunca del cliente. Un producto
        inexistente o inactivo lanza InactiveProductError → 422.
@@ -77,16 +83,26 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
         )
 
     rate = exchange_rate_service.get_active_rate().usd_to_ves_rate
+    bcv_rate = bcv_rate_service.get_cost_rate() or rate
 
     products = product_service.get_active_products(quantities)
     lines = [
-        PricedLine(product_id, quantity, products[product_id].sale_price_usd)
+        PricedLine(
+            product_id,
+            quantity,
+            products[product_id].sale_price_usd,
+            products[product_id].cost_price_usd,
+        )
         for product_id, quantity in quantities.items()
     ]
 
-    totals = sale_calculator.calculate_totals(lines, rate)
+    round_ves_up = pricing_settings_service.get_settings().round_ves_up
+    totals = sale_calculator.calculate_totals(lines, rate, round_ves_up=round_ves_up)
     sale_calculator.validate_payments(
-        totals.total_usd, payments, rate, settings.PAYMENT_TOLERANCE_USD
+        totals.total_usd,
+        payments,
+        sale_calculator.payment_rate(totals, rate),
+        settings.PAYMENT_TOLERANCE_USD,
     )
 
     with transaction.atomic():
@@ -97,6 +113,7 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
             user=user,
             branch=branch,
             exchange_rate_at_invoice=rate,
+            bcv_rate_at_invoice=bcv_rate,
             total_usd=totals.total_usd,
             total_ves=totals.total_ves,
             customer_tax_id=data.customer_tax_id.strip(),

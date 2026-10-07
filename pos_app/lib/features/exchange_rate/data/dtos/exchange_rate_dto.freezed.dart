@@ -557,4 +557,270 @@ as DateTime,
 
 }
 
+
+/// @nodoc
+mixin _$PricingSettingsDto {
+
+ String get rateMode; bool get roundVesUp;
+/// Create a copy of PricingSettingsDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PricingSettingsDtoCopyWith<PricingSettingsDto> get copyWith => _$PricingSettingsDtoCopyWithImpl<PricingSettingsDto>(this as PricingSettingsDto, _$identity);
+
+  /// Serializes this PricingSettingsDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PricingSettingsDto&&(identical(other.rateMode, rateMode) || other.rateMode == rateMode)&&(identical(other.roundVesUp, roundVesUp) || other.roundVesUp == roundVesUp));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,rateMode,roundVesUp);
+
+@override
+String toString() {
+  return 'PricingSettingsDto(rateMode: $rateMode, roundVesUp: $roundVesUp)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PricingSettingsDtoCopyWith<$Res>  {
+  factory $PricingSettingsDtoCopyWith(PricingSettingsDto value, $Res Function(PricingSettingsDto) _then) = _$PricingSettingsDtoCopyWithImpl;
+@useResult
+$Res call({
+ String rateMode, bool roundVesUp
+});
+
+
+
+
+}
+/// @nodoc
+class _$PricingSettingsDtoCopyWithImpl<$Res>
+    implements $PricingSettingsDtoCopyWith<$Res> {
+  _$PricingSettingsDtoCopyWithImpl(this._self, this._then);
+
+  final PricingSettingsDto _self;
+  final $Res Function(PricingSettingsDto) _then;
+
+/// Create a copy of PricingSettingsDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? rateMode = null,Object? roundVesUp = null,}) {
+  return _then(_self.copyWith(
+rateMode: null == rateMode ? _self.rateMode : rateMode // ignore: cast_nullable_to_non_nullable
+as String,roundVesUp: null == roundVesUp ? _self.roundVesUp : roundVesUp // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PricingSettingsDto].
+extension PricingSettingsDtoPatterns on PricingSettingsDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PricingSettingsDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PricingSettingsDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PricingSettingsDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _PricingSettingsDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PricingSettingsDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PricingSettingsDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String rateMode,  bool roundVesUp)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PricingSettingsDto() when $default != null:
+return $default(_that.rateMode,_that.roundVesUp);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String rateMode,  bool roundVesUp)  $default,) {final _that = this;
+switch (_that) {
+case _PricingSettingsDto():
+return $default(_that.rateMode,_that.roundVesUp);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String rateMode,  bool roundVesUp)?  $default,) {final _that = this;
+switch (_that) {
+case _PricingSettingsDto() when $default != null:
+return $default(_that.rateMode,_that.roundVesUp);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PricingSettingsDto extends PricingSettingsDto {
+  const _PricingSettingsDto({required this.rateMode, required this.roundVesUp}): super._();
+  factory _PricingSettingsDto.fromJson(Map<String, dynamic> json) => _$PricingSettingsDtoFromJson(json);
+
+@override final  String rateMode;
+@override final  bool roundVesUp;
+
+/// Create a copy of PricingSettingsDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PricingSettingsDtoCopyWith<_PricingSettingsDto> get copyWith => __$PricingSettingsDtoCopyWithImpl<_PricingSettingsDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PricingSettingsDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PricingSettingsDto&&(identical(other.rateMode, rateMode) || other.rateMode == rateMode)&&(identical(other.roundVesUp, roundVesUp) || other.roundVesUp == roundVesUp));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,rateMode,roundVesUp);
+
+@override
+String toString() {
+  return 'PricingSettingsDto(rateMode: $rateMode, roundVesUp: $roundVesUp)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PricingSettingsDtoCopyWith<$Res> implements $PricingSettingsDtoCopyWith<$Res> {
+  factory _$PricingSettingsDtoCopyWith(_PricingSettingsDto value, $Res Function(_PricingSettingsDto) _then) = __$PricingSettingsDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ String rateMode, bool roundVesUp
+});
+
+
+
+
+}
+/// @nodoc
+class __$PricingSettingsDtoCopyWithImpl<$Res>
+    implements _$PricingSettingsDtoCopyWith<$Res> {
+  __$PricingSettingsDtoCopyWithImpl(this._self, this._then);
+
+  final _PricingSettingsDto _self;
+  final $Res Function(_PricingSettingsDto) _then;
+
+/// Create a copy of PricingSettingsDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? rateMode = null,Object? roundVesUp = null,}) {
+  return _then(_PricingSettingsDto(
+rateMode: null == rateMode ? _self.rateMode : rateMode // ignore: cast_nullable_to_non_nullable
+as String,roundVesUp: null == roundVesUp ? _self.roundVesUp : roundVesUp // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
 // dart format on

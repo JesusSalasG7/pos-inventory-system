@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pos_app/core/currency/currency_converter.dart';
 import 'package:pos_app/core/currency/money.dart';
+import 'package:pos_app/core/currency/ves_pricing.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 
@@ -90,6 +91,10 @@ class CheckoutSummary {
 
 /// Cuadre de pagos mixtos. Replica `sale_calculator.payments_total_usd` del
 /// backend: los bolívares se suman entre sí y se convierten a USD una sola vez.
+///
+/// `totalVes` es el total en bolívares de la venta cuando el negocio redondea
+/// los precios hacia arriba: entonces los bolívares se convierten con la
+/// proporción real de la venta (`VesPricing.paymentRate`), no con la tasa.
 abstract final class CheckoutMath {
   /// Lo pagado en USD: dólares más bolívares convertidos una sola vez.
   static Decimal paidUsd({required Decimal usd, required Decimal ves, required Decimal rate}) =>
@@ -99,8 +104,10 @@ abstract final class CheckoutMath {
     required Decimal totalUsd,
     required Decimal rate,
     required List<PaymentLine> lines,
+    Decimal? totalVes,
   }) {
     final total = quantizeMoney(totalUsd);
+    rate = _paymentRate(total, totalVes, rate);
     final usd = _sum(lines, Currency.usd);
     final ves = _sum(lines, Currency.ves);
     final paid = paidUsd(usd: usd, ves: ves, rate: rate);
@@ -123,7 +130,13 @@ abstract final class CheckoutMath {
       payments: payments,
     );
 
-    if (lines.isEmpty) return result(CheckoutStatus.noPayments);
+    if (lines.isEmpty) {
+      return result(
+        CheckoutStatus.noPayments,
+        remainingUsd: total,
+        remainingVes: totalVes ?? CurrencyConverter.usdToVes(total, rate),
+      );
+    }
 
     final difference = paid - total;
     if (difference < -paymentToleranceUsd) {
@@ -178,8 +191,10 @@ abstract final class CheckoutMath {
     required Decimal totalUsd,
     required Decimal rate,
     required List<PaymentLine> lines,
+    Decimal? totalVes,
   }) {
     final total = quantizeMoney(totalUsd);
+    rate = _paymentRate(total, totalVes, rate);
     final usd = _sum(lines, Currency.usd);
     final ves = _sum(lines, Currency.ves);
     final remainingUsd = total - paidUsd(usd: usd, ves: ves, rate: rate);
@@ -190,6 +205,10 @@ abstract final class CheckoutMath {
     final missingVes = CurrencyConverter.usdToVes(total - usd, rate) - ves;
     return missingVes > Decimal.zero ? missingVes : null;
   }
+
+  static Decimal _paymentRate(Decimal totalUsd, Decimal? totalVes, Decimal rate) => totalVes == null
+      ? rate
+      : VesPricing.paymentRate(totalUsd: totalUsd, totalVes: totalVes, rate: rate);
 
   static Decimal _sum(List<PaymentLine> lines, Currency currency) => lines
       .where((line) => line.method.currency == currency)

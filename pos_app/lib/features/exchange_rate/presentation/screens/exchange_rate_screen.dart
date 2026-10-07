@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pos_app/core/currency/money.dart';
 import 'package:pos_app/core/currency/money_formatter.dart';
+import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/formatting/date_formatter.dart';
 import 'package:pos_app/core/l10n/strings.dart';
@@ -19,7 +20,9 @@ import 'package:pos_app/core/widgets/section_card.dart';
 import 'package:pos_app/core/widgets/skeleton.dart';
 import 'package:pos_app/features/auth/presentation/screens/auth_scaffold.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
+import 'package:pos_app/features/exchange_rate/domain/entities/pricing_settings.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/rate_history_provider.dart';
 
 /// Tasa de cambio: la activa, la del BCV como referencia y el histórico.
@@ -52,6 +55,8 @@ class ExchangeRateScreen extends ConsumerWidget {
     final bcv = ref.watch(bcvRateProvider);
     final history = ref.watch(rateHistoryProvider);
     final isManager = ref.watch(currentUserProvider)?.isManager ?? false;
+    final settings = ref.watch(pricingSettingsControllerProvider).value ?? const PricingSettings();
+    final usesOwnRate = settings.rateMode == RateMode.manual;
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.exchangeRateTitle)),
@@ -59,7 +64,8 @@ class ExchangeRateScreen extends ConsumerWidget {
         onRefresh: () async {
           ref
             ..invalidate(bcvRateProvider)
-            ..invalidate(rateHistoryProvider);
+            ..invalidate(rateHistoryProvider)
+            ..invalidate(pricingSettingsControllerProvider);
           await ref.read(activeExchangeRateProvider.notifier).refresh();
         },
         child: ListView(
@@ -94,7 +100,7 @@ class ExchangeRateScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            Strings.autoRateNote,
+                            usesOwnRate ? Strings.ownRateNote : Strings.autoRateNote,
                             style: AppTypography.bodySmall.copyWith(fontSize: 12),
                           ),
                         ],
@@ -107,13 +113,18 @@ class ExchangeRateScreen extends ConsumerWidget {
               child: _BcvContent(bcv: bcv, activeRate: active.value?.rate),
             ),
             if (isManager) ...[
+              const SizedBox(height: AppSpacing.md),
+              _PricingSettingsCard(settings: settings),
               const SizedBox(height: AppSpacing.lg),
-              _SyncBcvButton(onSync: () => _syncBcv(context, ref)),
-              const SizedBox(height: AppSpacing.sm),
+              // Con tasa propia el BCV no reemplaza la activa: no hay nada que sincronizar.
+              if (!usesOwnRate) ...[
+                _SyncBcvButton(onSync: () => _syncBcv(context, ref)),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               PrimaryButton(
                 label: Strings.registerRate,
                 icon: Icons.add_rounded,
-                variant: ButtonVariant.outlined,
+                variant: usesOwnRate ? ButtonVariant.filled : ButtonVariant.outlined,
                 onPressed: () => _register(context),
               ),
             ],
@@ -170,6 +181,91 @@ class ExchangeRateScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Ajustes del gerente: con qué tasa se vende (BCV o la propia) y si los
+/// precios en bolívares se redondean hacia arriba.
+class _PricingSettingsCard extends ConsumerStatefulWidget {
+  const _PricingSettingsCard({required this.settings});
+
+  final PricingSettings settings;
+
+  @override
+  ConsumerState<_PricingSettingsCard> createState() => _PricingSettingsCardState();
+}
+
+class _PricingSettingsCardState extends ConsumerState<_PricingSettingsCard> {
+  bool _isSaving = false;
+
+  /// Guarda un cambio y avisa del resultado; un rechazo del backend se muestra tal cual.
+  Future<void> _save(Future<void> Function() change, String successMessage) async {
+    if (_isSaving) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isSaving = true);
+    try {
+      await change();
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(successMessage)));
+    } on Failure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(failure.message)));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = widget.settings;
+    final controller = ref.read(pricingSettingsControllerProvider.notifier);
+    return SectionCard(
+      title: Strings.pricingSettingsTitle.toUpperCase(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<RateMode>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: RateMode.bcv, label: Text(Strings.rateModeBcv)),
+                ButtonSegment(value: RateMode.manual, label: Text(Strings.rateModeManual)),
+              ],
+              selected: {settings.rateMode},
+              onSelectionChanged: _isSaving
+                  ? null
+                  : (selection) => _save(
+                      () => controller.setRateMode(selection.first),
+                      selection.first == RateMode.bcv
+                          ? Strings.rateModeBcvSaved
+                          : Strings.rateModeManualSaved,
+                    ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            settings.rateMode == RateMode.bcv
+                ? Strings.rateModeBcvHint
+                : Strings.rateModeManualHint,
+            style: AppTypography.bodySmall,
+          ),
+          const Divider(height: AppSpacing.xl),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(Strings.roundVesUp, style: AppTypography.subtitle),
+            subtitle: Text(Strings.roundVesUpHint, style: AppTypography.bodySmall),
+            value: settings.roundVesUp,
+            onChanged: _isSaving
+                ? null
+                : (enabled) => _save(
+                    () => controller.setRoundVesUp(enabled: enabled),
+                    enabled ? Strings.roundVesUpOn : Strings.roundVesUpOff,
+                  ),
+          ),
+        ],
       ),
     );
   }

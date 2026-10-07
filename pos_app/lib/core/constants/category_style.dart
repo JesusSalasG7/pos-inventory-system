@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:pos_app/core/domain/enums.dart';
-import 'package:pos_app/core/l10n/strings.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
 
-/// Ícono y color de cada categoría. El backend no tiene imágenes de producto,
+/// Ícono y color de una categoría. El backend no tiene imágenes de producto,
 /// así que la categoría es la pista visual para reconocerlo rápido.
+///
+/// Las categorías las crea el gerente y no guardan ícono ni color: se les
+/// asigna uno de esta paleta según su `id`, de modo que cada categoría
+/// conserva siempre el mismo.
 @immutable
 class CategoryStyle {
   const CategoryStyle({required this.icon, required this.color, required this.softColor});
@@ -14,28 +17,39 @@ class CategoryStyle {
   final Color color;
   final Color softColor;
 
-  static CategoryStyle of(ProductCategory category) => switch (category) {
-    ProductCategory.liquids => const CategoryStyle(
+  static const List<CategoryStyle> _palette = [
+    CategoryStyle(
       icon: Icons.water_drop_rounded,
       color: AppColors.categoryLiquids,
       softColor: AppColors.categoryLiquidsSoft,
     ),
-    ProductCategory.powders => const CategoryStyle(
+    CategoryStyle(
       icon: Icons.grain_rounded,
       color: AppColors.categoryPowders,
       softColor: AppColors.categoryPowdersSoft,
     ),
-    ProductCategory.accessories => const CategoryStyle(
+    CategoryStyle(
       icon: Icons.cleaning_services_rounded,
       color: AppColors.categoryAccessories,
       softColor: AppColors.categoryAccessoriesSoft,
     ),
-    ProductCategory.other => const CategoryStyle(
+    CategoryStyle(
+      icon: Icons.spa_rounded,
+      color: AppColors.primaryDark,
+      softColor: AppColors.primarySoft,
+    ),
+    CategoryStyle(
+      icon: Icons.local_offer_rounded,
+      color: AppColors.onAccent,
+      softColor: AppColors.accentSoft,
+    ),
+    CategoryStyle(
       icon: Icons.category_rounded,
       color: AppColors.textSecondary,
       softColor: AppColors.surfaceMuted,
     ),
-  };
+  ];
 
-  static String labelOf(ProductCategory category) => Strings.category(category);
+  static CategoryStyle of(ProductCategory category) =>
+      _palette[(category.id - 1) % _palette.length];
 }

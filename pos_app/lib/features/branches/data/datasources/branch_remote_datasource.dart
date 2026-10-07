@@ -19,6 +19,14 @@ class BranchRemoteDataSource {
     return Paginated.fromJson(response.data!, BranchDto.fromJson);
   }
 
+  Future<BranchDto> updateBranch(String code, {String? name, bool? active}) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      'branches/$code/',
+      data: {'name': ?name, 'active': ?active},
+    );
+    return BranchDto.fromJson(response.data!);
+  }
+
   Future<BranchDto> createBranch({required String code, required String name}) async {
     final response = await _dio.post<Map<String, dynamic>>(
       'branches/',

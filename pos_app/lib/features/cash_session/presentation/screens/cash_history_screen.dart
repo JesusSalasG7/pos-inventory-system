@@ -18,6 +18,7 @@ import 'package:pos_app/core/widgets/skeleton.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/widgets/cash_summary_view.dart';
+import 'package:pos_app/features/cash_session/presentation/widgets/sales_report_view.dart';
 
 /// Historial de cajas de la tienda activa, de la más reciente a la más antigua.
 class CashHistoryScreen extends ConsumerWidget {
@@ -141,7 +142,8 @@ class _StatusPill extends StatelessWidget {
   }
 }
 
-/// Detalle de una caja del historial: datos del turno, arqueo y gastos.
+/// Detalle de una caja del historial: datos del turno, arqueo, gastos y
+/// resumen de lo vendido.
 ///
 /// El backend no tiene un endpoint para leer una caja por id, así que la caja
 /// llega desde la lista.
@@ -216,6 +218,10 @@ class CashSessionDetailScreen extends ConsumerWidget {
                   Column(children: [for (final expense in list) ExpenseTile(expense: expense)]),
             ),
           ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(Strings.salesReportTitle, style: AppTypography.title),
+          const SizedBox(height: AppSpacing.md),
+          SessionSalesReportSection(sessionId: session.id),
         ],
       ),
     );

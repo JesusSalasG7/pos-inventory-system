@@ -233,6 +233,89 @@ final class SessionSummaryFamily extends $Family
   String toString() => r'sessionSummaryProvider';
 }
 
+/// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+
+@ProviderFor(sessionSalesReport)
+final sessionSalesReportProvider = SessionSalesReportFamily._();
+
+/// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+
+final class SessionSalesReportProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SessionSalesReport>,
+          SessionSalesReport,
+          FutureOr<SessionSalesReport>
+        >
+    with $FutureModifier<SessionSalesReport>, $FutureProvider<SessionSalesReport> {
+  /// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+  SessionSalesReportProvider._({
+    required SessionSalesReportFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'sessionSalesReportProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$sessionSalesReportHash();
+
+  @override
+  String toString() {
+    return r'sessionSalesReportProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<SessionSalesReport> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SessionSalesReport> create(Ref ref) {
+    final argument = this.argument as int;
+    return sessionSalesReport(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SessionSalesReportProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$sessionSalesReportHash() => r'8a4ff83d3a8973ada56a7c60278d3865037bbe34';
+
+/// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+
+final class SessionSalesReportFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<SessionSalesReport>, int> {
+  SessionSalesReportFamily._()
+    : super(
+        retry: null,
+        name: r'sessionSalesReportProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Resumen de lo vendido en una caja: totales, cobros, inversión y ganancia.
+
+  SessionSalesReportProvider call(int sessionId) =>
+      SessionSalesReportProvider._(argument: sessionId, from: this);
+
+  @override
+  String toString() => r'sessionSalesReportProvider';
+}
+
 /// Historial de cajas de la sucursal activa, cargado página a página.
 
 @ProviderFor(CashHistory)

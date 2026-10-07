@@ -52,6 +52,10 @@ abstract final class ErrorMessages {
     'insufficient_stock': 'No hay stock suficiente para completar la operación.',
     'invalid_quantity': 'La cantidad no es válida.',
     'invalid_movement_type': 'Ese tipo de movimiento no se puede registrar a mano.',
+    'invalid_category_name': 'El nombre de la categoría es obligatorio.',
+    'category_name_taken': 'Ya existe una categoría con ese nombre.',
+    'category_not_found': 'La categoría no existe.',
+    'inactive_category': 'La categoría está inactiva. Elige otra.',
     // Tasa de cambio.
     'exchange_rate_not_set': 'Todavía no se ha registrado la tasa de cambio.',
     'invalid_exchange_rate': 'La tasa de cambio debe ser mayor que cero.',

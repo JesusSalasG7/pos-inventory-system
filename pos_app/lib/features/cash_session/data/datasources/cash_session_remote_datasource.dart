@@ -62,6 +62,11 @@ class CashSessionRemoteDataSource {
     return CashCountSummaryDto.fromJson(response.data!);
   }
 
+  Future<SessionSalesReportDto> fetchSalesReport(int sessionId) async {
+    final response = await _dio.get<Map<String, dynamic>>('cash-sessions/$sessionId/sales-report/');
+    return SessionSalesReportDto.fromJson(response.data!);
+  }
+
   Future<CashSessionDto> close({
     required int sessionId,
     required Decimal countedAmountUsd,

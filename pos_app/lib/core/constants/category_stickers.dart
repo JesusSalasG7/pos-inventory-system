@@ -1,0 +1,38 @@
+/// Stickers (emojis) que el gerente puede elegir para una categoría.
+///
+/// Es una lista corta pensada para un negocio de limpieza y hogar. Elegir uno
+/// es opcional: sin sticker, la app asigna un ícono por su cuenta.
+const List<String> categoryStickers = [
+  '🧴',
+  '🧼',
+  '🧽',
+  '🧹',
+  '🪣',
+  '🧺',
+  '🧻',
+  '🪥',
+  '🧤',
+  '🚿',
+  '🚽',
+  '🛁',
+  '💧',
+  '🫧',
+  '🌸',
+  '🍋',
+  '🌿',
+  '🕯️',
+  '🧪',
+  '⚗️',
+  '🧂',
+  '🛢️',
+  '🚗',
+  '🐶',
+  '👕',
+  '🍽️',
+  '🏠',
+  '📦',
+  '🛒',
+  '🎁',
+  '⭐',
+  '🔥',
+];

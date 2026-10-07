@@ -3,13 +3,15 @@
 from django.db import models
 from django.db.models import Q
 
-from core.enums import ProductCategory, UnitOfMeasure
+from core.enums import UnitOfMeasure
 from core.models import TimeStampedModel
 
 
 class Product(TimeStampedModel):
     name = models.CharField(max_length=150)
-    category = models.CharField(max_length=20, choices=ProductCategory.choices)
+    category = models.ForeignKey(
+        "inventory.Category", on_delete=models.PROTECT, related_name="products"
+    )
     unit_of_measure = models.CharField(max_length=20, choices=UnitOfMeasure.choices)
     cost_price_usd = models.DecimalField(max_digits=14, decimal_places=2)
     sale_price_usd = models.DecimalField(max_digits=14, decimal_places=2)

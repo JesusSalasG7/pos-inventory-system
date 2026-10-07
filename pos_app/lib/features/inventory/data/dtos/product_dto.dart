@@ -1,19 +1,23 @@
 import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pos_app/core/currency/decimal_converter.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 
 part 'product_dto.freezed.dart';
 part 'product_dto.g.dart';
 
-/// Producto tal como lo devuelve `products/`. No trae stock ni imagen.
+/// Producto tal como lo devuelve `products/`: la categoría llega como su id
+/// más su nombre. No trae stock ni imagen.
 @freezed
 abstract class ProductDto with _$ProductDto {
   const factory ProductDto({
     required int id,
     required String name,
-    required String category,
+    required int category,
+    required String categoryName,
+    @Default('') String categoryIcon,
     required String unitOfMeasure,
     @DecimalConverter() required Decimal costPriceUsd,
     @DecimalConverter() required Decimal salePriceUsd,
@@ -27,7 +31,7 @@ abstract class ProductDto with _$ProductDto {
   Product toEntity() => Product(
     id: id,
     name: name,
-    category: ProductCategory.fromApi(category),
+    category: ProductCategory(id: category, name: categoryName, icon: categoryIcon),
     unit: UnitOfMeasure.fromApi(unitOfMeasure),
     costPriceUsd: costPriceUsd,
     salePriceUsd: salePriceUsd,
@@ -58,4 +62,21 @@ abstract class BranchStockDto with _$BranchStockDto {
     currentStock: currentStock,
     minimumStock: minimumStock,
   );
+}
+
+/// Categoría tal como la devuelve `categories/`.
+@freezed
+abstract class CategoryDto with _$CategoryDto {
+  const factory CategoryDto({
+    required int id,
+    required String name,
+    required bool active,
+    @Default('') String icon,
+  }) = _CategoryDto;
+
+  const CategoryDto._();
+
+  factory CategoryDto.fromJson(Map<String, dynamic> json) => _$CategoryDtoFromJson(json);
+
+  ProductCategory toEntity() => ProductCategory(id: id, name: name, icon: icon, active: active);
 }

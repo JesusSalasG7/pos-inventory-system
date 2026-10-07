@@ -1,12 +1,21 @@
+import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/domain/entities/sales_summary.dart';
 
-/// Contrato de ventas. El historial y el detalle se añaden en la fase de
-/// administración.
+/// Contrato de ventas: registro, historial y totales.
 abstract interface class SalesRepository {
   /// Número de ventas y totales de la sucursal en el periodo indicado.
   Future<SalesSummary> fetchSummary({
     required String branchCode,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  });
+
+  /// Página de ventas de la sucursal en el periodo indicado (extremos
+  /// incluidos), de la más reciente a la más antigua.
+  Future<Paginated<Sale>> fetchSales({
+    required String branchCode,
+    required int page,
     DateTime? dateFrom,
     DateTime? dateTo,
   });

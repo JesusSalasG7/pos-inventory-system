@@ -36,6 +36,19 @@ class ExchangeRateRemoteDataSource {
     return (ExchangeRateDto.fromJson(response.data!), response.statusCode == 201);
   }
 
+  Future<PricingSettingsDto> fetchPricingSettings() async {
+    final response = await _dio.get<Map<String, dynamic>>('pricing-settings/');
+    return PricingSettingsDto.fromJson(response.data!);
+  }
+
+  Future<PricingSettingsDto> updatePricingSettings({String? rateMode, bool? roundVesUp}) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      'pricing-settings/',
+      data: {'rate_mode': ?rateMode, 'round_ves_up': ?roundVesUp},
+    );
+    return PricingSettingsDto.fromJson(response.data!);
+  }
+
   Future<BcvRateDto> fetchBcv() async {
     final response = await _dio.get<Map<String, dynamic>>('exchange-rates/bcv/');
     return BcvRateDto.fromJson(response.data!);

@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/widgets/product_card.dart';
@@ -29,7 +30,7 @@ Future<List<Decimal>> pumpCard(
               child: StatefulBuilder(
                 builder: (context, setState) => ProductCard(
                   name: 'Cloro concentrado',
-                  category: ProductCategory.liquids,
+                  category: const ProductCategory(id: 1, name: 'Líquidos'),
                   unit: unit,
                   priceUsd: d('1.20'),
                   rate: d('150'),

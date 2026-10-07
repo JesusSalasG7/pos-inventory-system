@@ -15,10 +15,13 @@ class CartBanner extends StatelessWidget {
     required this.itemCount,
     required this.totalUsd,
     required this.onTap,
+    this.totalVes,
     this.rate,
     super.key,
   });
 
+  /// Total en VES ya calculado (con el redondeo del negocio, si aplica).
+  final Decimal? totalVes;
   final int itemCount;
   final Decimal totalUsd;
   final VoidCallback onTap;
@@ -75,6 +78,7 @@ class CartBanner extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               DualCurrencyText(
                 amountUsd: totalUsd,
+                amountVes: totalVes,
                 rate: rate,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 usdColor: AppColors.accent,

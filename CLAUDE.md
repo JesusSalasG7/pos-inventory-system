@@ -37,7 +37,14 @@ resolución de sucursal, utilidades de dinero y paginación.
 - **Stock**: todo cambio de stock pasa por `apps/inventory/services/stock_service.py`. Es el único
   punto que modifica `BranchInventory.current_stock` y que inserta `InventoryMovement` (Kardex).
   El Kardex es de solo inserción: los errores se corrigen con un `ADJUSTMENT`.
-- **Precios**: el precio de una venta sale siempre de la base de datos, nunca del cliente.
+- **Precios**: el precio de una venta sale siempre de la base de datos, nunca del cliente. Cada
+  línea congela también el costo (`SaleDetail.unit_cost_usd`): la ganancia de una venta pasada
+  no cambia al editar el costo del producto. El resumen de una caja lo arma
+  `sales_report_service.build_session_report`.
+- **Costo en bolívares**: se calcula **siempre con la tasa del BCV**, nunca con la tasa manual
+  con la que se cobró. Cada venta congela esa tasa en `Sale.bcv_rate_at_invoice`
+  (`bcv_rate_service.get_cost_rate()`; si no hay ninguna del BCV, vale la tasa activa). Así la
+  ganancia en VES es lo facturado menos el costo valorado al BCV.
 - **Errores de negocio**: lanzar subclases de `core.exceptions.DomainError`. El manejador las
   responde como `{"code": ..., "detail": ..., "meta": {...}}`.
 - **Sucursal**: las sucursales son filas de `branches.Branch`, no un enum; se crean por la API o
@@ -45,6 +52,16 @@ resolución de sucursal, utilidades de dinero y paginación.
   `core.branch_scope.resolve_branch(user, requested_branch)`, que devuelve su `code`.
   Un SUPERVISOR solo opera en su sucursal; un MANAGER sin sucursal asignada (`assigned_branch`
   nulo) accede a todas y debe indicar cuál, salvo que solo haya una activa.
+- **Configuración de precios**: `exchange_rate.PricingSettings` es una fila única (`pk=1`) con el
+  modo de tasa (`RateMode.BCV` o `MANUAL`) y `round_ves_up`. En modo `MANUAL` el BCV no reemplaza
+  la tasa activa. Con `round_ves_up`, `sale_calculator` sube al bolívar entero **solo el precio
+  unitario** en VES; el subtotal de la línea es cantidad × ese precio, sin volver a subir (litro
+  a 797 Bs → medio litro 398,50 Bs). Los pagos en VES se validan con `payment_rate` (total VES ÷
+  total USD) en vez de con la tasa. Los importes en USD nunca se redondean distinto.
+- **Categorías**: son filas de `inventory.Category` que crea un MANAGER por la API, no un enum;
+  nunca se borran (se desactivan). Un producto solo puede crearse o pasar a una categoría activa
+  (`category_service.require_active`), pero conserva la suya si después se desactiva. No hay
+  categorías por defecto; `icon` es un emoji opcional.
 - **FK contables**: `on_delete=PROTECT`. Nada se borra: productos y usuarios se desactivan.
 - Type hints en services, repositories y DTOs. Formato y lint con `ruff`.
 
@@ -82,6 +99,9 @@ usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory` y `sales`. 
 
 Convenciones que no se deducen a simple vista:
 
+- **Tasa del BCV con dos decimales**: `bcv_rate_service` redondea la tasa del BCV a 2 decimales
+  al leerla (872,39275 → 872,39), así que la que se muestra es la misma con la que se cobra. El
+  campo sigue siendo 14,4: una tasa manual puede llevar hasta 4 decimales.
 - **Tasa automática del BCV**: `bcv_rate_service.sync_active_rate()` registra la tasa del BCV
   como activa (`source=BCV`, con `effective_date` y sin `created_by`) cuando el BCV publica una
   nueva. Compara contra la última tasa de origen BCV, no contra la activa: una tasa manual de un
