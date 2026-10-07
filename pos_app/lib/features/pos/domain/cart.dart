@@ -1,6 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pos_app/core/currency/currency_converter.dart';
 import 'package:pos_app/core/currency/money.dart';
+import 'package:pos_app/core/currency/ves_pricing.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 
 /// Línea del carrito: un producto, la cantidad pedida y el stock que había
@@ -21,6 +23,10 @@ class CartItem {
 
   /// Mismo cálculo que el backend: cantidad × precio, redondeado a 2 decimales.
   Decimal get subtotalUsd => quantizeMoney(quantity * product.salePriceUsd);
+
+  /// Subtotal en VES, con el redondeo hacia arriba si el negocio lo usa.
+  Decimal subtotalVes(Decimal rate, {required bool roundUp}) =>
+      VesPricing.lineSubtotal(quantity, product.salePriceUsd, rate, roundUp: roundUp);
 
   /// La cantidad pedida ya no cabe en el stock disponible.
   bool get exceedsStock => quantity > availableStock;
@@ -52,6 +58,12 @@ class Cart {
   /// Suma de los subtotales ya redondeados, igual que el backend.
   Decimal get totalUsd =>
       quantizeMoney(items.fold(Decimal.zero, (sum, item) => sum + item.subtotalUsd));
+
+  /// Total en VES. Con el redondeo activo es la suma de los subtotales ya
+  /// redondeados, igual que el backend; sin él, el total en USD convertido.
+  Decimal totalVes(Decimal rate, {required bool roundUp}) => roundUp
+      ? items.fold(Decimal.zero, (sum, item) => sum + item.subtotalVes(rate, roundUp: true))
+      : CurrencyConverter.usdToVes(totalUsd, rate);
 
   bool get hasStockIssues => items.any((item) => item.exceedsStock);
 

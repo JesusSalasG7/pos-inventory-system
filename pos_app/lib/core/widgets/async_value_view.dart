@@ -43,7 +43,7 @@ class AsyncValueView<T> extends StatelessWidget {
     }
     if (value.hasError) {
       final failure = Failure.from(value.error!);
-      return EmptyState(
+      final error = EmptyState(
         icon: failure.isOffline ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
         title: Strings.errorTitle,
         message: failure.message,
@@ -51,6 +51,21 @@ class AsyncValueView<T> extends StatelessWidget {
         onAction: onRetry,
         iconColor: AppColors.error,
         iconBackground: AppColors.errorSoft,
+      );
+      // Con alto acotado (p. ej. el cuerpo de una pantalla con el teclado
+      // abierto) el error se desplaza en vez de desbordar. Dentro de una lista
+      // el alto no está acotado y se pinta tal cual.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          if (!constraints.hasBoundedHeight) return error;
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: error,
+            ),
+          );
+        },
       );
     }
     return loading ?? const SkeletonList();

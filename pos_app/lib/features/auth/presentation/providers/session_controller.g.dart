@@ -102,7 +102,7 @@ final class SessionControllerProvider extends $NotifierProvider<SessionControlle
   }
 }
 
-String _$sessionControllerHash() => r'3c4f1f6adf2ba39024c09a8d0512a55c01a19e3f';
+String _$sessionControllerHash() => r'd213145fee10d498e88bffafb075bf048e3afb5f';
 
 /// Orquesta el arranque de la sesión: tokens → usuario → sucursal activa.
 ///

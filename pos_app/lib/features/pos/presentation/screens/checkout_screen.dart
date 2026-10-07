@@ -19,6 +19,7 @@ import 'package:pos_app/core/widgets/quantity_input_dialog.dart';
 import 'package:pos_app/core/widgets/section_card.dart';
 import 'package:pos_app/features/auth/presentation/screens/auth_scaffold.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/pos/domain/cart.dart';
 import 'package:pos_app/features/pos/domain/checkout_math.dart';
 import 'package:pos_app/features/pos/presentation/providers/cart_controller.dart';
@@ -99,9 +100,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       );
     }
 
+    final roundUp = ref.watch(roundVesUpProvider);
+    final totalVes = rate == null ? null : cart.totalVes(rate, roundUp: roundUp);
     final summary = rate == null
         ? null
-        : CheckoutMath.compute(totalUsd: cart.totalUsd, rate: rate, lines: checkout.lines);
+        : CheckoutMath.compute(
+            totalUsd: cart.totalUsd,
+            totalVes: totalVes,
+            rate: rate,
+            lines: checkout.lines,
+          );
     final canConfirm =
         summary != null && summary.canConfirm && !cart.hasStockIssues && !checkout.isSubmitting;
     final errorMessage = _errorMessage;
@@ -147,7 +155,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DualCurrencyText(amountUsd: cart.totalUsd, size: DualCurrencySize.large),
+                DualCurrencyText(
+                  amountUsd: cart.totalUsd,
+                  amountVes: totalVes,
+                  size: DualCurrencySize.large,
+                ),
                 if (rate != null)
                   Text(Strings.rateUsed(MoneyFormatter.rate(rate)), style: AppTypography.bodySmall),
               ],
@@ -251,6 +263,8 @@ class _CartItemRow extends ConsumerWidget {
     final product = item.product;
     final unit = Strings.unitShort(product.unit);
     final canIncrease = item.quantity + Decimal.one <= item.availableStock;
+    final rate = ref.watch(activeRateProvider).value;
+    final roundUp = ref.watch(roundVesUpProvider);
 
     Future<void> editQuantity() async {
       final result = await showQuantityInputDialog(
@@ -300,6 +314,7 @@ class _CartItemRow extends ConsumerWidget {
             const SizedBox(width: AppSpacing.sm),
             DualCurrencyText(
               amountUsd: item.subtotalUsd,
+              amountVes: rate == null ? null : item.subtotalVes(rate, roundUp: roundUp),
               size: DualCurrencySize.small,
               crossAxisAlignment: CrossAxisAlignment.end,
             ),

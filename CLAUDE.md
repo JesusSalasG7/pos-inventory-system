@@ -37,7 +37,10 @@ resolución de sucursal, utilidades de dinero y paginación.
 - **Stock**: todo cambio de stock pasa por `apps/inventory/services/stock_service.py`. Es el único
   punto que modifica `BranchInventory.current_stock` y que inserta `InventoryMovement` (Kardex).
   El Kardex es de solo inserción: los errores se corrigen con un `ADJUSTMENT`.
-- **Precios**: el precio de una venta sale siempre de la base de datos, nunca del cliente.
+- **Precios**: el precio de una venta sale siempre de la base de datos, nunca del cliente. Cada
+  línea congela también el costo (`SaleDetail.unit_cost_usd`): la ganancia de una venta pasada
+  no cambia al editar el costo del producto. El resumen de una caja lo arma
+  `sales_report_service.build_session_report`.
 - **Errores de negocio**: lanzar subclases de `core.exceptions.DomainError`. El manejador las
   responde como `{"code": ..., "detail": ..., "meta": {...}}`.
 - **Sucursal**: las sucursales son filas de `branches.Branch`, no un enum; se crean por la API o
@@ -45,6 +48,15 @@ resolución de sucursal, utilidades de dinero y paginación.
   `core.branch_scope.resolve_branch(user, requested_branch)`, que devuelve su `code`.
   Un SUPERVISOR solo opera en su sucursal; un MANAGER sin sucursal asignada (`assigned_branch`
   nulo) accede a todas y debe indicar cuál, salvo que solo haya una activa.
+- **Configuración de precios**: `exchange_rate.PricingSettings` es una fila única (`pk=1`) con el
+  modo de tasa (`RateMode.BCV` o `MANUAL`) y `round_ves_up`. En modo `MANUAL` el BCV no reemplaza
+  la tasa activa. Con `round_ves_up`, `sale_calculator` sube al bolívar entero el precio unitario
+  y el subtotal de cada línea en VES, y los pagos en VES se validan con `payment_rate` (total VES
+  ÷ total USD) en vez de con la tasa. Los importes en USD nunca se redondean distinto.
+- **Categorías**: son filas de `inventory.Category` que crea un MANAGER por la API, no un enum;
+  nunca se borran (se desactivan). Un producto solo puede crearse o pasar a una categoría activa
+  (`category_service.require_active`), pero conserva la suya si después se desactiva. No hay
+  categorías por defecto; `icon` es un emoji opcional.
 - **FK contables**: `on_delete=PROTECT`. Nada se borra: productos y usuarios se desactivan.
 - Type hints en services, repositories y DTOs. Formato y lint con `ruff`.
 

@@ -28,6 +28,7 @@ const saleJson = <String, dynamic>{
       'quantity': '2.500',
       'unit_price_usd': '6.00',
       'subtotal_usd': '15.00',
+      'subtotal_ves': '2250.00',
     },
   ],
   'payments': [

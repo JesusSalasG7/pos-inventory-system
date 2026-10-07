@@ -71,7 +71,6 @@ Errores de sucursal: `invalid_branch` (400, `meta.branch`, `meta.allowed`), `bra
 | Enum | Valores (etiqueta en español) |
 |---|---|
 | `role` | `MANAGER` (Gerente), `SUPERVISOR` (Supervisor) |
-| `category` | `LIQUIDS` (Líquidos), `POWDERS` (Polvos), `ACCESSORIES` (Accesorios) |
 | `unit_of_measure` | `LITER` (Litro), `KILOGRAM` (Kilogramo), `UNIT` (Unidad) |
 | `movement_type` | `ENTRY` (Entrada), `SALE` (Venta), `WASTE` (Merma), `ADJUSTMENT` (Ajuste) |
 | `method` | `POS_CARD` (Punto de venta), `CASH_VES` (Efectivo VES), `CASH_USD` (Efectivo USD), `MOBILE_PAYMENT` (Pago móvil) |
@@ -118,19 +117,39 @@ cambiar de sucursal), `cannot_modify_own_access` (409). No existe borrado: se de
 `invalid_branch_name` (422), `branch_code_taken` (409), `branch_not_found` (404),
 `branch_has_open_sessions` (409, al desactivar).
 
+## Categorías
+
+Las categorías son filas que crea un MANAGER, no un enum. No hay categorías por defecto. No se
+borran: se desactivan.
+
+| Método y ruta | Permiso | Body / query | Respuesta |
+|---|---|---|---|
+| `GET categories/` | Operador | `?active=true` | Página de `Category`, por nombre |
+| `POST categories/` | MANAGER | `{name, icon?}` | 201 `Category` |
+| `GET categories/<id>/` | Operador | — | `Category` |
+| `PATCH categories/<id>/` | MANAGER | `{name?, icon?, active?}` | `Category` |
+
+`Category`: `{id, name, icon, active}`. `icon` es el sticker (un emoji) que elige el MANAGER;
+vacío significa que la app le asigna un ícono. El nombre no se repite, sin distinguir mayúsculas. Una categoría
+inactiva conserva sus productos, pero no admite productos nuevos. Errores:
+`invalid_category_name` (422), `category_name_taken` (409), `category_not_found` (404).
+
 ## Productos (catálogo global)
 
 | Método y ruta | Permiso | Body / query | Respuesta |
 |---|---|---|---|
-| `GET products/` | Operador | `?active=true`, `?category=`, `?search=` (texto en el nombre) | Página de `Product`, por nombre |
-| `POST products/` | MANAGER | `{name, category, unit_of_measure, cost_price_usd, sale_price_usd}` | 201 `Product` |
+| `GET products/` | Operador | `?active=true`, `?category=<id>`, `?search=` (texto en el nombre) | Página de `Product`, por nombre |
+| `POST products/` | MANAGER | `{name, category, unit_of_measure, cost_price_usd, sale_price_usd}` (`category` = id) | 201 `Product` |
 | `GET products/<id>/` | Operador | — | `Product` |
 | `PATCH products/<id>/` | MANAGER | Cualquiera de los campos de alta | `Product` |
 | `POST products/<id>/toggle-active/` | MANAGER | Sin body | `Product` |
 
-`Product`: `{id, name, category, unit_of_measure, cost_price_usd, sale_price_usd, active}`.
+`Product`: `{id, name, category, category_name, category_icon, unit_of_measure, cost_price_usd,
+sale_price_usd, active}`. `category` es el id de la categoría; `category_name` y `category_icon`
+son su nombre y su sticker (solo lectura).
 **No incluye stock ni imagen.** Errores: `invalid_name` (422), `product_name_taken` (409),
-`invalid_price` (422), `product_not_found` (404).
+`invalid_price` (422), `product_not_found` (404), `category_not_found` (404),
+`inactive_category` (422, al crear o al pasar el producto a una categoría inactiva).
 
 ## Inventario
 
@@ -186,6 +205,27 @@ hasta la siguiente publicación del BCV. La app detecta el cambio comparando el 
 `exchange-rates/current/` con el último que vio. `GET exchange-rates/bcv/` sigue siendo solo
 consulta, con caché de 6 horas.
 
+## Configuración de precios
+
+| Método y ruta | Permiso | Body | Respuesta |
+|---|---|---|---|
+| `GET pricing-settings/` | Operador | — | `PricingSettings` |
+| `PATCH pricing-settings/` | MANAGER | `{rate_mode?, round_ves_up?}` | `PricingSettings` |
+
+`PricingSettings`: `{rate_mode, round_ves_up}`. Por defecto `BCV` y `false`.
+
+- `rate_mode = BCV`: la tasa activa sigue a la del BCV (ver "Tasa automática"). `MANUAL`: manda
+  la tasa que registre un MANAGER; `sync_bcv_rate` y `bcv/sync/` no registran nada. Al volver a
+  `BCV` se registra de inmediato la tasa del BCV como activa; si no se puede consultar responde
+  `bcv_rate_unavailable` (503) y no cambia nada.
+- `round_ves_up`: los precios en VES se redondean **hacia arriba al bolívar entero**. Regla del
+  backend, que la app replica en `VesPricing`: precio unitario VES = techo(precio USD × tasa);
+  subtotal de línea VES = techo(cantidad × precio unitario VES); total VES = suma de subtotales.
+  Los importes en USD no cambian. Solo afecta a ventas nuevas.
+- Con el redondeo, `total_ves` ya no es `total_usd × tasa`. Los pagos en VES se convierten a USD
+  con la proporción de la venta (`total_ves ÷ total_usd`) en vez de con la tasa, de modo que pagar
+  `total_ves` cuadra exactamente. `exchange_rate_at_invoice` sigue siendo la tasa real.
+
 ## Cajas
 
 | Método y ruta | Permiso | Body / query | Respuesta |
@@ -196,6 +236,7 @@ consulta, con caché de 6 horas.
 | `GET cash-sessions/<id>/expenses/` | Operador | — | Página de `CashExpense` |
 | `POST cash-sessions/<id>/expenses/` | Dueño o MANAGER | `{reason, amount, currency}` | 201 `CashExpense` |
 | `GET cash-sessions/<id>/summary/` | Operador | — | `CashCountSummary` |
+| `GET cash-sessions/<id>/sales-report/` | Operador | — | `SessionSalesReport` |
 | `POST cash-sessions/<id>/close/` | Dueño o MANAGER | `{counted_amount_usd, counted_amount_ves}` | `CashSession` cerrada |
 
 `CashSession`: `{id, user, branch, opened_at, closed_at, opening_float, counted_amount_usd,
@@ -204,6 +245,17 @@ counted_amount_ves, difference_usd}`. Abierta ⇔ `closed_at == null`. `opening_
 `CashCountSummary`: `{opening_float, cash_sales_usd, cash_sales_ves, electronic_sales_usd,
 electronic_sales_ves, expenses_usd, expenses_ves, expected_cash_usd, expected_cash_ves}`.
 
+`SessionSalesReport`: `{sales_count, total_usd, total_ves, cost_usd, cost_ves, profit_usd,
+profit_ves, payments: [{method, currency, amount}], products: [{product, product_name, quantity,
+sales_usd, sales_ves, cost_usd, cost_ves, profit_usd, profit_ves}]}`. Sirve para una caja abierta
+o cerrada.
+
+- `cost_*` es la inversión: cantidad × costo del producto **al facturar** (cada línea de venta
+  guarda su `unit_cost_usd`; no se expone en `Sale`). `profit_*` = total − costo. Los gastos de
+  caja no se descuentan.
+- Los bolívares de costo y de cada producto usan la tasa congelada de su venta.
+- `payments` agrupa lo cobrado por método, en la moneda del método. `products` va del que más
+  vendió al que menos.
 - Esperado USD = fondo + ventas efectivo USD − egresos USD. Esperado VES = ventas efectivo VES −
   egresos VES. `electronic_*` (punto y pago móvil) es informativo.
 - `difference_usd` = (contado USD − esperado USD) + (contado VES − esperado VES) convertido a USD
@@ -252,12 +304,14 @@ Respuesta 201, `Sale`:
   "customer_tax_id": "V12345678", "customer_name": "Ana Pérez",
   "exchange_rate_at_invoice": "150.0000", "total_usd": "15.00", "total_ves": "2250.00",
   "created_at": "2026-10-06T10:15:00-04:00",
-  "details": [{"id": 90, "product": 3, "quantity": "2.500", "unit_price_usd": "6.00", "subtotal_usd": "15.00"}],
+  "details": [{"id": 90, "product": 3, "quantity": "2.500", "unit_price_usd": "6.00", "subtotal_usd": "15.00", "subtotal_ves": "2250.00"}],
   "payments": [{"id": 77, "method": "CASH_USD", "currency": "USD", "amount": "5.00", "approval_reference": ""}]
 }
 ```
 
 `details[].product` es solo el id: **el nombre del producto no viene en la venta**.
+`details[].subtotal_ves` es lo facturado en bolívares por la línea; con el redondeo activo no
+coincide con `subtotal_usd × tasa`, así que se muestra siempre ese valor.
 
 | `code` | HTTP | `meta` |
 |---|---|---|

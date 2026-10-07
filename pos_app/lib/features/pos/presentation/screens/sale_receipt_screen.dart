@@ -15,12 +15,17 @@ import 'package:pos_app/features/pos/domain/receipt_text.dart';
 import 'package:pos_app/features/pos/domain/sale_receipt.dart';
 import 'package:share_plus/share_plus.dart';
 
-/// Comprobante de la venta recién registrada, con los datos que devolvió el
-/// backend y su tasa congelada.
+/// Comprobante de una venta, con los datos que devolvió el backend y su tasa
+/// congelada. Sirve para la venta recién registrada y, con `isHistory`, para
+/// consultar una venta pasada.
 class SaleReceiptScreen extends StatelessWidget {
-  const SaleReceiptScreen({required this.receipt, super.key});
+  const SaleReceiptScreen({required this.receipt, this.isHistory = false, super.key});
 
   final SaleReceipt receipt;
+
+  /// Venta consultada desde el historial: se vuelve atrás con normalidad y no
+  /// se ofrece empezar otra venta.
+  final bool isHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +33,16 @@ class SaleReceiptScreen extends StatelessWidget {
     final hasCustomer = sale.customerName.isNotEmpty || sale.customerTaxId.isNotEmpty;
 
     return PopScope(
-      // Atrás no vuelve al cobro (la venta ya está hecha): va a Vender.
-      canPop: false,
+      // Tras cobrar, atrás no vuelve al cobro (la venta ya está hecha): va a Vender.
+      canPop: isHistory,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) context.go(RouteNames.sell);
       },
       child: Scaffold(
-        appBar: AppBar(automaticallyImplyLeading: false, title: const Text(Strings.receiptTitle)),
+        appBar: AppBar(
+          automaticallyImplyLeading: isHistory,
+          title: Text(isHistory ? Strings.saleDetailTitle : Strings.receiptTitle),
+        ),
         bottomNavigationBar: SafeArea(
           minimum: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
@@ -45,12 +53,14 @@ class SaleReceiptScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              PrimaryButton(
-                label: Strings.newSale,
-                icon: Icons.add_rounded,
-                onPressed: () => context.go(RouteNames.sell),
-              ),
-              const SizedBox(height: AppSpacing.sm),
+              if (!isHistory) ...[
+                PrimaryButton(
+                  label: Strings.newSale,
+                  icon: Icons.add_rounded,
+                  onPressed: () => context.go(RouteNames.sell),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               PrimaryButton(
                 label: Strings.share,
                 icon: Icons.share_rounded,
@@ -78,7 +88,10 @@ class SaleReceiptScreen extends StatelessWidget {
                           color: AppColors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.check_rounded, color: AppColors.primaryDark),
+                        child: Icon(
+                          isHistory ? Icons.receipt_long_rounded : Icons.check_rounded,
+                          color: AppColors.primaryDark,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
@@ -147,7 +160,7 @@ class SaleReceiptScreen extends StatelessWidget {
                         const SizedBox(width: AppSpacing.sm),
                         DualCurrencyText(
                           amountUsd: detail.subtotalUsd,
-                          rate: sale.exchangeRateAtInvoice,
+                          amountVes: detail.subtotalVes,
                           size: DualCurrencySize.small,
                           crossAxisAlignment: CrossAxisAlignment.end,
                         ),

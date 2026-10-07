@@ -18,7 +18,7 @@ from django.utils import timezone
 from apps.exchange_rate.domain.dtos import BcvRate
 from apps.exchange_rate.models import ExchangeRate
 from apps.exchange_rate.repositories import exchange_rate_repository
-from core.enums import RateSource
+from core.enums import RateMode, RateSource
 from core.exceptions import DomainError
 from core.money import quantize_rate
 
@@ -71,16 +71,29 @@ def get_bcv_rate_or_fail() -> BcvRate:
     return bcv_rate
 
 
-def sync_active_rate() -> ExchangeRate | None:
+def sync_active_rate(*, replace_manual: bool = False) -> ExchangeRate | None:
     """Registra la tasa del BCV como tasa activa si el BCV publicó una nueva.
 
     Consulta siempre al BCV, sin pasar por la caché. Compara contra la última
     tasa de origen BCV registrada, no contra la activa: así una tasa manual de
     un MANAGER se respeta hasta que el BCV publique la siguiente.
 
-    Devuelve la tasa creada, o None si el BCV no cambió. Lanza
+    Si el negocio vende con su propia tasa (`RateMode.MANUAL`) no registra
+    nada: el BCV no reemplaza la tasa del MANAGER.
+
+    Con `replace_manual` compara contra la tasa activa, sea cual sea su
+    origen: la del BCV pasa a ser la activa aunque no haya cambiado. Lo usa
+    `pricing_settings_service` al volver del modo manual al del BCV.
+
+    Devuelve la tasa creada, o None si no había nada que registrar. Lanza
     `bcv_rate_unavailable` (503) si no se pudo consultar: no se registra nada.
     """
+    # Import local: pricing_settings_service llama a su vez a esta función.
+    from apps.exchange_rate.services import pricing_settings_service
+
+    if pricing_settings_service.get_settings().rate_mode == RateMode.MANUAL:
+        return None
+
     try:
         bcv_rate = _fetch_bcv_rate()
     except (requests.RequestException, ValueError, TypeError, KeyError, InvalidOperation) as exc:
@@ -95,9 +108,14 @@ def sync_active_rate() -> ExchangeRate | None:
 
     effective_date = timezone.localtime(bcv_rate.updated_at).date()
     with transaction.atomic():
-        last = exchange_rate_repository.get_latest_by_source(RateSource.BCV)
+        last = (
+            exchange_rate_repository.get_latest()
+            if replace_manual
+            else exchange_rate_repository.get_latest_by_source(RateSource.BCV)
+        )
         if (
             last is not None
+            and last.source == RateSource.BCV
             and last.usd_to_ves_rate == bcv_rate.rate
             and last.effective_date == effective_date
         ):

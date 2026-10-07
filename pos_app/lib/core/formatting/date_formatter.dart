@@ -40,6 +40,20 @@ abstract final class DateFormatter {
     return DateTime(local.year, local.month, local.day);
   }
 
+  /// Instante en que empieza en Caracas una fecha de calendario.
+  static DateTime startOfCalendarDay(DateTime day) =>
+      DateTime.utc(day.year, day.month, day.day).subtract(_caracasOffset);
+
+  /// Último instante de una fecha de calendario en Caracas. Los filtros de
+  /// fecha del backend incluyen el extremo final.
+  static DateTime endOfCalendarDay(DateTime day) => startOfCalendarDay(
+    day,
+  ).add(const Duration(days: 1)).subtract(const Duration(microseconds: 1));
+
+  /// `martes 6 de octubre`: fecha de calendario escrita, para encabezados.
+  static String calendarLongDate(DateTime day) =>
+      DateFormat("EEEE d 'de' MMMM", locale).format(day);
+
   /// Instante en ISO 8601 con zona, como lo espera la API en los filtros de fecha.
   static String toApi(DateTime instant) => instant.toUtc().toIso8601String();
 }

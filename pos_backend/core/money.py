@@ -4,7 +4,7 @@ Todo se opera con Decimal; los float se rechazan de forma explícita porque
 introducen errores de representación binaria.
 """
 
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_CEILING, ROUND_HALF_UP, Decimal
 
 MONEY_QUANTUM = Decimal("0.01")
 RATE_QUANTUM = Decimal("0.0001")
@@ -40,6 +40,12 @@ def quantize_quantity(quantity: Number) -> Decimal:
 def usd_to_ves(amount_usd: Number, usd_to_ves_rate: Number) -> Decimal:
     """Convierte USD a VES con la tasa indicada (VES por 1 USD)."""
     return quantize_money(to_decimal(amount_usd) * _positive_rate(usd_to_ves_rate))
+
+
+def ceil_ves(amount_ves: Number) -> Decimal:
+    """Redondea un importe en VES hacia arriba al bolívar entero: 180,37 → 181,00."""
+    whole = to_decimal(amount_ves).quantize(Decimal("1"), rounding=ROUND_CEILING)
+    return whole.quantize(MONEY_QUANTUM)
 
 
 def ves_to_usd(amount_ves: Number, usd_to_ves_rate: Number) -> Decimal:

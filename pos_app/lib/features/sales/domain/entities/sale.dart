@@ -46,6 +46,7 @@ class SaleDetail {
     required this.quantity,
     required this.unitPriceUsd,
     required this.subtotalUsd,
+    required this.subtotalVes,
   });
 
   final int id;
@@ -53,6 +54,10 @@ class SaleDetail {
   final Decimal quantity;
   final Decimal unitPriceUsd;
   final Decimal subtotalUsd;
+
+  /// Lo facturado en VES por la línea. Con el redondeo del negocio no es el
+  /// subtotal en USD por la tasa: se muestra siempre este valor.
+  final Decimal subtotalVes;
 }
 
 @immutable

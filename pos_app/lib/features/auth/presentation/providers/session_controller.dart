@@ -133,6 +133,20 @@ class SessionController extends _$SessionController {
     state = SessionState(status: SessionStatus.ready, branches: state.branches);
   }
 
+  /// Vuelve a leer las sucursales activas después de que un MANAGER las
+  /// administre. Si la sucursal de trabajo cambió de nombre, lo refleja.
+  /// Lanza `Failure` si no hay conexión.
+  Future<void> refreshBranches() async {
+    if (state.status != SessionStatus.ready) return;
+    final branches = await _branches.fetchActiveBranches();
+    final active = ref.read(activeBranchProvider);
+    final current = active == null ? null : _find(branches, active.code);
+    if (current != null && current != active) {
+      ref.read(activeBranchProvider.notifier).select(current);
+    }
+    state = SessionState(status: SessionStatus.ready, branches: branches);
+  }
+
   /// Crea la primera sucursal del negocio y entra en ella. Lanza `Failure`
   /// si el backend la rechaza.
   Future<void> createFirstBranch({required String code, required String name}) async {

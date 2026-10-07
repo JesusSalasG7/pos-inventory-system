@@ -9,7 +9,9 @@ part of 'product_dto.dart';
 _ProductDto _$ProductDtoFromJson(Map<String, dynamic> json) => _ProductDto(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
-  category: json['category'] as String,
+  category: (json['category'] as num).toInt(),
+  categoryName: json['category_name'] as String,
+  categoryIcon: json['category_icon'] as String? ?? '',
   unitOfMeasure: json['unit_of_measure'] as String,
   costPriceUsd: const DecimalConverter().fromJson(json['cost_price_usd'] as String),
   salePriceUsd: const DecimalConverter().fromJson(json['sale_price_usd'] as String),
@@ -20,6 +22,8 @@ Map<String, dynamic> _$ProductDtoToJson(_ProductDto instance) => <String, dynami
   'id': instance.id,
   'name': instance.name,
   'category': instance.category,
+  'category_name': instance.categoryName,
+  'category_icon': instance.categoryIcon,
   'unit_of_measure': instance.unitOfMeasure,
   'cost_price_usd': const DecimalConverter().toJson(instance.costPriceUsd),
   'sale_price_usd': const DecimalConverter().toJson(instance.salePriceUsd),
@@ -42,4 +46,18 @@ Map<String, dynamic> _$BranchStockDtoToJson(_BranchStockDto instance) => <String
   'branch': instance.branch,
   'current_stock': const DecimalConverter().toJson(instance.currentStock),
   'minimum_stock': const DecimalConverter().toJson(instance.minimumStock),
+};
+
+_CategoryDto _$CategoryDtoFromJson(Map<String, dynamic> json) => _CategoryDto(
+  id: (json['id'] as num).toInt(),
+  name: json['name'] as String,
+  active: json['active'] as bool,
+  icon: json['icon'] as String? ?? '',
+);
+
+Map<String, dynamic> _$CategoryDtoToJson(_CategoryDto instance) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'active': instance.active,
+  'icon': instance.icon,
 };

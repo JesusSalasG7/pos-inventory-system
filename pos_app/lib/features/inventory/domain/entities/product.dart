@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 
 /// Producto del catálogo global, compartido por todas las sucursales.
@@ -71,4 +72,29 @@ class StockedProduct {
   /// Cero si el producto no tiene fila de inventario en la sucursal.
   final Decimal currentStock;
   final Decimal minimumStock;
+}
+
+/// Categorías de los productos de una lista, sin repetir y por nombre: las
+/// opciones del filtro por categoría.
+List<ProductCategory> categoriesOf(Iterable<StockedProduct> items) {
+  final byId = {for (final item in items) item.product.category.id: item.product.category};
+  return byId.values.toList()..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+}
+
+/// Datos editables de un producto, para darlo de alta o modificarlo.
+@immutable
+class ProductDraft {
+  const ProductDraft({
+    required this.name,
+    required this.categoryId,
+    required this.unit,
+    required this.costPriceUsd,
+    required this.salePriceUsd,
+  });
+
+  final String name;
+  final int categoryId;
+  final UnitOfMeasure unit;
+  final Decimal costPriceUsd;
+  final Decimal salePriceUsd;
 }

@@ -44,7 +44,7 @@ final class CheckoutControllerProvider
   }
 }
 
-String _$checkoutControllerHash() => r'993cc83d6949e51d8c7c89c996adb8b1c35be4fb';
+String _$checkoutControllerHash() => r'721bdf29564ddf9050b751038985c0724dc3867a';
 
 /// Líneas de pago del cobro y envío de la venta.
 

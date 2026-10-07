@@ -1,22 +1,53 @@
 from rest_framework import serializers
 
-from apps.inventory.models import BranchInventory, InventoryMovement, Product
+from apps.inventory.models import BranchInventory, Category, InventoryMovement, Product
 from core.enums import MovementType
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "name", "icon", "active"]
+        read_only_fields = fields
+
+
+class CategoryCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    icon = serializers.CharField(
+        max_length=16, required=False, allow_blank=True, help_text="Emoji; vacío para automático."
+    )
+
+
+class CategoryUpdateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100, required=False)
+    icon = serializers.CharField(max_length=16, required=False, allow_blank=True)
+    active = serializers.BooleanField(required=False)
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    # La categoría viaja como su id; el nombre va aparte para no pedirla otra vez.
+    category = serializers.IntegerField(source="category_id", min_value=1)
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    category_icon = serializers.CharField(source="category.icon", read_only=True)
+
     class Meta:
         model = Product
         fields = [
             "id",
             "name",
             "category",
+            "category_name",
+            "category_icon",
             "unit_of_measure",
             "cost_price_usd",
             "sale_price_usd",
             "active",
         ]
         read_only_fields = ["id", "active"]
+
+
+class ProductListQuerySerializer(serializers.Serializer):
+    category = serializers.IntegerField(min_value=1, required=False)
 
 
 class BranchInventorySerializer(serializers.ModelSerializer):

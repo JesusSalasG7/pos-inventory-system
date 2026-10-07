@@ -12,6 +12,7 @@ _SaleDetailDto _$SaleDetailDtoFromJson(Map<String, dynamic> json) => _SaleDetail
   quantity: const DecimalConverter().fromJson(json['quantity'] as String),
   unitPriceUsd: const DecimalConverter().fromJson(json['unit_price_usd'] as String),
   subtotalUsd: const DecimalConverter().fromJson(json['subtotal_usd'] as String),
+  subtotalVes: const DecimalConverter().fromJson(json['subtotal_ves'] as String),
 );
 
 Map<String, dynamic> _$SaleDetailDtoToJson(_SaleDetailDto instance) => <String, dynamic>{
@@ -20,6 +21,7 @@ Map<String, dynamic> _$SaleDetailDtoToJson(_SaleDetailDto instance) => <String, 
   'quantity': const DecimalConverter().toJson(instance.quantity),
   'unit_price_usd': const DecimalConverter().toJson(instance.unitPriceUsd),
   'subtotal_usd': const DecimalConverter().toJson(instance.subtotalUsd),
+  'subtotal_ves': const DecimalConverter().toJson(instance.subtotalVes),
 };
 
 _SalePaymentDto _$SalePaymentDtoFromJson(Map<String, dynamic> json) => _SalePaymentDto(

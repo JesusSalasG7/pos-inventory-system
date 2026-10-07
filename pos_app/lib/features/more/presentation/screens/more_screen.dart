@@ -14,8 +14,8 @@ import 'package:pos_app/core/widgets/confirm_dialog.dart';
 import 'package:pos_app/core/widgets/connected_branch_header.dart';
 import 'package:pos_app/features/auth/presentation/providers/session_controller.dart';
 
-/// Pestaña "Más": la cuenta y las opciones secundarias.
-// TODO(fase-6): historial de ventas, tasa de cambio, reportes y administración.
+/// Pestaña "Más": la cuenta, las consultas (ventas, tasa, cajas) y, para un
+/// MANAGER, la administración del negocio.
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
@@ -114,6 +114,16 @@ class MoreScreen extends ConsumerWidget {
                       onTap: () => requestBranchChange(context, ref),
                     ),
                   _MoreTile(
+                    icon: Icons.receipt_long_rounded,
+                    label: Strings.salesHistoryTitle,
+                    onTap: () => context.push(RouteNames.salesHistory),
+                  ),
+                  _MoreTile(
+                    icon: Icons.sell_rounded,
+                    label: Strings.priceListTitle,
+                    onTap: () => context.push(RouteNames.priceList),
+                  ),
+                  _MoreTile(
                     icon: Icons.currency_exchange_rounded,
                     label: Strings.exchangeRateTitle,
                     onTap: () => context.push(RouteNames.exchangeRate),
@@ -123,6 +133,62 @@ class MoreScreen extends ConsumerWidget {
                     label: Strings.cashHistory,
                     onTap: () => context.push(RouteNames.cashHistory),
                   ),
+                ],
+              ),
+            ),
+          ),
+          if (user?.isManager ?? false) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Padding(
+              padding: const EdgeInsets.only(left: AppSpacing.sm, bottom: AppSpacing.sm),
+              child: Text(
+                Strings.administration.toUpperCase(),
+                style: AppTypography.label.copyWith(fontSize: 13, color: AppColors.textMuted),
+              ),
+            ),
+            Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: AppRadius.lgAll,
+                boxShadow: AppColors.cardShadow,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Material(
+                type: MaterialType.transparency,
+                child: Column(
+                  children: [
+                    _MoreTile(
+                      icon: Icons.category_rounded,
+                      label: Strings.categoriesTitle,
+                      onTap: () => context.push(RouteNames.categories),
+                    ),
+                    _MoreTile(
+                      icon: Icons.group_rounded,
+                      label: Strings.usersTitle,
+                      onTap: () => context.push(RouteNames.users),
+                    ),
+                    _MoreTile(
+                      icon: Icons.store_mall_directory_rounded,
+                      label: Strings.branchesTitle,
+                      onTap: () => context.push(RouteNames.branches),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.xl),
+          Container(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadius.lgAll,
+              boxShadow: AppColors.cardShadow,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                children: [
                   if (kDebugMode)
                     _MoreTile(
                       icon: Icons.palette_outlined,

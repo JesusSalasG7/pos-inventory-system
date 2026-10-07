@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_app/app/router/route_names.dart';
-import 'package:pos_app/core/domain/enums.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
@@ -18,6 +18,7 @@ import 'package:pos_app/core/widgets/search_field.dart';
 import 'package:pos_app/core/widgets/skeleton.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 import 'package:pos_app/features/inventory/presentation/providers/catalog_providers.dart';
 import 'package:pos_app/features/pos/presentation/providers/cart_controller.dart';
@@ -63,7 +64,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final query = _query.toLowerCase();
     return [
       for (final item in catalog)
-        if ((_category == null || item.product.category == _category) &&
+        if ((_category == null || item.product.category.id == _category!.id) &&
             item.product.name.toLowerCase().contains(query))
           item,
     ];
@@ -87,6 +88,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         child: CartBanner(
           itemCount: cart.itemCount,
           totalUsd: cart.totalUsd,
+          totalVes: rate.value == null
+              ? null
+              : cart.totalVes(rate.value!, roundUp: ref.watch(roundVesUpProvider)),
           onTap: () => context.push(RouteNames.checkout),
         ),
       ),
@@ -117,6 +121,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
               ),
             ),
             CategoryFilterChips(
+              categories: categoriesOf(catalog.value ?? const []),
               selected: _category,
               onSelected: (category) => setState(() => _category = category),
             ),
@@ -129,7 +134,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   onRetry: () => ref.invalidate(sellableCatalogProvider),
                   loading: const _CatalogSkeleton(),
                   isEmpty: (items) => items.isEmpty,
-                  empty: const _ScrollableEmpty(
+                  empty: const ScrollableEmptyState(
                     icon: Icons.inventory_2_outlined,
                     title: Strings.emptyCatalogTitle,
                     message: Strings.emptyCatalogMessage,
@@ -137,7 +142,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   data: (items) {
                     final visible = _filter(items);
                     if (visible.isEmpty) {
-                      return const _ScrollableEmpty(
+                      return const ScrollableEmptyState(
                         icon: Icons.search_off_rounded,
                         title: Strings.noResultsTitle,
                         message: Strings.noResultsMessage,
@@ -178,28 +183,6 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-/// Estado vacío que sigue permitiendo el gesto de deslizar para refrescar.
-class _ScrollableEmpty extends StatelessWidget {
-  const _ScrollableEmpty({required this.icon, required this.title, required this.message});
-
-  final IconData icon;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          height: constraints.maxHeight,
-          child: EmptyState(icon: icon, title: title, message: message),
-        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pos_app/core/currency/decimal_converter.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
+import 'package:pos_app/features/exchange_rate/domain/entities/pricing_settings.dart';
 
 part 'exchange_rate_dto.freezed.dart';
 part 'exchange_rate_dto.g.dart';
@@ -51,4 +52,19 @@ abstract class BcvRateDto with _$BcvRateDto {
   factory BcvRateDto.fromJson(Map<String, dynamic> json) => _$BcvRateDtoFromJson(json);
 
   BcvRate toEntity() => BcvRate(rate: rate, updatedAt: updatedAt);
+}
+
+/// Respuesta de `pricing-settings/`.
+@freezed
+abstract class PricingSettingsDto with _$PricingSettingsDto {
+  const factory PricingSettingsDto({required String rateMode, required bool roundVesUp}) =
+      _PricingSettingsDto;
+
+  const PricingSettingsDto._();
+
+  factory PricingSettingsDto.fromJson(Map<String, dynamic> json) =>
+      _$PricingSettingsDtoFromJson(json);
+
+  PricingSettings toEntity() =>
+      PricingSettings(rateMode: RateMode.fromApi(rateMode), roundVesUp: roundVesUp);
 }

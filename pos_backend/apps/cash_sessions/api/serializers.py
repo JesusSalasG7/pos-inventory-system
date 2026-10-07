@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.cash_sessions.models import CashExpense, CashSession
+from core.enums import Currency, PaymentMethod
 
 
 class CashSessionSerializer(serializers.ModelSerializer):
@@ -49,3 +50,35 @@ class CashCountSummarySerializer(serializers.Serializer):
     expenses_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
     expected_cash_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
     expected_cash_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+
+
+class PaymentTotalSerializer(serializers.Serializer):
+    method = serializers.ChoiceField(choices=PaymentMethod.choices)
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2)
+
+
+class ProductSalesSerializer(serializers.Serializer):
+    product = serializers.IntegerField(source="product_id")
+    product_name = serializers.CharField()
+    quantity = serializers.DecimalField(max_digits=12, decimal_places=3)
+    sales_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    sales_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cost_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cost_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    profit_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    profit_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+
+
+class SessionSalesReportSerializer(serializers.Serializer):
+    """Lo vendido en una caja. Los bolívares usan la tasa congelada de cada venta."""
+
+    sales_count = serializers.IntegerField()
+    total_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    total_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cost_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cost_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    profit_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    profit_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    payments = PaymentTotalSerializer(many=True)
+    products = ProductSalesSerializer(many=True)

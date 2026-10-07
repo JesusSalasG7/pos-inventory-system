@@ -15,22 +15,6 @@ enum UserRole {
       values.firstWhere((e) => e.apiValue == value, orElse: () => supervisor);
 }
 
-enum ProductCategory {
-  liquids('LIQUIDS'),
-  powders('POWDERS'),
-  accessories('ACCESSORIES'),
-  other('OTHER');
-
-  const ProductCategory(this.apiValue);
-  final String apiValue;
-
-  /// Categorías que el backend acepta hoy (sin el comodín `other`).
-  static const List<ProductCategory> known = [liquids, powders, accessories];
-
-  static ProductCategory fromApi(String value) =>
-      values.firstWhere((e) => e.apiValue == value, orElse: () => other);
-}
-
 enum UnitOfMeasure {
   liter('LITER'),
   kilogram('KILOGRAM'),
@@ -72,6 +56,21 @@ enum RateSource {
 
   static RateSource fromApi(String value) =>
       values.firstWhere((e) => e.apiValue == value, orElse: () => manual);
+}
+
+/// Con qué tasa calcula el negocio sus bolívares.
+enum RateMode {
+  /// La tasa activa sigue sola a la del BCV.
+  bcv('BCV'),
+
+  /// Manda la tasa que fija el gerente; el BCV no la reemplaza.
+  manual('MANUAL');
+
+  const RateMode(this.apiValue);
+  final String apiValue;
+
+  static RateMode fromApi(String value) =>
+      values.firstWhere((e) => e.apiValue == value, orElse: () => bcv);
 }
 
 enum Currency {

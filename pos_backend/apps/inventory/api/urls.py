@@ -3,6 +3,8 @@ from django.urls import path
 from apps.inventory.api import views
 
 urlpatterns = [
+    path("categories/", views.CategoryListCreateView.as_view(), name="category-list"),
+    path("categories/<int:id>/", views.CategoryDetailView.as_view(), name="category-detail"),
     path("products/", views.ProductListCreateView.as_view(), name="product-list"),
     path("products/<int:id>/", views.ProductDetailView.as_view(), name="product-detail"),
     path(

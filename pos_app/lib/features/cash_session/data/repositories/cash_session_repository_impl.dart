@@ -5,6 +5,7 @@ import 'package:pos_app/core/network/api_client.dart';
 import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/cash_session/data/datasources/cash_session_remote_datasource.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
+import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 import 'package:pos_app/features/cash_session/domain/repositories/cash_session_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -81,6 +82,11 @@ class CashSessionRepositoryImpl implements CashSessionRepository {
   @override
   Future<CashCountSummary> fetchSummary(int sessionId) {
     return Failure.guard(() async => (await _remote.fetchSummary(sessionId)).toEntity());
+  }
+
+  @override
+  Future<SessionSalesReport> fetchSalesReport(int sessionId) {
+    return Failure.guard(() async => (await _remote.fetchSalesReport(sessionId)).toEntity());
   }
 
   @override

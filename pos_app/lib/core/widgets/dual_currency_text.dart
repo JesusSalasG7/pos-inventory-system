@@ -2,13 +2,14 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:pos_app/core/currency/currency_converter.dart';
 import 'package:pos_app/core/currency/money_formatter.dart';
+import 'package:pos_app/core/currency/ves_pricing.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_typography.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
+import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 
 enum DualCurrencySize { small, medium, large }
 
@@ -24,6 +25,7 @@ class DualCurrencyText extends ConsumerWidget {
     required this.amountUsd,
     this.rate,
     this.amountVes,
+    this.isUnitPrice = false,
     this.size = DualCurrencySize.medium,
     this.layout = DualCurrencyLayout.column,
     this.crossAxisAlignment = CrossAxisAlignment.start,
@@ -40,6 +42,11 @@ class DualCurrencyText extends ConsumerWidget {
   /// Monto en VES ya calculado por el backend (p. ej. totales de ventas, que
   /// suman lo facturado con la tasa de cada venta). Si se indica, no se convierte.
   final Decimal? amountVes;
+
+  /// El monto es el precio de una unidad de producto: si el negocio redondea
+  /// los bolívares hacia arriba, se muestra ya redondeado al bolívar entero.
+  /// No aplica a totales ni a ventas pasadas, que traen sus bolívares.
+  final bool isUnitPrice;
   final DualCurrencySize size;
   final DualCurrencyLayout layout;
   final CrossAxisAlignment crossAxisAlignment;
@@ -55,7 +62,13 @@ class DualCurrencyText extends ConsumerWidget {
         ? MoneyFormatter.ves(fixedVes)
         : effectiveRate == null
         ? Strings.vesUnavailable
-        : MoneyFormatter.ves(CurrencyConverter.usdToVes(amountUsd, effectiveRate));
+        : MoneyFormatter.ves(
+            VesPricing.unitPrice(
+              amountUsd,
+              effectiveRate,
+              roundUp: isUnitPrice && ref.watch(roundVesUpProvider),
+            ),
+          );
 
     final (usdSize, vesSize) = switch (size) {
       DualCurrencySize.small => (16.0, 12.0),

@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
+import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 
 abstract interface class CashSessionRepository {
   /// Caja abierta del usuario, o `null` si no tiene ninguna.
@@ -24,6 +25,10 @@ abstract interface class CashSessionRepository {
   });
 
   Future<CashCountSummary> fetchSummary(int sessionId);
+
+  /// Resumen de lo vendido en la caja, abierta o cerrada: totales, cobros por
+  /// forma de pago, inversión y ganancia.
+  Future<SessionSalesReport> fetchSalesReport(int sessionId);
 
   /// Cierra la caja con los montos contados. Devuelve la caja con la
   /// diferencia definitiva calculada por el backend.

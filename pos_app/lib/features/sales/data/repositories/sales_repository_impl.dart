@@ -1,5 +1,6 @@
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/network/api_client.dart';
+import 'package:pos_app/core/network/paginated.dart';
 import 'package:pos_app/features/sales/data/datasources/sales_remote_datasource.dart';
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/domain/entities/sales_summary.dart';
@@ -31,6 +32,24 @@ class SalesRepositoryImpl implements SalesRepository {
         dateTo: dateTo,
       )).toEntity(),
     );
+  }
+
+  @override
+  Future<Paginated<Sale>> fetchSales({
+    required String branchCode,
+    required int page,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) {
+    return Failure.guard(() async {
+      final dtos = await _remote.fetchSales(
+        branchCode: branchCode,
+        page: page,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
+      return dtos.map((dto) => dto.toEntity());
+    });
   }
 
   @override

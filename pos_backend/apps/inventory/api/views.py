@@ -14,15 +14,18 @@ from rest_framework.views import APIView
 from apps.inventory.api.filters import InventoryMovementFilter
 from apps.inventory.api.serializers import (
     BranchInventorySerializer,
+    CategoryCreateSerializer,
+    CategorySerializer,
+    CategoryUpdateSerializer,
     InventoryMovementCreateSerializer,
     InventoryMovementSerializer,
     MinimumStockSerializer,
+    ProductListQuerySerializer,
     ProductSerializer,
 )
 from apps.inventory.models import InventoryMovement
-from apps.inventory.services import product_service, stock_service
+from apps.inventory.services import category_service, product_service, stock_service
 from core.branch_scope import resolve_branch
-from core.enums import ProductCategory
 from core.permissions import HasBranchAccess, IsManager, IsSupervisorOrManager
 from core.query_params import is_true
 
@@ -42,6 +45,61 @@ class ReadSupervisorWriteManagerMixin:
         return [IsManager()]
 
 
+class CategoryListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
+    serializer_class = CategorySerializer
+    filter_backends = []
+
+    @extend_schema(
+        operation_id="categories_list",
+        parameters=[
+            OpenApiParameter("active", OpenApiTypes.BOOL, description="Solo categorías activas.")
+        ],
+        responses=CategorySerializer(many=True),
+        tags=["categories"],
+    )
+    def get(self, request: Request) -> Response:
+        """Categorías del catálogo, ordenadas por nombre."""
+        categories = category_service.list_categories(
+            only_active=is_true(request.query_params.get("active"))
+        )
+        page = self.paginate_queryset(categories)
+        return self.get_paginated_response(CategorySerializer(page, many=True).data)
+
+    @extend_schema(
+        operation_id="categories_create",
+        request=CategoryCreateSerializer,
+        responses={201: CategorySerializer},
+        tags=["categories"],
+    )
+    def post(self, request: Request) -> Response:
+        """Crea una categoría activa."""
+        serializer = CategoryCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = category_service.create_category(**serializer.validated_data)
+        return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
+
+
+class CategoryDetailView(ReadSupervisorWriteManagerMixin, APIView):
+    @extend_schema(
+        operation_id="categories_retrieve", responses=CategorySerializer, tags=["categories"]
+    )
+    def get(self, request: Request, id: int) -> Response:
+        return Response(CategorySerializer(category_service.get_category(id)).data)
+
+    @extend_schema(
+        operation_id="categories_partial_update",
+        request=CategoryUpdateSerializer,
+        responses=CategorySerializer,
+        tags=["categories"],
+    )
+    def patch(self, request: Request, id: int) -> Response:
+        """Cambia el nombre o activa/desactiva la categoría."""
+        serializer = CategoryUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        category = category_service.update_category(id, **serializer.validated_data)
+        return Response(CategorySerializer(category).data)
+
+
 class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
     serializer_class = ProductSerializer
     filter_backends = []
@@ -50,7 +108,7 @@ class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
         operation_id="products_list",
         parameters=[
             OpenApiParameter("active", OpenApiTypes.BOOL, description="Solo productos activos."),
-            OpenApiParameter("category", OpenApiTypes.STR, enum=ProductCategory.values),
+            OpenApiParameter("category", OpenApiTypes.INT, description="Id de la categoría."),
             OpenApiParameter("search", OpenApiTypes.STR, description="Texto dentro del nombre."),
         ],
         responses=ProductSerializer(many=True),
@@ -59,9 +117,11 @@ class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
     def get(self, request: Request) -> Response:
         """Catálogo de productos, ordenado por nombre."""
         params = request.query_params
+        query = ProductListQuerySerializer(data=params)
+        query.is_valid(raise_exception=True)
         products = product_service.list_products(
             only_active=is_true(params.get("active")),
-            category=params.get("category"),
+            category_id=query.validated_data.get("category"),
             search=params.get("search"),
         )
         page = self.paginate_queryset(products)

@@ -9,21 +9,22 @@ from django.db.models import QuerySet
 from apps.branches.services import branch_service
 from apps.inventory.models import Product
 from apps.inventory.repositories import branch_inventory_repository, product_repository
-from core.enums import ProductCategory, UnitOfMeasure
+from apps.inventory.services import category_service
+from core.enums import UnitOfMeasure
 from core.exceptions import DomainError, InactiveProductError, NotFoundError
 
 EDITABLE_FIELDS = frozenset(
-    {"name", "category", "unit_of_measure", "cost_price_usd", "sale_price_usd"}
+    {"name", "category_id", "unit_of_measure", "cost_price_usd", "sale_price_usd"}
 )
 PRICE_FIELDS = ("cost_price_usd", "sale_price_usd")
 
 
 def list_products(
-    *, only_active: bool = False, category: str | None = None, search: str | None = None
+    *, only_active: bool = False, category_id: int | None = None, search: str | None = None
 ) -> QuerySet[Product]:
     """Lista el catálogo aplicando los filtros recibidos."""
     return product_repository.list_products(
-        only_active=only_active, category=category, search=search
+        only_active=only_active, category_id=category_id, search=search
     )
 
 
@@ -56,7 +57,7 @@ def get_active_products(product_ids: Iterable[int]) -> dict[int, Product]:
 def create_product(
     *,
     name: str,
-    category: ProductCategory,
+    category_id: int,
     unit_of_measure: UnitOfMeasure,
     cost_price_usd: Decimal,
     sale_price_usd: Decimal,
@@ -64,17 +65,19 @@ def create_product(
     """Crea un producto.
 
     Pasos:
-    1. Validar el nombre (no vacío y no repetido) y que los precios no sean negativos.
+    1. Validar el nombre (no vacío y no repetido), que la categoría exista y
+       esté activa, y que los precios no sean negativos.
     2. Dentro de `transaction.atomic()`: crear el producto y sus filas de
        BranchInventory en stock cero para cada sucursal activa.
     """
     name = _clean_name(name)
+    category_service.require_active(category_id)
     _require_non_negative_prices(cost_price_usd=cost_price_usd, sale_price_usd=sale_price_usd)
 
     with transaction.atomic():
         product = product_repository.create(
             name=name,
-            category=category,
+            category_id=category_id,
             unit_of_measure=unit_of_measure,
             cost_price_usd=cost_price_usd,
             sale_price_usd=sale_price_usd,
@@ -92,6 +95,9 @@ def update_product(product_id: int, **fields: object) -> Product:
     product = get_product(product_id)
     if "name" in fields:
         fields["name"] = _clean_name(str(fields["name"]), exclude_id=product.pk)
+    # Un producto puede conservar una categoría desactivada, pero no pasar a una.
+    if "category_id" in fields and fields["category_id"] != product.category_id:
+        category_service.require_active(int(fields["category_id"]))
     _require_non_negative_prices(**{f: fields[f] for f in PRICE_FIELDS if f in fields})
     if not fields:
         return product

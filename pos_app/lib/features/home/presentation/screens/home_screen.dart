@@ -93,6 +93,13 @@ class HomeScreen extends ConsumerWidget {
                   const _LowStockCard(),
                   const SizedBox(height: AppSpacing.md),
                   const _RateCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  PrimaryButton(
+                    label: Strings.priceListTitle,
+                    icon: Icons.sell_rounded,
+                    variant: ButtonVariant.outlined,
+                    onPressed: () => context.push(RouteNames.priceList),
+                  ),
                 ],
               ),
             ),
@@ -111,6 +118,8 @@ class _SalesTodayCard extends ConsumerWidget {
     final summary = ref.watch(todaySalesSummaryProvider);
     return SectionCard(
       title: Strings.salesToday.toUpperCase(),
+      trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+      onTap: () => context.push(RouteNames.salesHistory),
       child: AsyncValueView<SalesSummary>(
         value: summary,
         onRetry: () => ref.invalidate(todaySalesSummaryProvider),

@@ -27,6 +27,16 @@ Android, para tiendas de productos de limpieza en Venezuela.
   carrito, dashboard) usa la tasa activa de `activeRateProvider`.
 - **Sucursal**: los repositorios envían siempre el `code` de `activeBranchProvider` en `branch`
   (query en los `GET`, body en `POST`/`PATCH`). Así un MANAGER con acceso a todas ve solo su sede.
+- **Bolívares**: los precios en VES se calculan con `VesPricing` (`core/currency/`), que replica
+  el redondeo hacia arriba opcional del backend. Un precio unitario se pinta con
+  `DualCurrencyText(isUnitPrice: true)`; un total del carrito con `Cart.totalVes` pasado como
+  `amountVes`; una venta pasada con sus propios `totalVes` / `subtotalVes`. La configuración
+  (modo de tasa y redondeo) está en `pricingSettingsControllerProvider` y `roundVesUpProvider`.
+- **Categorías**: las crea el gerente (`categories/`); no hay enum. La entidad es
+  `ProductCategory` (`Category` choca con una clase de Flutter). Su sticker es un emoji opcional
+  (`icon`); sin él, el ícono sale de una paleta fija según el `id`, y el color siempre de esa
+  paleta (`CategoryStyle`). Se pintan con `CategoryAvatar` / `CategoryGlyph`. Los filtros por categoría se arman con las
+  categorías de los productos cargados (`categoriesOf`).
 - **Vuelto**: no existe en el backend. A la API se envía el monto exacto que cubre la venta.
 - **Tasa automática**: el servidor registra sola la tasa del BCV (`source=BCV`, con su
   `effective_date`). La app vuelve a consultar la tasa al abrir, al volver a primer plano y cada
@@ -126,6 +136,7 @@ scripts/run_device.sh 192.168.1.50    # teléfono por Wi-Fi; la IP va en DJANGO_
 flutter analyze
 flutter test
 flutter test test/unit/money_test.dart
+flutter test integration_test/app_flow_test.dart -d <id>   # recorrido principal en el teléfono
 flutter build apk --debug
 ```
 
@@ -134,12 +145,11 @@ Los tests de widgets cargan la fuente real con `test/mocks/test_fonts.dart`; sin
 
 ## Estado
 
-Desarrollo por fases, con pausa y aprobación entre cada una:
+Las seis fases están hechas:
 
 1. **Base y diseño** — hecho: `core/` completo, tema, widgets globales y vista previa.
 2. **Auth y sucursal** — hecho: splash, login, refresco de token, `me`, primera sucursal, selector
-   y `BranchHeader` conectado. Las pestañas Vender, Inventario y Caja son provisionales
-   (`ComingSoonScreen`) y la tasa activa ya se lee del backend.
+   y `BranchHeader` conectado.
 3. **Tasa y caja** — hecho: tasa global (se refresca al volver a primer plano), pantalla de tasas
    con BCV e histórico, apertura de caja, gastos, arqueo, cierre, historial de cajas y dashboard.
    La caja abierta puede pertenecer a otra sucursal: el backend solo admite una por usuario.
@@ -148,5 +158,20 @@ Desarrollo por fases, con pausa y aprobación entre cada una:
    `CheckoutMath` (dominio puro) replica el cuadre del backend: los bolívares se suman y se
    convierten a USD una sola vez. El vuelto se descuenta del último pago en efectivo antes de
    enviar, porque el backend rechaza tanto lo que falta como lo que sobra.
-5. Inventario.
-6. Más y administración, y test de integración en el teléfono.
+5. **Inventario** — hecho: pestaña con todo el catálogo (también los productos inactivos) y su
+   stock en la tienda, búsqueda, filtro por categoría y "Por reponer"; detalle de producto con
+   entrada, merma y ajuste, stock en las demás tiendas y su Kardex; Kardex general de la tienda
+   con filtro por tipo. Un MANAGER además crea y edita productos, los activa o desactiva y cambia
+   el stock mínimo. `InventoryCatalog` concentra esas operaciones y, tras cada una, invalida todo
+   lo que depende del stock (catálogo para vender, aviso de stock mínimo, Kardex). En un ajuste se
+   envía el **stock contado**; si coincide con el actual el backend responde 204 y no hay
+   movimiento.
+6. **Más y administración** — hecho: ventas por día con su detalle (desde Inicio y desde Más),
+   y para un MANAGER la administración de categorías, usuarios y tiendas. El recorrido principal
+   (`test/flows/main_flow.dart`) lo comparten el test de widgets y el de integración
+   (`integration_test/app_flow_test.dart`), que corre en el teléfono sin servidor.
+
+Al cerrar una caja, la pantalla de arqueo pasa a mostrar el resultado: la diferencia definitiva
+y el resumen de ventas del turno (`SessionSalesReportSection`: totales, cobros por forma de pago,
+inversión, ganancia y desglose por producto). El mismo resumen aparece en el detalle de cada caja
+del historial. Todo lo calcula el backend (`cash-sessions/<id>/sales-report/`).

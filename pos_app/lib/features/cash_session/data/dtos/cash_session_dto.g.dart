@@ -79,3 +79,69 @@ Map<String, dynamic> _$CashCountSummaryDtoToJson(_CashCountSummaryDto instance) 
       'expected_cash_usd': const DecimalConverter().toJson(instance.expectedCashUsd),
       'expected_cash_ves': const DecimalConverter().toJson(instance.expectedCashVes),
     };
+
+_PaymentTotalDto _$PaymentTotalDtoFromJson(Map<String, dynamic> json) => _PaymentTotalDto(
+  method: json['method'] as String,
+  currency: json['currency'] as String,
+  amount: const DecimalConverter().fromJson(json['amount'] as String),
+);
+
+Map<String, dynamic> _$PaymentTotalDtoToJson(_PaymentTotalDto instance) => <String, dynamic>{
+  'method': instance.method,
+  'currency': instance.currency,
+  'amount': const DecimalConverter().toJson(instance.amount),
+};
+
+_ProductSalesDto _$ProductSalesDtoFromJson(Map<String, dynamic> json) => _ProductSalesDto(
+  product: (json['product'] as num).toInt(),
+  productName: json['product_name'] as String,
+  quantity: const DecimalConverter().fromJson(json['quantity'] as String),
+  salesUsd: const DecimalConverter().fromJson(json['sales_usd'] as String),
+  salesVes: const DecimalConverter().fromJson(json['sales_ves'] as String),
+  costUsd: const DecimalConverter().fromJson(json['cost_usd'] as String),
+  costVes: const DecimalConverter().fromJson(json['cost_ves'] as String),
+  profitUsd: const DecimalConverter().fromJson(json['profit_usd'] as String),
+  profitVes: const DecimalConverter().fromJson(json['profit_ves'] as String),
+);
+
+Map<String, dynamic> _$ProductSalesDtoToJson(_ProductSalesDto instance) => <String, dynamic>{
+  'product': instance.product,
+  'product_name': instance.productName,
+  'quantity': const DecimalConverter().toJson(instance.quantity),
+  'sales_usd': const DecimalConverter().toJson(instance.salesUsd),
+  'sales_ves': const DecimalConverter().toJson(instance.salesVes),
+  'cost_usd': const DecimalConverter().toJson(instance.costUsd),
+  'cost_ves': const DecimalConverter().toJson(instance.costVes),
+  'profit_usd': const DecimalConverter().toJson(instance.profitUsd),
+  'profit_ves': const DecimalConverter().toJson(instance.profitVes),
+};
+
+_SessionSalesReportDto _$SessionSalesReportDtoFromJson(Map<String, dynamic> json) =>
+    _SessionSalesReportDto(
+      salesCount: (json['sales_count'] as num).toInt(),
+      totalUsd: const DecimalConverter().fromJson(json['total_usd'] as String),
+      totalVes: const DecimalConverter().fromJson(json['total_ves'] as String),
+      costUsd: const DecimalConverter().fromJson(json['cost_usd'] as String),
+      costVes: const DecimalConverter().fromJson(json['cost_ves'] as String),
+      profitUsd: const DecimalConverter().fromJson(json['profit_usd'] as String),
+      profitVes: const DecimalConverter().fromJson(json['profit_ves'] as String),
+      payments: (json['payments'] as List<dynamic>)
+          .map((e) => PaymentTotalDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      products: (json['products'] as List<dynamic>)
+          .map((e) => ProductSalesDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$SessionSalesReportDtoToJson(_SessionSalesReportDto instance) =>
+    <String, dynamic>{
+      'sales_count': instance.salesCount,
+      'total_usd': const DecimalConverter().toJson(instance.totalUsd),
+      'total_ves': const DecimalConverter().toJson(instance.totalVes),
+      'cost_usd': const DecimalConverter().toJson(instance.costUsd),
+      'cost_ves': const DecimalConverter().toJson(instance.costVes),
+      'profit_usd': const DecimalConverter().toJson(instance.profitUsd),
+      'profit_ves': const DecimalConverter().toJson(instance.profitVes),
+      'payments': instance.payments.map((e) => e.toJson()).toList(),
+      'products': instance.products.map((e) => e.toJson()).toList(),
+    };

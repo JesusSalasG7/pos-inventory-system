@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SaleDetailDto {
 
- int get id; int get product;@DecimalConverter() Decimal get quantity;@DecimalConverter() Decimal get unitPriceUsd;@DecimalConverter() Decimal get subtotalUsd;
+ int get id; int get product;@DecimalConverter() Decimal get quantity;@DecimalConverter() Decimal get unitPriceUsd;@DecimalConverter() Decimal get subtotalUsd;@DecimalConverter() Decimal get subtotalVes;
 /// Create a copy of SaleDetailDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SaleDetailDtoCopyWith<SaleDetailDto> get copyWith => _$SaleDetailDtoCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaleDetailDto&&(identical(other.id, id) || other.id == id)&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.unitPriceUsd, unitPriceUsd) || other.unitPriceUsd == unitPriceUsd)&&(identical(other.subtotalUsd, subtotalUsd) || other.subtotalUsd == subtotalUsd));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaleDetailDto&&(identical(other.id, id) || other.id == id)&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.unitPriceUsd, unitPriceUsd) || other.unitPriceUsd == unitPriceUsd)&&(identical(other.subtotalUsd, subtotalUsd) || other.subtotalUsd == subtotalUsd)&&(identical(other.subtotalVes, subtotalVes) || other.subtotalVes == subtotalVes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,product,quantity,unitPriceUsd,subtotalUsd);
+int get hashCode => Object.hash(runtimeType,id,product,quantity,unitPriceUsd,subtotalUsd,subtotalVes);
 
 @override
 String toString() {
-  return 'SaleDetailDto(id: $id, product: $product, quantity: $quantity, unitPriceUsd: $unitPriceUsd, subtotalUsd: $subtotalUsd)';
+  return 'SaleDetailDto(id: $id, product: $product, quantity: $quantity, unitPriceUsd: $unitPriceUsd, subtotalUsd: $subtotalUsd, subtotalVes: $subtotalVes)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SaleDetailDtoCopyWith<$Res>  {
   factory $SaleDetailDtoCopyWith(SaleDetailDto value, $Res Function(SaleDetailDto) _then) = _$SaleDetailDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, int product,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal unitPriceUsd,@DecimalConverter() Decimal subtotalUsd
+ int id, int product,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal unitPriceUsd,@DecimalConverter() Decimal subtotalUsd,@DecimalConverter() Decimal subtotalVes
 });
 
 
@@ -65,13 +65,14 @@ class _$SaleDetailDtoCopyWithImpl<$Res>
 
 /// Create a copy of SaleDetailDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? product = null,Object? quantity = null,Object? unitPriceUsd = null,Object? subtotalUsd = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? product = null,Object? quantity = null,Object? unitPriceUsd = null,Object? subtotalUsd = null,Object? subtotalVes = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as int,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as Decimal,unitPriceUsd: null == unitPriceUsd ? _self.unitPriceUsd : unitPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,subtotalUsd: null == subtotalUsd ? _self.subtotalUsd : subtotalUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,subtotalVes: null == subtotalVes ? _self.subtotalVes : subtotalVes // ignore: cast_nullable_to_non_nullable
 as Decimal,
   ));
 }
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd, @DecimalConverter()  Decimal subtotalVes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SaleDetailDto() when $default != null:
-return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd);case _:
+return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd,_that.subtotalVes);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd, @DecimalConverter()  Decimal subtotalVes)  $default,) {final _that = this;
 switch (_that) {
 case _SaleDetailDto():
-return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd);case _:
+return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd,_that.subtotalVes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int product, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal unitPriceUsd, @DecimalConverter()  Decimal subtotalUsd, @DecimalConverter()  Decimal subtotalVes)?  $default,) {final _that = this;
 switch (_that) {
 case _SaleDetailDto() when $default != null:
-return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd);case _:
+return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.subtotalUsd,_that.subtotalVes);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.id,_that.product,_that.quantity,_that.unitPriceUsd,_that.s
 @JsonSerializable()
 
 class _SaleDetailDto extends SaleDetailDto {
-  const _SaleDetailDto({required this.id, required this.product, @DecimalConverter() required this.quantity, @DecimalConverter() required this.unitPriceUsd, @DecimalConverter() required this.subtotalUsd}): super._();
+  const _SaleDetailDto({required this.id, required this.product, @DecimalConverter() required this.quantity, @DecimalConverter() required this.unitPriceUsd, @DecimalConverter() required this.subtotalUsd, @DecimalConverter() required this.subtotalVes}): super._();
   factory _SaleDetailDto.fromJson(Map<String, dynamic> json) => _$SaleDetailDtoFromJson(json);
 
 @override final  int id;
@@ -221,6 +222,7 @@ class _SaleDetailDto extends SaleDetailDto {
 @override@DecimalConverter() final  Decimal quantity;
 @override@DecimalConverter() final  Decimal unitPriceUsd;
 @override@DecimalConverter() final  Decimal subtotalUsd;
+@override@DecimalConverter() final  Decimal subtotalVes;
 
 /// Create a copy of SaleDetailDto
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaleDetailDto&&(identical(other.id, id) || other.id == id)&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.unitPriceUsd, unitPriceUsd) || other.unitPriceUsd == unitPriceUsd)&&(identical(other.subtotalUsd, subtotalUsd) || other.subtotalUsd == subtotalUsd));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaleDetailDto&&(identical(other.id, id) || other.id == id)&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.unitPriceUsd, unitPriceUsd) || other.unitPriceUsd == unitPriceUsd)&&(identical(other.subtotalUsd, subtotalUsd) || other.subtotalUsd == subtotalUsd)&&(identical(other.subtotalVes, subtotalVes) || other.subtotalVes == subtotalVes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,product,quantity,unitPriceUsd,subtotalUsd);
+int get hashCode => Object.hash(runtimeType,id,product,quantity,unitPriceUsd,subtotalUsd,subtotalVes);
 
 @override
 String toString() {
-  return 'SaleDetailDto(id: $id, product: $product, quantity: $quantity, unitPriceUsd: $unitPriceUsd, subtotalUsd: $subtotalUsd)';
+  return 'SaleDetailDto(id: $id, product: $product, quantity: $quantity, unitPriceUsd: $unitPriceUsd, subtotalUsd: $subtotalUsd, subtotalVes: $subtotalVes)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$SaleDetailDtoCopyWith<$Res> implements $SaleDetailDtoCopy
   factory _$SaleDetailDtoCopyWith(_SaleDetailDto value, $Res Function(_SaleDetailDto) _then) = __$SaleDetailDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int product,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal unitPriceUsd,@DecimalConverter() Decimal subtotalUsd
+ int id, int product,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal unitPriceUsd,@DecimalConverter() Decimal subtotalUsd,@DecimalConverter() Decimal subtotalVes
 });
 
 
@@ -272,13 +274,14 @@ class __$SaleDetailDtoCopyWithImpl<$Res>
 
 /// Create a copy of SaleDetailDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? product = null,Object? quantity = null,Object? unitPriceUsd = null,Object? subtotalUsd = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? product = null,Object? quantity = null,Object? unitPriceUsd = null,Object? subtotalUsd = null,Object? subtotalVes = null,}) {
   return _then(_SaleDetailDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as int,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as Decimal,unitPriceUsd: null == unitPriceUsd ? _self.unitPriceUsd : unitPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,subtotalUsd: null == subtotalUsd ? _self.subtotalUsd : subtotalUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,subtotalVes: null == subtotalVes ? _self.subtotalVes : subtotalVes // ignore: cast_nullable_to_non_nullable
 as Decimal,
   ));
 }

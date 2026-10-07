@@ -10,7 +10,7 @@ from django.db.models import QuerySet
 
 from apps.auth.models import User
 from apps.cash_sessions.services import cash_session_service
-from apps.exchange_rate.services import exchange_rate_service
+from apps.exchange_rate.services import exchange_rate_service, pricing_settings_service
 from apps.inventory.services import product_service, stock_service
 from apps.sales.domain.dtos import CreateSaleInput, PaymentInput, PricedLine, SaleItemInput
 from apps.sales.models import Sale
@@ -80,13 +80,22 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
 
     products = product_service.get_active_products(quantities)
     lines = [
-        PricedLine(product_id, quantity, products[product_id].sale_price_usd)
+        PricedLine(
+            product_id,
+            quantity,
+            products[product_id].sale_price_usd,
+            products[product_id].cost_price_usd,
+        )
         for product_id, quantity in quantities.items()
     ]
 
-    totals = sale_calculator.calculate_totals(lines, rate)
+    round_ves_up = pricing_settings_service.get_settings().round_ves_up
+    totals = sale_calculator.calculate_totals(lines, rate, round_ves_up=round_ves_up)
     sale_calculator.validate_payments(
-        totals.total_usd, payments, rate, settings.PAYMENT_TOLERANCE_USD
+        totals.total_usd,
+        payments,
+        sale_calculator.payment_rate(totals, rate),
+        settings.PAYMENT_TOLERANCE_USD,
     )
 
     with transaction.atomic():

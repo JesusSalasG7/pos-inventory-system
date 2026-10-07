@@ -23,5 +23,19 @@ abstract final class RouteNames {
   static const String checkout = '/checkout';
   static const String saleReceipt = '/sale-receipt';
 
+  static const String productDetailPattern = '/inventory-product/:productId';
+  static String productDetail(int productId) => '/inventory-product/$productId';
+  static const String productForm = '/inventory-product-form';
+  static const String inventoryMovements = '/inventory-movements';
+
+  static const String salesHistory = '/sales-history';
+  static const String saleDetail = '/sales-history/detail';
+  static const String categories = '/categories';
+  static const String users = '/users';
+  static const String userForm = '/users/form';
+  static const String branches = '/branches';
+
+  static const String priceList = '/price-list';
+
   static const String designPreview = '/design-preview';
 }

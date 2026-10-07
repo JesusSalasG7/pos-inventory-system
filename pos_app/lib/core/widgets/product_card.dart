@@ -1,14 +1,15 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
-import 'package:pos_app/core/constants/category_style.dart';
 import 'package:pos_app/core/currency/money_formatter.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
 import 'package:pos_app/core/theme/app_radius.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_typography.dart';
+import 'package:pos_app/core/widgets/category_avatar.dart';
 import 'package:pos_app/core/widgets/dual_currency_text.dart';
 import 'package:pos_app/core/widgets/quantity_input_dialog.dart';
 import 'package:pos_app/core/widgets/stock_badge.dart';
@@ -95,7 +96,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = CategoryStyle.of(category);
     final inCart = quantity > Decimal.zero;
 
     return Opacity(
@@ -113,12 +113,7 @@ class ProductCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(color: style.softColor, shape: BoxShape.circle),
-                  child: Icon(style.icon, size: 22, color: style.color),
-                ),
+                CategoryAvatar(category: category, size: 40),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Align(
@@ -136,13 +131,18 @@ class ProductCard extends StatelessWidget {
               style: AppTypography.subtitle.copyWith(fontSize: 15, height: 1.25),
             ),
             Text(
-              '${CategoryStyle.labelOf(category)} · ${Strings.unit(unit)}',
+              '${category.name} · ${Strings.unit(unit)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.bodySmall.copyWith(fontSize: 12),
             ),
             const Spacer(),
-            DualCurrencyText(amountUsd: priceUsd, rate: rate, size: DualCurrencySize.small),
+            DualCurrencyText(
+              amountUsd: priceUsd,
+              rate: rate,
+              isUnitPrice: true,
+              size: DualCurrencySize.small,
+            ),
             const SizedBox(height: AppSpacing.sm),
             if (inCart)
               _QuantityStepper(

@@ -3,8 +3,9 @@
 from collections.abc import Sequence
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
-from django.db.models import Count, QuerySet, Sum
+from django.db.models import Count, F, QuerySet, Sum
 
 from apps.auth.models import User
 from apps.cash_sessions.models import CashSession
@@ -45,7 +46,9 @@ def bulk_create_details(sale: Sale, lines: Sequence[LineTotal]) -> list[SaleDeta
                 product_id=line.product_id,
                 quantity=line.quantity,
                 unit_price_usd=line.unit_price_usd,
+                unit_cost_usd=line.unit_cost_usd,
                 subtotal_usd=line.subtotal_usd,
+                subtotal_ves=line.subtotal_ves,
             )
             for line in lines
         ]
@@ -100,6 +103,35 @@ def summarize(
         "total_usd": totals["total_usd"] or Decimal("0.00"),
         "total_ves": totals["total_ves"] or Decimal("0.00"),
     }
+
+
+def totals_by_session(cash_session_id: int) -> dict[str, Decimal | int]:
+    """Cantidad de ventas y totales USD/VES facturados en una caja."""
+    totals = Sale.objects.filter(cash_session_id=cash_session_id).aggregate(
+        sales_count=Count("id"), total_usd=Sum("total_usd"), total_ves=Sum("total_ves")
+    )
+    return {
+        "sales_count": totals["sales_count"],
+        "total_usd": totals["total_usd"] or Decimal("0.00"),
+        "total_ves": totals["total_ves"] or Decimal("0.00"),
+    }
+
+
+def list_lines_by_session(cash_session_id: int) -> list[dict[str, Any]]:
+    """Líneas vendidas en una caja, con el nombre del producto y la tasa de su venta."""
+    return list(
+        SaleDetail.objects.filter(sale__cash_session_id=cash_session_id)
+        .order_by("id")
+        .values(
+            "product_id",
+            "quantity",
+            "subtotal_usd",
+            "subtotal_ves",
+            "unit_cost_usd",
+            product_name=F("product__name"),
+            rate=F("sale__exchange_rate_at_invoice"),
+        )
+    )
 
 
 def payment_totals_by_session(cash_session_id: int) -> dict[tuple[str, str], Decimal]:

@@ -866,4 +866,859 @@ as Decimal,
 
 }
 
+
+/// @nodoc
+mixin _$PaymentTotalDto {
+
+ String get method; String get currency;@DecimalConverter() Decimal get amount;
+/// Create a copy of PaymentTotalDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PaymentTotalDtoCopyWith<PaymentTotalDto> get copyWith => _$PaymentTotalDtoCopyWithImpl<PaymentTotalDto>(this as PaymentTotalDto, _$identity);
+
+  /// Serializes this PaymentTotalDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentTotalDto&&(identical(other.method, method) || other.method == method)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,method,currency,amount);
+
+@override
+String toString() {
+  return 'PaymentTotalDto(method: $method, currency: $currency, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PaymentTotalDtoCopyWith<$Res>  {
+  factory $PaymentTotalDtoCopyWith(PaymentTotalDto value, $Res Function(PaymentTotalDto) _then) = _$PaymentTotalDtoCopyWithImpl;
+@useResult
+$Res call({
+ String method, String currency,@DecimalConverter() Decimal amount
+});
+
+
+
+
+}
+/// @nodoc
+class _$PaymentTotalDtoCopyWithImpl<$Res>
+    implements $PaymentTotalDtoCopyWith<$Res> {
+  _$PaymentTotalDtoCopyWithImpl(this._self, this._then);
+
+  final PaymentTotalDto _self;
+  final $Res Function(PaymentTotalDto) _then;
+
+/// Create a copy of PaymentTotalDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? method = null,Object? currency = null,Object? amount = null,}) {
+  return _then(_self.copyWith(
+method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
+as String,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as Decimal,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PaymentTotalDto].
+extension PaymentTotalDtoPatterns on PaymentTotalDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PaymentTotalDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PaymentTotalDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PaymentTotalDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _PaymentTotalDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PaymentTotalDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PaymentTotalDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String method,  String currency, @DecimalConverter()  Decimal amount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PaymentTotalDto() when $default != null:
+return $default(_that.method,_that.currency,_that.amount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String method,  String currency, @DecimalConverter()  Decimal amount)  $default,) {final _that = this;
+switch (_that) {
+case _PaymentTotalDto():
+return $default(_that.method,_that.currency,_that.amount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String method,  String currency, @DecimalConverter()  Decimal amount)?  $default,) {final _that = this;
+switch (_that) {
+case _PaymentTotalDto() when $default != null:
+return $default(_that.method,_that.currency,_that.amount);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PaymentTotalDto extends PaymentTotalDto {
+  const _PaymentTotalDto({required this.method, required this.currency, @DecimalConverter() required this.amount}): super._();
+  factory _PaymentTotalDto.fromJson(Map<String, dynamic> json) => _$PaymentTotalDtoFromJson(json);
+
+@override final  String method;
+@override final  String currency;
+@override@DecimalConverter() final  Decimal amount;
+
+/// Create a copy of PaymentTotalDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PaymentTotalDtoCopyWith<_PaymentTotalDto> get copyWith => __$PaymentTotalDtoCopyWithImpl<_PaymentTotalDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PaymentTotalDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentTotalDto&&(identical(other.method, method) || other.method == method)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,method,currency,amount);
+
+@override
+String toString() {
+  return 'PaymentTotalDto(method: $method, currency: $currency, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PaymentTotalDtoCopyWith<$Res> implements $PaymentTotalDtoCopyWith<$Res> {
+  factory _$PaymentTotalDtoCopyWith(_PaymentTotalDto value, $Res Function(_PaymentTotalDto) _then) = __$PaymentTotalDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ String method, String currency,@DecimalConverter() Decimal amount
+});
+
+
+
+
+}
+/// @nodoc
+class __$PaymentTotalDtoCopyWithImpl<$Res>
+    implements _$PaymentTotalDtoCopyWith<$Res> {
+  __$PaymentTotalDtoCopyWithImpl(this._self, this._then);
+
+  final _PaymentTotalDto _self;
+  final $Res Function(_PaymentTotalDto) _then;
+
+/// Create a copy of PaymentTotalDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? method = null,Object? currency = null,Object? amount = null,}) {
+  return _then(_PaymentTotalDto(
+method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
+as String,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as Decimal,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ProductSalesDto {
+
+ int get product; String get productName;@DecimalConverter() Decimal get quantity;@DecimalConverter() Decimal get salesUsd;@DecimalConverter() Decimal get salesVes;@DecimalConverter() Decimal get costUsd;@DecimalConverter() Decimal get costVes;@DecimalConverter() Decimal get profitUsd;@DecimalConverter() Decimal get profitVes;
+/// Create a copy of ProductSalesDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProductSalesDtoCopyWith<ProductSalesDto> get copyWith => _$ProductSalesDtoCopyWithImpl<ProductSalesDto>(this as ProductSalesDto, _$identity);
+
+  /// Serializes this ProductSalesDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductSalesDto&&(identical(other.product, product) || other.product == product)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.salesUsd, salesUsd) || other.salesUsd == salesUsd)&&(identical(other.salesVes, salesVes) || other.salesVes == salesVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,product,productName,quantity,salesUsd,salesVes,costUsd,costVes,profitUsd,profitVes);
+
+@override
+String toString() {
+  return 'ProductSalesDto(product: $product, productName: $productName, quantity: $quantity, salesUsd: $salesUsd, salesVes: $salesVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProductSalesDtoCopyWith<$Res>  {
+  factory $ProductSalesDtoCopyWith(ProductSalesDto value, $Res Function(ProductSalesDto) _then) = _$ProductSalesDtoCopyWithImpl;
+@useResult
+$Res call({
+ int product, String productName,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal salesUsd,@DecimalConverter() Decimal salesVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProductSalesDtoCopyWithImpl<$Res>
+    implements $ProductSalesDtoCopyWith<$Res> {
+  _$ProductSalesDtoCopyWithImpl(this._self, this._then);
+
+  final ProductSalesDto _self;
+  final $Res Function(ProductSalesDto) _then;
+
+/// Create a copy of ProductSalesDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? product = null,Object? productName = null,Object? quantity = null,Object? salesUsd = null,Object? salesVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,}) {
+  return _then(_self.copyWith(
+product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
+as int,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as Decimal,salesUsd: null == salesUsd ? _self.salesUsd : salesUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,salesVes: null == salesVes ? _self.salesVes : salesVes // ignore: cast_nullable_to_non_nullable
+as Decimal,costUsd: null == costUsd ? _self.costUsd : costUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,costVes: null == costVes ? _self.costVes : costVes // ignore: cast_nullable_to_non_nullable
+as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
+as Decimal,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProductSalesDto].
+extension ProductSalesDtoPatterns on ProductSalesDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProductSalesDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProductSalesDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProductSalesDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProductSalesDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProductSalesDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProductSalesDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int product,  String productName, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal salesUsd, @DecimalConverter()  Decimal salesVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProductSalesDto() when $default != null:
+return $default(_that.product,_that.productName,_that.quantity,_that.salesUsd,_that.salesVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int product,  String productName, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal salesUsd, @DecimalConverter()  Decimal salesVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes)  $default,) {final _that = this;
+switch (_that) {
+case _ProductSalesDto():
+return $default(_that.product,_that.productName,_that.quantity,_that.salesUsd,_that.salesVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int product,  String productName, @DecimalConverter()  Decimal quantity, @DecimalConverter()  Decimal salesUsd, @DecimalConverter()  Decimal salesVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes)?  $default,) {final _that = this;
+switch (_that) {
+case _ProductSalesDto() when $default != null:
+return $default(_that.product,_that.productName,_that.quantity,_that.salesUsd,_that.salesVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ProductSalesDto extends ProductSalesDto {
+  const _ProductSalesDto({required this.product, required this.productName, @DecimalConverter() required this.quantity, @DecimalConverter() required this.salesUsd, @DecimalConverter() required this.salesVes, @DecimalConverter() required this.costUsd, @DecimalConverter() required this.costVes, @DecimalConverter() required this.profitUsd, @DecimalConverter() required this.profitVes}): super._();
+  factory _ProductSalesDto.fromJson(Map<String, dynamic> json) => _$ProductSalesDtoFromJson(json);
+
+@override final  int product;
+@override final  String productName;
+@override@DecimalConverter() final  Decimal quantity;
+@override@DecimalConverter() final  Decimal salesUsd;
+@override@DecimalConverter() final  Decimal salesVes;
+@override@DecimalConverter() final  Decimal costUsd;
+@override@DecimalConverter() final  Decimal costVes;
+@override@DecimalConverter() final  Decimal profitUsd;
+@override@DecimalConverter() final  Decimal profitVes;
+
+/// Create a copy of ProductSalesDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProductSalesDtoCopyWith<_ProductSalesDto> get copyWith => __$ProductSalesDtoCopyWithImpl<_ProductSalesDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ProductSalesDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductSalesDto&&(identical(other.product, product) || other.product == product)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.salesUsd, salesUsd) || other.salesUsd == salesUsd)&&(identical(other.salesVes, salesVes) || other.salesVes == salesVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,product,productName,quantity,salesUsd,salesVes,costUsd,costVes,profitUsd,profitVes);
+
+@override
+String toString() {
+  return 'ProductSalesDto(product: $product, productName: $productName, quantity: $quantity, salesUsd: $salesUsd, salesVes: $salesVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProductSalesDtoCopyWith<$Res> implements $ProductSalesDtoCopyWith<$Res> {
+  factory _$ProductSalesDtoCopyWith(_ProductSalesDto value, $Res Function(_ProductSalesDto) _then) = __$ProductSalesDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ int product, String productName,@DecimalConverter() Decimal quantity,@DecimalConverter() Decimal salesUsd,@DecimalConverter() Decimal salesVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProductSalesDtoCopyWithImpl<$Res>
+    implements _$ProductSalesDtoCopyWith<$Res> {
+  __$ProductSalesDtoCopyWithImpl(this._self, this._then);
+
+  final _ProductSalesDto _self;
+  final $Res Function(_ProductSalesDto) _then;
+
+/// Create a copy of ProductSalesDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? product = null,Object? productName = null,Object? quantity = null,Object? salesUsd = null,Object? salesVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,}) {
+  return _then(_ProductSalesDto(
+product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
+as int,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as Decimal,salesUsd: null == salesUsd ? _self.salesUsd : salesUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,salesVes: null == salesVes ? _self.salesVes : salesVes // ignore: cast_nullable_to_non_nullable
+as Decimal,costUsd: null == costUsd ? _self.costUsd : costUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,costVes: null == costVes ? _self.costVes : costVes // ignore: cast_nullable_to_non_nullable
+as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
+as Decimal,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$SessionSalesReportDto {
+
+ int get salesCount;@DecimalConverter() Decimal get totalUsd;@DecimalConverter() Decimal get totalVes;@DecimalConverter() Decimal get costUsd;@DecimalConverter() Decimal get costVes;@DecimalConverter() Decimal get profitUsd;@DecimalConverter() Decimal get profitVes; List<PaymentTotalDto> get payments; List<ProductSalesDto> get products;
+/// Create a copy of SessionSalesReportDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SessionSalesReportDtoCopyWith<SessionSalesReportDto> get copyWith => _$SessionSalesReportDtoCopyWithImpl<SessionSalesReportDto>(this as SessionSalesReportDto, _$identity);
+
+  /// Serializes this SessionSalesReportDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other.payments, payments)&&const DeepCollectionEquality().equals(other.products, products));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(payments),const DeepCollectionEquality().hash(products));
+
+@override
+String toString() {
+  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SessionSalesReportDtoCopyWith<$Res>  {
+  factory $SessionSalesReportDtoCopyWith(SessionSalesReportDto value, $Res Function(SessionSalesReportDto) _then) = _$SessionSalesReportDtoCopyWithImpl;
+@useResult
+$Res call({
+ int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products
+});
+
+
+
+
+}
+/// @nodoc
+class _$SessionSalesReportDtoCopyWithImpl<$Res>
+    implements $SessionSalesReportDtoCopyWith<$Res> {
+  _$SessionSalesReportDtoCopyWithImpl(this._self, this._then);
+
+  final SessionSalesReportDto _self;
+  final $Res Function(SessionSalesReportDto) _then;
+
+/// Create a copy of SessionSalesReportDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,}) {
+  return _then(_self.copyWith(
+salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as int,totalUsd: null == totalUsd ? _self.totalUsd : totalUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,totalVes: null == totalVes ? _self.totalVes : totalVes // ignore: cast_nullable_to_non_nullable
+as Decimal,costUsd: null == costUsd ? _self.costUsd : costUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,costVes: null == costVes ? _self.costVes : costVes // ignore: cast_nullable_to_non_nullable
+as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
+as Decimal,payments: null == payments ? _self.payments : payments // ignore: cast_nullable_to_non_nullable
+as List<PaymentTotalDto>,products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
+as List<ProductSalesDto>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SessionSalesReportDto].
+extension SessionSalesReportDtoPatterns on SessionSalesReportDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SessionSalesReportDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SessionSalesReportDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SessionSalesReportDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _SessionSalesReportDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SessionSalesReportDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SessionSalesReportDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SessionSalesReportDto() when $default != null:
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)  $default,) {final _that = this;
+switch (_that) {
+case _SessionSalesReportDto():
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)?  $default,) {final _that = this;
+switch (_that) {
+case _SessionSalesReportDto() when $default != null:
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SessionSalesReportDto extends SessionSalesReportDto {
+  const _SessionSalesReportDto({required this.salesCount, @DecimalConverter() required this.totalUsd, @DecimalConverter() required this.totalVes, @DecimalConverter() required this.costUsd, @DecimalConverter() required this.costVes, @DecimalConverter() required this.profitUsd, @DecimalConverter() required this.profitVes, required final  List<PaymentTotalDto> payments, required final  List<ProductSalesDto> products}): _payments = payments,_products = products,super._();
+  factory _SessionSalesReportDto.fromJson(Map<String, dynamic> json) => _$SessionSalesReportDtoFromJson(json);
+
+@override final  int salesCount;
+@override@DecimalConverter() final  Decimal totalUsd;
+@override@DecimalConverter() final  Decimal totalVes;
+@override@DecimalConverter() final  Decimal costUsd;
+@override@DecimalConverter() final  Decimal costVes;
+@override@DecimalConverter() final  Decimal profitUsd;
+@override@DecimalConverter() final  Decimal profitVes;
+ final  List<PaymentTotalDto> _payments;
+@override List<PaymentTotalDto> get payments {
+  if (_payments is EqualUnmodifiableListView) return _payments;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_payments);
+}
+
+ final  List<ProductSalesDto> _products;
+@override List<ProductSalesDto> get products {
+  if (_products is EqualUnmodifiableListView) return _products;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_products);
+}
+
+
+/// Create a copy of SessionSalesReportDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SessionSalesReportDtoCopyWith<_SessionSalesReportDto> get copyWith => __$SessionSalesReportDtoCopyWithImpl<_SessionSalesReportDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SessionSalesReportDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other._payments, _payments)&&const DeepCollectionEquality().equals(other._products, _products));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(_payments),const DeepCollectionEquality().hash(_products));
+
+@override
+String toString() {
+  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SessionSalesReportDtoCopyWith<$Res> implements $SessionSalesReportDtoCopyWith<$Res> {
+  factory _$SessionSalesReportDtoCopyWith(_SessionSalesReportDto value, $Res Function(_SessionSalesReportDto) _then) = __$SessionSalesReportDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products
+});
+
+
+
+
+}
+/// @nodoc
+class __$SessionSalesReportDtoCopyWithImpl<$Res>
+    implements _$SessionSalesReportDtoCopyWith<$Res> {
+  __$SessionSalesReportDtoCopyWithImpl(this._self, this._then);
+
+  final _SessionSalesReportDto _self;
+  final $Res Function(_SessionSalesReportDto) _then;
+
+/// Create a copy of SessionSalesReportDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,}) {
+  return _then(_SessionSalesReportDto(
+salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as int,totalUsd: null == totalUsd ? _self.totalUsd : totalUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,totalVes: null == totalVes ? _self.totalVes : totalVes // ignore: cast_nullable_to_non_nullable
+as Decimal,costUsd: null == costUsd ? _self.costUsd : costUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,costVes: null == costVes ? _self.costVes : costVes // ignore: cast_nullable_to_non_nullable
+as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
+as Decimal,payments: null == payments ? _self._payments : payments // ignore: cast_nullable_to_non_nullable
+as List<PaymentTotalDto>,products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
+as List<ProductSalesDto>,
+  ));
+}
+
+
+}
+
 // dart format on
