@@ -88,7 +88,11 @@ enum PaymentMethod {
   cashUsd('CASH_USD', Currency.usd, requiresReference: false),
   cashVes('CASH_VES', Currency.ves, requiresReference: false),
   mobilePayment('MOBILE_PAYMENT', Currency.ves, requiresReference: true),
-  posCard('POS_CARD', Currency.ves, requiresReference: true);
+  posCard('POS_CARD', Currency.ves, requiresReference: true),
+
+  /// El cliente se lleva los productos sin pagar: abre una deuda en USD.
+  /// No es dinero en caja y no sirve para abonar una deuda.
+  credit('CREDIT', Currency.usd, requiresReference: false);
 
   const PaymentMethod(this.apiValue, this.currency, {required this.requiresReference});
   final String apiValue;
@@ -100,6 +104,9 @@ enum PaymentMethod {
   final bool requiresReference;
 
   bool get isCash => this == cashUsd || this == cashVes;
+
+  /// Métodos con los que entra dinero: todos menos el crédito.
+  static const List<PaymentMethod> money = [cashUsd, cashVes, mobilePayment, posCard];
 
   static PaymentMethod fromApi(String value) =>
       values.firstWhere((e) => e.apiValue == value, orElse: () => cashVes);

@@ -6,7 +6,7 @@ sucursales. Django 5.2 + DRF sobre PostgreSQL, en `pos_backend/`.
 ## Arquitectura en capas
 
 Cada módulo es una app Django en `pos_backend/apps/` (`auth`, `branches`, `inventory`,
-`exchange_rate`, `cash_sessions`, `sales`) con esta división interna:
+`exchange_rate`, `cash_sessions`, `sales`, `credits`) con esta división interna:
 
 | Capa | Contenido | Regla |
 |---|---|---|
@@ -62,6 +62,14 @@ resolución de sucursal, utilidades de dinero y paginación.
   nunca se borran (se desactivan). Un producto solo puede crearse o pasar a una categoría activa
   (`category_service.require_active`), pero conserva la suya si después se desactiva. No hay
   categorías por defecto; `icon` es un emoji opcional.
+- **Ventas a crédito**: un pago `CREDIT` (siempre en USD) deja ese monto como deuda del cliente
+  (`credits.Credit`), en la misma transacción que la venta (`credit_service.open_credit`). Exige un
+  `credits.Customer` activo; los clientes nunca se borran (se desactivan). La deuda se guarda y se
+  descuenta **en USD**; un abono en bolívares se pasa a USD con la tasa del BCV del día del abono
+  (`bcv_rate_service.get_cost_rate()`), nunca con la de la venta ni con una manual. El abono entra
+  en la caja abierta de quien lo cobra y se reparte entre las deudas del cliente en esa sucursal,
+  la que vence antes primero. Lo vendido a crédito no cuenta en el arqueo; los abonos sí
+  (`credit_cash_*`, `credit_electronic_ves`).
 - **FK contables**: `on_delete=PROTECT`. Nada se borra: productos y usuarios se desactivan.
 - Type hints en services, repositories y DTOs. Formato y lint con `ruff`.
 
@@ -83,7 +91,8 @@ cp .env.example .env          # mismas credenciales POSTGRES_* que el .env de la
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver    # API en /api/v1/, documentación en /api/docs/
-python manage.py sync_bcv_rate   # registra la tasa del BCV como activa si cambió (va en cron)
+python manage.py sync_bcv_rate   # registra la tasa del BCV como activa si cambió
+scripts/install_bcv_timer.sh     # temporizador systemd: sync_bcv_rate cada día a las 7:00 y 9:00
 
 pytest                        # todos los tests (crea la BD test_<POSTGRES_DB>)
 pytest tests/unit             # solo tests puros, sin base de datos
@@ -95,7 +104,8 @@ python manage.py spectacular --validate --fail-on-warn   # valida el esquema Ope
 ## Estado
 
 Todas las apps están implementadas de punta a punta: `auth` (login, refresh, `me` y gestión de
-usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory` y `sales`. No quedan stubs.
+usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory`, `sales` y `credits`
+(clientes, deudas y abonos). No quedan stubs.
 
 Convenciones que no se deducen a simple vista:
 
@@ -105,8 +115,9 @@ Convenciones que no se deducen a simple vista:
 - **Tasa automática del BCV**: `bcv_rate_service.sync_active_rate()` registra la tasa del BCV
   como activa (`source=BCV`, con `effective_date` y sin `created_by`) cuando el BCV publica una
   nueva. Compara contra la última tasa de origen BCV, no contra la activa: una tasa manual de un
-  MANAGER vale hasta la siguiente publicación. Lo ejecuta el comando `sync_bcv_rate`, pensado
-  para cron cada hora, y también `POST exchange-rates/bcv/sync/`. El backend no programa nada solo.
+  MANAGER vale hasta la siguiente publicación. Lo ejecuta el comando `sync_bcv_rate`, que
+  `scripts/install_bcv_timer.sh` programa con un temporizador de systemd a las 7:00 y 9:00 (Caracas), y
+  también `POST exchange-rates/bcv/sync/`. El backend en sí no programa nada.
 - La sucursal viaja entre capas como su `code` (`str`). Las FK a `Branch` usan `to_field="code"`,
   así que `obj.branch_id` es el código y `obj.branch` la instancia (evitarla: dispara una consulta).
 - `branch_service` importa `stock_service` y `cash_session_service` dentro de las funciones, y
@@ -118,8 +129,10 @@ Convenciones que no se deducen a simple vista:
 - Los pagos deben cuadrar con el total dentro de `PAYMENT_TOLERANCE_USD`; el vuelto no se modela.
   `CASH_USD` se cobra en USD y el resto de métodos en VES; `POS_CARD` y `MOBILE_PAYMENT` exigen
   `approval_reference`.
-- `cash_count_service` importa `sale_service` dentro de la función: `sale_service` depende de
-  `cash_session_service` y un import a nivel de módulo crearía un ciclo.
+- `cash_count_service` importa `sale_service` y `credit_service` dentro de la función: ambos
+  dependen de `cash_session_service` y un import a nivel de módulo crearía un ciclo.
+- Las reglas de cada método de pago (moneda, referencia, efectivo) están en `core/payment_rules.py`,
+  compartidas por las ventas y los abonos.
 
 `database/legacy/` guarda el esquema SQL manual anterior solo como referencia; el esquema real lo
 definen las migraciones de Django.

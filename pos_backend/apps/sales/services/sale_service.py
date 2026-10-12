@@ -1,15 +1,18 @@
 """Orquestador de ventas."""
 
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
 from django.db import transaction
 from django.db.models import QuerySet
+from django.utils import timezone
 
 from apps.auth.models import User
 from apps.cash_sessions.services import cash_session_service
+from apps.credits.models import Customer
+from apps.credits.services import credit_service, customer_service
 from apps.exchange_rate.services import (
     bcv_rate_service,
     exchange_rate_service,
@@ -24,16 +27,7 @@ from core.branch_scope import can_access_branch, has_all_branches_access, resolv
 from core.enums import Currency, PaymentMethod
 from core.exceptions import BranchAccessDeniedError, DomainError, NotFoundError
 from core.money import quantize_money, quantize_quantity
-
-# Moneda en la que se liquida cada método de pago.
-METHOD_CURRENCY = {
-    PaymentMethod.CASH_USD: Currency.USD,
-    PaymentMethod.CASH_VES: Currency.VES,
-    PaymentMethod.POS_CARD: Currency.VES,
-    PaymentMethod.MOBILE_PAYMENT: Currency.VES,
-}
-# Métodos electrónicos: exigen la referencia de aprobación del banco o terminal.
-REFERENCE_REQUIRED = frozenset({PaymentMethod.POS_CARD, PaymentMethod.MOBILE_PAYMENT})
+from core.payment_rules import METHOD_CURRENCY, REFERENCE_REQUIRED
 
 
 def create_sale(data: CreateSaleInput, user: User) -> Sale:
@@ -66,6 +60,14 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
        d. Descontar el stock con expresiones `F()` y registrar un
           InventoryMovement de tipo SALE por producto
           (`stock_service.discount_for_sale`).
+       e. Si un pago es `CREDIT`, abrir la deuda del cliente por ese monto en
+          USD (`credit_service.open_credit`), con vencimiento a `credit_days`
+          días (por defecto, el plazo del cliente).
+
+    Vender a crédito exige un cliente activo (`customer_required`,
+    `inactive_customer`). Con cliente, su nombre y cédula se copian a la venta
+    si no vienen en la petición. Puede haber un solo pago `CREDIT`: el resto
+    de los pagos es lo que el cliente da al llevarse los productos.
 
     Los pasos 1 a 4 se ejecutan fuera de la transacción para mantener los
     bloqueos de fila el menor tiempo posible. Las líneas que repiten un mismo
@@ -73,6 +75,12 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
     """
     quantities = _aggregate_quantities(data.items)
     payments = _clean_payments(data.payments)
+    credit_payment = _credit_payment(payments)
+    customer = _resolve_customer(data, credit_payment is not None)
+    if customer is not None and credit_payment is not None:
+        credit_days = data.credit_days if data.credit_days is not None else customer.credit_days
+        customer_service.validate_credit_days(credit_days)
+        due_date = timezone.localdate() + timedelta(days=credit_days)
 
     requested_branch = resolve_branch(user, data.branch) if data.branch is not None else None
     session = cash_session_service.get_open_session(user, requested_branch)
@@ -116,14 +124,24 @@ def create_sale(data: CreateSaleInput, user: User) -> Sale:
             bcv_rate_at_invoice=bcv_rate,
             total_usd=totals.total_usd,
             total_ves=totals.total_ves,
-            customer_tax_id=data.customer_tax_id.strip(),
-            customer_name=data.customer_name.strip(),
+            customer_tax_id=data.customer_tax_id.strip()
+            or (customer.tax_id if customer is not None else ""),
+            customer_name=data.customer_name.strip()
+            or (customer.name if customer is not None else ""),
         )
         sale_repository.bulk_create_details(sale, totals.lines)
         sale_repository.bulk_create_payments(sale, payments)
         stock_service.discount_for_sale(
             sale=sale, locked_inventory=locked_inventory, quantities=quantities, user=user
         )
+        if customer is not None and credit_payment is not None:
+            credit_service.open_credit(
+                sale_id=sale.pk,
+                customer_id=customer.pk,
+                branch=branch,
+                amount_usd=credit_payment.amount,
+                due_date=due_date,
+            )
 
     return sale_repository.get_by_id(sale.pk)
 
@@ -211,6 +229,29 @@ def _aggregate_quantities(items: Iterable[SaleItemInput]) -> dict[int, Decimal]:
             "La venta debe tener al menos una línea.", code="empty_sale", status_code=422
         )
     return quantities
+
+
+def _credit_payment(payments: tuple[PaymentInput, ...]) -> PaymentInput | None:
+    """Devuelve el pago a crédito de la venta, si lo hay. Solo se admite uno."""
+    credit = [payment for payment in payments if payment.method == PaymentMethod.CREDIT]
+    if len(credit) > 1:
+        raise _invalid_payment(
+            "La venta solo puede tener un pago a crédito.", None, method=PaymentMethod.CREDIT
+        )
+    return credit[0] if credit else None
+
+
+def _resolve_customer(data: CreateSaleInput, is_credit: bool) -> Customer | None:
+    """Cliente de la venta: obligatorio y activo si se vende a crédito."""
+    if data.customer_id is None:
+        if is_credit:
+            raise DomainError(
+                "Para vender a crédito hay que indicar el cliente.",
+                code="customer_required",
+                status_code=422,
+            )
+        return None
+    return customer_service.require_active(data.customer_id)
 
 
 def _clean_payments(payments: Iterable[PaymentInput]) -> tuple[PaymentInput, ...]:

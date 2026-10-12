@@ -69,6 +69,9 @@ class CashCountSummary {
     required this.electronicSalesVes,
     required this.expensesUsd,
     required this.expensesVes,
+    required this.creditCashUsd,
+    required this.creditCashVes,
+    required this.creditElectronicVes,
     required this.expectedCashUsd,
     required this.expectedCashVes,
   });
@@ -82,6 +85,13 @@ class CashCountSummary {
   final Decimal electronicSalesVes;
   final Decimal expensesUsd;
   final Decimal expensesVes;
+
+  /// Abonos de deudas cobrados en la caja: los de efectivo están en la gaveta.
+  final Decimal creditCashUsd;
+  final Decimal creditCashVes;
+
+  /// Abonos por punto o pago móvil: informativos, como los electrónicos.
+  final Decimal creditElectronicVes;
   final Decimal expectedCashUsd;
   final Decimal expectedCashVes;
 }

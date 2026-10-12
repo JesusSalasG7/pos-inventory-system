@@ -52,7 +52,7 @@ final class CartControllerProvider extends $NotifierProvider<CartController, Car
   }
 }
 
-String _$cartControllerHash() => r'97bac23c22d374991a4c3c7db298696109d0b190';
+String _$cartControllerHash() => r'b056e2d29cc73337aa8391cd07e93571b36b949c';
 
 /// Carrito de la venta en curso.
 ///

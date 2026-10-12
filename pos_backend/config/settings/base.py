@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.exchange_rate.apps.ExchangeRateConfig",
     "apps.cash_sessions.apps.CashSessionsConfig",
     "apps.sales.apps.SalesConfig",
+    "apps.credits.apps.CreditsConfig",
 ]
 
 MIDDLEWARE = [

@@ -31,6 +31,10 @@ class CreateSaleInput:
     branch: str | None = None
     customer_tax_id: str = ""
     customer_name: str = ""
+    # Cliente registrado. Obligatorio si un pago es `CREDIT`.
+    customer_id: int | None = None
+    # Plazo de la deuda en días; sin indicarlo vale el del cliente.
+    credit_days: int | None = None
 
 
 @dataclass(frozen=True)
@@ -97,3 +101,5 @@ class SessionSalesReport:
     profit_ves: Decimal
     payments: tuple[PaymentTotal, ...]
     products: tuple[ProductSales, ...]
+    # Abonos de deudas cobrados en la caja, por método. No son ventas del turno.
+    credit_collections: tuple[PaymentTotal, ...] = ()

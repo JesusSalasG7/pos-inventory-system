@@ -37,5 +37,10 @@ abstract final class RouteNames {
 
   static const String priceList = '/price-list';
 
+  static const String customers = '/customers';
+  static const String customerForm = '/customers/form';
+  static const String customerDetailPattern = '/customers/:customerId';
+  static String customerDetail(int customerId) => '/customers/$customerId';
+
   static const String designPreview = '/design-preview';
 }

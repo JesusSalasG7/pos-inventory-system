@@ -76,6 +76,9 @@ abstract class CashCountSummaryDto with _$CashCountSummaryDto {
     @DecimalConverter() required Decimal electronicSalesVes,
     @DecimalConverter() required Decimal expensesUsd,
     @DecimalConverter() required Decimal expensesVes,
+    @DecimalConverter() required Decimal creditCashUsd,
+    @DecimalConverter() required Decimal creditCashVes,
+    @DecimalConverter() required Decimal creditElectronicVes,
     @DecimalConverter() required Decimal expectedCashUsd,
     @DecimalConverter() required Decimal expectedCashVes,
   }) = _CashCountSummaryDto;
@@ -93,6 +96,9 @@ abstract class CashCountSummaryDto with _$CashCountSummaryDto {
     electronicSalesVes: electronicSalesVes,
     expensesUsd: expensesUsd,
     expensesVes: expensesVes,
+    creditCashUsd: creditCashUsd,
+    creditCashVes: creditCashVes,
+    creditElectronicVes: creditElectronicVes,
     expectedCashUsd: expectedCashUsd,
     expectedCashVes: expectedCashVes,
   );
@@ -161,6 +167,7 @@ abstract class SessionSalesReportDto with _$SessionSalesReportDto {
     @DecimalConverter() required Decimal profitVes,
     required List<PaymentTotalDto> payments,
     required List<ProductSalesDto> products,
+    @Default([]) List<PaymentTotalDto> creditCollections,
   }) = _SessionSalesReportDto;
 
   const SessionSalesReportDto._();
@@ -178,5 +185,6 @@ abstract class SessionSalesReportDto with _$SessionSalesReportDto {
     profitVes: profitVes,
     payments: [for (final payment in payments) payment.toEntity()],
     products: [for (final product in products) product.toEntity()],
+    creditCollections: [for (final payment in creditCollections) payment.toEntity()],
   );
 }

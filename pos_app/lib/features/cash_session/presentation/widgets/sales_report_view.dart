@@ -82,6 +82,23 @@ class SalesReportView extends StatelessWidget {
             ],
           ),
         ),
+        if (report.creditCollections.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          SectionCard(
+            title: Strings.creditCollections.toUpperCase(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final payment in report.creditCollections) _PaymentTotalRow(payment: payment),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  Strings.creditCollectionsNote,
+                  style: AppTypography.bodySmall.copyWith(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
         if (report.salesCount == 0) ...[
           const SizedBox(height: AppSpacing.md),
           Text(Strings.noSalesInSession, style: AppTypography.bodySmall),
@@ -90,28 +107,7 @@ class SalesReportView extends StatelessWidget {
           SectionCard(
             title: Strings.paymentBreakdown.toUpperCase(),
             child: Column(
-              children: [
-                for (final payment in report.payments)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            Strings.paymentMethod(payment.method),
-                            style: AppTypography.body,
-                          ),
-                        ),
-                        Text(
-                          payment.currency == Currency.usd
-                              ? MoneyFormatter.usd(payment.amount)
-                              : MoneyFormatter.ves(payment.amount),
-                          style: AppTypography.amount(16),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+              children: [for (final payment in report.payments) _PaymentTotalRow(payment: payment)],
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -170,6 +166,31 @@ class SalesReportView extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Total cobrado con una forma de pago, en su moneda.
+class _PaymentTotalRow extends StatelessWidget {
+  const _PaymentTotalRow({required this.payment});
+
+  final PaymentTotal payment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        children: [
+          Expanded(child: Text(Strings.paymentMethod(payment.method), style: AppTypography.body)),
+          Text(
+            payment.currency == Currency.usd
+                ? MoneyFormatter.usd(payment.amount)
+                : MoneyFormatter.ves(payment.amount),
+            style: AppTypography.amount(16),
+          ),
+        ],
+      ),
     );
   }
 }

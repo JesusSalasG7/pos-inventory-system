@@ -41,12 +41,12 @@ teléfono llega al backend del PC, y luego lanza
 
 ### Método alternativo: Wi-Fi (misma red)
 
-1. Averigua la IP del PC en la red local, por ejemplo `192.168.1.50`.
-2. Añádela a `DJANGO_ALLOWED_HOSTS` en `pos_backend/.env`:
-   `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,192.168.1.50`
-3. Arranca el backend escuchando en todas las interfaces:
+1. Averigua la IP del PC en la red local, por ejemplo `192.168.1.50` (`ip -4 addr` en Linux,
+   `ipconfig` en Windows). Cambia con cada red Wi-Fi: vuelve a consultarla al cambiar de red.
+   En desarrollo el backend acepta cualquier host, así que no hay que tocar `pos_backend/.env`.
+2. Arranca el backend escuchando en todas las interfaces:
    `python manage.py runserver 0.0.0.0:8000`
-4. Lanza la app indicando la IP:
+3. Lanza la app indicando la IP:
 
 ```bash
 scripts/run_device.sh 192.168.1.50

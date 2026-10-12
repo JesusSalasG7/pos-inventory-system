@@ -583,7 +583,7 @@ as DateTime,
 /// @nodoc
 mixin _$CashCountSummaryDto {
 
-@DecimalConverter() Decimal get openingFloat;@DecimalConverter() Decimal get cashSalesUsd;@DecimalConverter() Decimal get cashSalesVes;@DecimalConverter() Decimal get electronicSalesUsd;@DecimalConverter() Decimal get electronicSalesVes;@DecimalConverter() Decimal get expensesUsd;@DecimalConverter() Decimal get expensesVes;@DecimalConverter() Decimal get expectedCashUsd;@DecimalConverter() Decimal get expectedCashVes;
+@DecimalConverter() Decimal get openingFloat;@DecimalConverter() Decimal get cashSalesUsd;@DecimalConverter() Decimal get cashSalesVes;@DecimalConverter() Decimal get electronicSalesUsd;@DecimalConverter() Decimal get electronicSalesVes;@DecimalConverter() Decimal get expensesUsd;@DecimalConverter() Decimal get expensesVes;@DecimalConverter() Decimal get creditCashUsd;@DecimalConverter() Decimal get creditCashVes;@DecimalConverter() Decimal get creditElectronicVes;@DecimalConverter() Decimal get expectedCashUsd;@DecimalConverter() Decimal get expectedCashVes;
 /// Create a copy of CashCountSummaryDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -596,16 +596,16 @@ $CashCountSummaryDtoCopyWith<CashCountSummaryDto> get copyWith => _$CashCountSum
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CashCountSummaryDto&&(identical(other.openingFloat, openingFloat) || other.openingFloat == openingFloat)&&(identical(other.cashSalesUsd, cashSalesUsd) || other.cashSalesUsd == cashSalesUsd)&&(identical(other.cashSalesVes, cashSalesVes) || other.cashSalesVes == cashSalesVes)&&(identical(other.electronicSalesUsd, electronicSalesUsd) || other.electronicSalesUsd == electronicSalesUsd)&&(identical(other.electronicSalesVes, electronicSalesVes) || other.electronicSalesVes == electronicSalesVes)&&(identical(other.expensesUsd, expensesUsd) || other.expensesUsd == expensesUsd)&&(identical(other.expensesVes, expensesVes) || other.expensesVes == expensesVes)&&(identical(other.expectedCashUsd, expectedCashUsd) || other.expectedCashUsd == expectedCashUsd)&&(identical(other.expectedCashVes, expectedCashVes) || other.expectedCashVes == expectedCashVes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CashCountSummaryDto&&(identical(other.openingFloat, openingFloat) || other.openingFloat == openingFloat)&&(identical(other.cashSalesUsd, cashSalesUsd) || other.cashSalesUsd == cashSalesUsd)&&(identical(other.cashSalesVes, cashSalesVes) || other.cashSalesVes == cashSalesVes)&&(identical(other.electronicSalesUsd, electronicSalesUsd) || other.electronicSalesUsd == electronicSalesUsd)&&(identical(other.electronicSalesVes, electronicSalesVes) || other.electronicSalesVes == electronicSalesVes)&&(identical(other.expensesUsd, expensesUsd) || other.expensesUsd == expensesUsd)&&(identical(other.expensesVes, expensesVes) || other.expensesVes == expensesVes)&&(identical(other.creditCashUsd, creditCashUsd) || other.creditCashUsd == creditCashUsd)&&(identical(other.creditCashVes, creditCashVes) || other.creditCashVes == creditCashVes)&&(identical(other.creditElectronicVes, creditElectronicVes) || other.creditElectronicVes == creditElectronicVes)&&(identical(other.expectedCashUsd, expectedCashUsd) || other.expectedCashUsd == expectedCashUsd)&&(identical(other.expectedCashVes, expectedCashVes) || other.expectedCashVes == expectedCashVes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,openingFloat,cashSalesUsd,cashSalesVes,electronicSalesUsd,electronicSalesVes,expensesUsd,expensesVes,expectedCashUsd,expectedCashVes);
+int get hashCode => Object.hash(runtimeType,openingFloat,cashSalesUsd,cashSalesVes,electronicSalesUsd,electronicSalesVes,expensesUsd,expensesVes,creditCashUsd,creditCashVes,creditElectronicVes,expectedCashUsd,expectedCashVes);
 
 @override
 String toString() {
-  return 'CashCountSummaryDto(openingFloat: $openingFloat, cashSalesUsd: $cashSalesUsd, cashSalesVes: $cashSalesVes, electronicSalesUsd: $electronicSalesUsd, electronicSalesVes: $electronicSalesVes, expensesUsd: $expensesUsd, expensesVes: $expensesVes, expectedCashUsd: $expectedCashUsd, expectedCashVes: $expectedCashVes)';
+  return 'CashCountSummaryDto(openingFloat: $openingFloat, cashSalesUsd: $cashSalesUsd, cashSalesVes: $cashSalesVes, electronicSalesUsd: $electronicSalesUsd, electronicSalesVes: $electronicSalesVes, expensesUsd: $expensesUsd, expensesVes: $expensesVes, creditCashUsd: $creditCashUsd, creditCashVes: $creditCashVes, creditElectronicVes: $creditElectronicVes, expectedCashUsd: $expectedCashUsd, expectedCashVes: $expectedCashVes)';
 }
 
 
@@ -616,7 +616,7 @@ abstract mixin class $CashCountSummaryDtoCopyWith<$Res>  {
   factory $CashCountSummaryDtoCopyWith(CashCountSummaryDto value, $Res Function(CashCountSummaryDto) _then) = _$CashCountSummaryDtoCopyWithImpl;
 @useResult
 $Res call({
-@DecimalConverter() Decimal openingFloat,@DecimalConverter() Decimal cashSalesUsd,@DecimalConverter() Decimal cashSalesVes,@DecimalConverter() Decimal electronicSalesUsd,@DecimalConverter() Decimal electronicSalesVes,@DecimalConverter() Decimal expensesUsd,@DecimalConverter() Decimal expensesVes,@DecimalConverter() Decimal expectedCashUsd,@DecimalConverter() Decimal expectedCashVes
+@DecimalConverter() Decimal openingFloat,@DecimalConverter() Decimal cashSalesUsd,@DecimalConverter() Decimal cashSalesVes,@DecimalConverter() Decimal electronicSalesUsd,@DecimalConverter() Decimal electronicSalesVes,@DecimalConverter() Decimal expensesUsd,@DecimalConverter() Decimal expensesVes,@DecimalConverter() Decimal creditCashUsd,@DecimalConverter() Decimal creditCashVes,@DecimalConverter() Decimal creditElectronicVes,@DecimalConverter() Decimal expectedCashUsd,@DecimalConverter() Decimal expectedCashVes
 });
 
 
@@ -633,7 +633,7 @@ class _$CashCountSummaryDtoCopyWithImpl<$Res>
 
 /// Create a copy of CashCountSummaryDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? openingFloat = null,Object? cashSalesUsd = null,Object? cashSalesVes = null,Object? electronicSalesUsd = null,Object? electronicSalesVes = null,Object? expensesUsd = null,Object? expensesVes = null,Object? expectedCashUsd = null,Object? expectedCashVes = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? openingFloat = null,Object? cashSalesUsd = null,Object? cashSalesVes = null,Object? electronicSalesUsd = null,Object? electronicSalesVes = null,Object? expensesUsd = null,Object? expensesVes = null,Object? creditCashUsd = null,Object? creditCashVes = null,Object? creditElectronicVes = null,Object? expectedCashUsd = null,Object? expectedCashVes = null,}) {
   return _then(_self.copyWith(
 openingFloat: null == openingFloat ? _self.openingFloat : openingFloat // ignore: cast_nullable_to_non_nullable
 as Decimal,cashSalesUsd: null == cashSalesUsd ? _self.cashSalesUsd : cashSalesUsd // ignore: cast_nullable_to_non_nullable
@@ -642,6 +642,9 @@ as Decimal,electronicSalesUsd: null == electronicSalesUsd ? _self.electronicSale
 as Decimal,electronicSalesVes: null == electronicSalesVes ? _self.electronicSalesVes : electronicSalesVes // ignore: cast_nullable_to_non_nullable
 as Decimal,expensesUsd: null == expensesUsd ? _self.expensesUsd : expensesUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,expensesVes: null == expensesVes ? _self.expensesVes : expensesVes // ignore: cast_nullable_to_non_nullable
+as Decimal,creditCashUsd: null == creditCashUsd ? _self.creditCashUsd : creditCashUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,creditCashVes: null == creditCashVes ? _self.creditCashVes : creditCashVes // ignore: cast_nullable_to_non_nullable
+as Decimal,creditElectronicVes: null == creditElectronicVes ? _self.creditElectronicVes : creditElectronicVes // ignore: cast_nullable_to_non_nullable
 as Decimal,expectedCashUsd: null == expectedCashUsd ? _self.expectedCashUsd : expectedCashUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,expectedCashVes: null == expectedCashVes ? _self.expectedCashVes : expectedCashVes // ignore: cast_nullable_to_non_nullable
 as Decimal,
@@ -729,10 +732,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal creditCashUsd, @DecimalConverter()  Decimal creditCashVes, @DecimalConverter()  Decimal creditElectronicVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CashCountSummaryDto() when $default != null:
-return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
+return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.creditCashUsd,_that.creditCashVes,_that.creditElectronicVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
   return orElse();
 
 }
@@ -750,10 +753,10 @@ return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.e
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal creditCashUsd, @DecimalConverter()  Decimal creditCashVes, @DecimalConverter()  Decimal creditElectronicVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)  $default,) {final _that = this;
 switch (_that) {
 case _CashCountSummaryDto():
-return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
+return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.creditCashUsd,_that.creditCashVes,_that.creditElectronicVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -770,10 +773,10 @@ return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.e
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@DecimalConverter()  Decimal openingFloat, @DecimalConverter()  Decimal cashSalesUsd, @DecimalConverter()  Decimal cashSalesVes, @DecimalConverter()  Decimal electronicSalesUsd, @DecimalConverter()  Decimal electronicSalesVes, @DecimalConverter()  Decimal expensesUsd, @DecimalConverter()  Decimal expensesVes, @DecimalConverter()  Decimal creditCashUsd, @DecimalConverter()  Decimal creditCashVes, @DecimalConverter()  Decimal creditElectronicVes, @DecimalConverter()  Decimal expectedCashUsd, @DecimalConverter()  Decimal expectedCashVes)?  $default,) {final _that = this;
 switch (_that) {
 case _CashCountSummaryDto() when $default != null:
-return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
+return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.electronicSalesUsd,_that.electronicSalesVes,_that.expensesUsd,_that.expensesVes,_that.creditCashUsd,_that.creditCashVes,_that.creditElectronicVes,_that.expectedCashUsd,_that.expectedCashVes);case _:
   return null;
 
 }
@@ -785,7 +788,7 @@ return $default(_that.openingFloat,_that.cashSalesUsd,_that.cashSalesVes,_that.e
 @JsonSerializable()
 
 class _CashCountSummaryDto extends CashCountSummaryDto {
-  const _CashCountSummaryDto({@DecimalConverter() required this.openingFloat, @DecimalConverter() required this.cashSalesUsd, @DecimalConverter() required this.cashSalesVes, @DecimalConverter() required this.electronicSalesUsd, @DecimalConverter() required this.electronicSalesVes, @DecimalConverter() required this.expensesUsd, @DecimalConverter() required this.expensesVes, @DecimalConverter() required this.expectedCashUsd, @DecimalConverter() required this.expectedCashVes}): super._();
+  const _CashCountSummaryDto({@DecimalConverter() required this.openingFloat, @DecimalConverter() required this.cashSalesUsd, @DecimalConverter() required this.cashSalesVes, @DecimalConverter() required this.electronicSalesUsd, @DecimalConverter() required this.electronicSalesVes, @DecimalConverter() required this.expensesUsd, @DecimalConverter() required this.expensesVes, @DecimalConverter() required this.creditCashUsd, @DecimalConverter() required this.creditCashVes, @DecimalConverter() required this.creditElectronicVes, @DecimalConverter() required this.expectedCashUsd, @DecimalConverter() required this.expectedCashVes}): super._();
   factory _CashCountSummaryDto.fromJson(Map<String, dynamic> json) => _$CashCountSummaryDtoFromJson(json);
 
 @override@DecimalConverter() final  Decimal openingFloat;
@@ -795,6 +798,9 @@ class _CashCountSummaryDto extends CashCountSummaryDto {
 @override@DecimalConverter() final  Decimal electronicSalesVes;
 @override@DecimalConverter() final  Decimal expensesUsd;
 @override@DecimalConverter() final  Decimal expensesVes;
+@override@DecimalConverter() final  Decimal creditCashUsd;
+@override@DecimalConverter() final  Decimal creditCashVes;
+@override@DecimalConverter() final  Decimal creditElectronicVes;
 @override@DecimalConverter() final  Decimal expectedCashUsd;
 @override@DecimalConverter() final  Decimal expectedCashVes;
 
@@ -811,16 +817,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CashCountSummaryDto&&(identical(other.openingFloat, openingFloat) || other.openingFloat == openingFloat)&&(identical(other.cashSalesUsd, cashSalesUsd) || other.cashSalesUsd == cashSalesUsd)&&(identical(other.cashSalesVes, cashSalesVes) || other.cashSalesVes == cashSalesVes)&&(identical(other.electronicSalesUsd, electronicSalesUsd) || other.electronicSalesUsd == electronicSalesUsd)&&(identical(other.electronicSalesVes, electronicSalesVes) || other.electronicSalesVes == electronicSalesVes)&&(identical(other.expensesUsd, expensesUsd) || other.expensesUsd == expensesUsd)&&(identical(other.expensesVes, expensesVes) || other.expensesVes == expensesVes)&&(identical(other.expectedCashUsd, expectedCashUsd) || other.expectedCashUsd == expectedCashUsd)&&(identical(other.expectedCashVes, expectedCashVes) || other.expectedCashVes == expectedCashVes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CashCountSummaryDto&&(identical(other.openingFloat, openingFloat) || other.openingFloat == openingFloat)&&(identical(other.cashSalesUsd, cashSalesUsd) || other.cashSalesUsd == cashSalesUsd)&&(identical(other.cashSalesVes, cashSalesVes) || other.cashSalesVes == cashSalesVes)&&(identical(other.electronicSalesUsd, electronicSalesUsd) || other.electronicSalesUsd == electronicSalesUsd)&&(identical(other.electronicSalesVes, electronicSalesVes) || other.electronicSalesVes == electronicSalesVes)&&(identical(other.expensesUsd, expensesUsd) || other.expensesUsd == expensesUsd)&&(identical(other.expensesVes, expensesVes) || other.expensesVes == expensesVes)&&(identical(other.creditCashUsd, creditCashUsd) || other.creditCashUsd == creditCashUsd)&&(identical(other.creditCashVes, creditCashVes) || other.creditCashVes == creditCashVes)&&(identical(other.creditElectronicVes, creditElectronicVes) || other.creditElectronicVes == creditElectronicVes)&&(identical(other.expectedCashUsd, expectedCashUsd) || other.expectedCashUsd == expectedCashUsd)&&(identical(other.expectedCashVes, expectedCashVes) || other.expectedCashVes == expectedCashVes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,openingFloat,cashSalesUsd,cashSalesVes,electronicSalesUsd,electronicSalesVes,expensesUsd,expensesVes,expectedCashUsd,expectedCashVes);
+int get hashCode => Object.hash(runtimeType,openingFloat,cashSalesUsd,cashSalesVes,electronicSalesUsd,electronicSalesVes,expensesUsd,expensesVes,creditCashUsd,creditCashVes,creditElectronicVes,expectedCashUsd,expectedCashVes);
 
 @override
 String toString() {
-  return 'CashCountSummaryDto(openingFloat: $openingFloat, cashSalesUsd: $cashSalesUsd, cashSalesVes: $cashSalesVes, electronicSalesUsd: $electronicSalesUsd, electronicSalesVes: $electronicSalesVes, expensesUsd: $expensesUsd, expensesVes: $expensesVes, expectedCashUsd: $expectedCashUsd, expectedCashVes: $expectedCashVes)';
+  return 'CashCountSummaryDto(openingFloat: $openingFloat, cashSalesUsd: $cashSalesUsd, cashSalesVes: $cashSalesVes, electronicSalesUsd: $electronicSalesUsd, electronicSalesVes: $electronicSalesVes, expensesUsd: $expensesUsd, expensesVes: $expensesVes, creditCashUsd: $creditCashUsd, creditCashVes: $creditCashVes, creditElectronicVes: $creditElectronicVes, expectedCashUsd: $expectedCashUsd, expectedCashVes: $expectedCashVes)';
 }
 
 
@@ -831,7 +837,7 @@ abstract mixin class _$CashCountSummaryDtoCopyWith<$Res> implements $CashCountSu
   factory _$CashCountSummaryDtoCopyWith(_CashCountSummaryDto value, $Res Function(_CashCountSummaryDto) _then) = __$CashCountSummaryDtoCopyWithImpl;
 @override @useResult
 $Res call({
-@DecimalConverter() Decimal openingFloat,@DecimalConverter() Decimal cashSalesUsd,@DecimalConverter() Decimal cashSalesVes,@DecimalConverter() Decimal electronicSalesUsd,@DecimalConverter() Decimal electronicSalesVes,@DecimalConverter() Decimal expensesUsd,@DecimalConverter() Decimal expensesVes,@DecimalConverter() Decimal expectedCashUsd,@DecimalConverter() Decimal expectedCashVes
+@DecimalConverter() Decimal openingFloat,@DecimalConverter() Decimal cashSalesUsd,@DecimalConverter() Decimal cashSalesVes,@DecimalConverter() Decimal electronicSalesUsd,@DecimalConverter() Decimal electronicSalesVes,@DecimalConverter() Decimal expensesUsd,@DecimalConverter() Decimal expensesVes,@DecimalConverter() Decimal creditCashUsd,@DecimalConverter() Decimal creditCashVes,@DecimalConverter() Decimal creditElectronicVes,@DecimalConverter() Decimal expectedCashUsd,@DecimalConverter() Decimal expectedCashVes
 });
 
 
@@ -848,7 +854,7 @@ class __$CashCountSummaryDtoCopyWithImpl<$Res>
 
 /// Create a copy of CashCountSummaryDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? openingFloat = null,Object? cashSalesUsd = null,Object? cashSalesVes = null,Object? electronicSalesUsd = null,Object? electronicSalesVes = null,Object? expensesUsd = null,Object? expensesVes = null,Object? expectedCashUsd = null,Object? expectedCashVes = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? openingFloat = null,Object? cashSalesUsd = null,Object? cashSalesVes = null,Object? electronicSalesUsd = null,Object? electronicSalesVes = null,Object? expensesUsd = null,Object? expensesVes = null,Object? creditCashUsd = null,Object? creditCashVes = null,Object? creditElectronicVes = null,Object? expectedCashUsd = null,Object? expectedCashVes = null,}) {
   return _then(_CashCountSummaryDto(
 openingFloat: null == openingFloat ? _self.openingFloat : openingFloat // ignore: cast_nullable_to_non_nullable
 as Decimal,cashSalesUsd: null == cashSalesUsd ? _self.cashSalesUsd : cashSalesUsd // ignore: cast_nullable_to_non_nullable
@@ -857,6 +863,9 @@ as Decimal,electronicSalesUsd: null == electronicSalesUsd ? _self.electronicSale
 as Decimal,electronicSalesVes: null == electronicSalesVes ? _self.electronicSalesVes : electronicSalesVes // ignore: cast_nullable_to_non_nullable
 as Decimal,expensesUsd: null == expensesUsd ? _self.expensesUsd : expensesUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,expensesVes: null == expensesVes ? _self.expensesVes : expensesVes // ignore: cast_nullable_to_non_nullable
+as Decimal,creditCashUsd: null == creditCashUsd ? _self.creditCashUsd : creditCashUsd // ignore: cast_nullable_to_non_nullable
+as Decimal,creditCashVes: null == creditCashVes ? _self.creditCashVes : creditCashVes // ignore: cast_nullable_to_non_nullable
+as Decimal,creditElectronicVes: null == creditElectronicVes ? _self.creditElectronicVes : creditElectronicVes // ignore: cast_nullable_to_non_nullable
 as Decimal,expectedCashUsd: null == expectedCashUsd ? _self.expectedCashUsd : expectedCashUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,expectedCashVes: null == expectedCashVes ? _self.expectedCashVes : expectedCashVes // ignore: cast_nullable_to_non_nullable
 as Decimal,
@@ -1426,7 +1435,7 @@ as Decimal,
 /// @nodoc
 mixin _$SessionSalesReportDto {
 
- int get salesCount;@DecimalConverter() Decimal get totalUsd;@DecimalConverter() Decimal get totalVes;@DecimalConverter() Decimal get costUsd;@DecimalConverter() Decimal get costVes;@DecimalConverter() Decimal get profitUsd;@DecimalConverter() Decimal get profitVes; List<PaymentTotalDto> get payments; List<ProductSalesDto> get products;
+ int get salesCount;@DecimalConverter() Decimal get totalUsd;@DecimalConverter() Decimal get totalVes;@DecimalConverter() Decimal get costUsd;@DecimalConverter() Decimal get costVes;@DecimalConverter() Decimal get profitUsd;@DecimalConverter() Decimal get profitVes; List<PaymentTotalDto> get payments; List<ProductSalesDto> get products; List<PaymentTotalDto> get creditCollections;
 /// Create a copy of SessionSalesReportDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1439,16 +1448,16 @@ $SessionSalesReportDtoCopyWith<SessionSalesReportDto> get copyWith => _$SessionS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other.payments, payments)&&const DeepCollectionEquality().equals(other.products, products));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other.payments, payments)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.creditCollections, creditCollections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(payments),const DeepCollectionEquality().hash(products));
+int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(payments),const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(creditCollections));
 
 @override
 String toString() {
-  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products)';
+  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products, creditCollections: $creditCollections)';
 }
 
 
@@ -1459,7 +1468,7 @@ abstract mixin class $SessionSalesReportDtoCopyWith<$Res>  {
   factory $SessionSalesReportDtoCopyWith(SessionSalesReportDto value, $Res Function(SessionSalesReportDto) _then) = _$SessionSalesReportDtoCopyWithImpl;
 @useResult
 $Res call({
- int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products
+ int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products, List<PaymentTotalDto> creditCollections
 });
 
 
@@ -1476,7 +1485,7 @@ class _$SessionSalesReportDtoCopyWithImpl<$Res>
 
 /// Create a copy of SessionSalesReportDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,Object? creditCollections = null,}) {
   return _then(_self.copyWith(
 salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
 as int,totalUsd: null == totalUsd ? _self.totalUsd : totalUsd // ignore: cast_nullable_to_non_nullable
@@ -1487,7 +1496,8 @@ as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore:
 as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
 as Decimal,payments: null == payments ? _self.payments : payments // ignore: cast_nullable_to_non_nullable
 as List<PaymentTotalDto>,products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
-as List<ProductSalesDto>,
+as List<ProductSalesDto>,creditCollections: null == creditCollections ? _self.creditCollections : creditCollections // ignore: cast_nullable_to_non_nullable
+as List<PaymentTotalDto>,
   ));
 }
 
@@ -1572,10 +1582,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products,  List<PaymentTotalDto> creditCollections)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SessionSalesReportDto() when $default != null:
-return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products,_that.creditCollections);case _:
   return orElse();
 
 }
@@ -1593,10 +1603,10 @@ return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products,  List<PaymentTotalDto> creditCollections)  $default,) {final _that = this;
 switch (_that) {
 case _SessionSalesReportDto():
-return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products,_that.creditCollections);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1613,10 +1623,10 @@ return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int salesCount, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes, @DecimalConverter()  Decimal costUsd, @DecimalConverter()  Decimal costVes, @DecimalConverter()  Decimal profitUsd, @DecimalConverter()  Decimal profitVes,  List<PaymentTotalDto> payments,  List<ProductSalesDto> products,  List<PaymentTotalDto> creditCollections)?  $default,) {final _that = this;
 switch (_that) {
 case _SessionSalesReportDto() when $default != null:
-return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products);case _:
+return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_that.costVes,_that.profitUsd,_that.profitVes,_that.payments,_that.products,_that.creditCollections);case _:
   return null;
 
 }
@@ -1628,7 +1638,7 @@ return $default(_that.salesCount,_that.totalUsd,_that.totalVes,_that.costUsd,_th
 @JsonSerializable()
 
 class _SessionSalesReportDto extends SessionSalesReportDto {
-  const _SessionSalesReportDto({required this.salesCount, @DecimalConverter() required this.totalUsd, @DecimalConverter() required this.totalVes, @DecimalConverter() required this.costUsd, @DecimalConverter() required this.costVes, @DecimalConverter() required this.profitUsd, @DecimalConverter() required this.profitVes, required final  List<PaymentTotalDto> payments, required final  List<ProductSalesDto> products}): _payments = payments,_products = products,super._();
+  const _SessionSalesReportDto({required this.salesCount, @DecimalConverter() required this.totalUsd, @DecimalConverter() required this.totalVes, @DecimalConverter() required this.costUsd, @DecimalConverter() required this.costVes, @DecimalConverter() required this.profitUsd, @DecimalConverter() required this.profitVes, required final  List<PaymentTotalDto> payments, required final  List<ProductSalesDto> products, final  List<PaymentTotalDto> creditCollections = const []}): _payments = payments,_products = products,_creditCollections = creditCollections,super._();
   factory _SessionSalesReportDto.fromJson(Map<String, dynamic> json) => _$SessionSalesReportDtoFromJson(json);
 
 @override final  int salesCount;
@@ -1652,6 +1662,13 @@ class _SessionSalesReportDto extends SessionSalesReportDto {
   return EqualUnmodifiableListView(_products);
 }
 
+ final  List<PaymentTotalDto> _creditCollections;
+@override@JsonKey() List<PaymentTotalDto> get creditCollections {
+  if (_creditCollections is EqualUnmodifiableListView) return _creditCollections;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_creditCollections);
+}
+
 
 /// Create a copy of SessionSalesReportDto
 /// with the given fields replaced by the non-null parameter values.
@@ -1666,16 +1683,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other._payments, _payments)&&const DeepCollectionEquality().equals(other._products, _products));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SessionSalesReportDto&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.costUsd, costUsd) || other.costUsd == costUsd)&&(identical(other.costVes, costVes) || other.costVes == costVes)&&(identical(other.profitUsd, profitUsd) || other.profitUsd == profitUsd)&&(identical(other.profitVes, profitVes) || other.profitVes == profitVes)&&const DeepCollectionEquality().equals(other._payments, _payments)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._creditCollections, _creditCollections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(_payments),const DeepCollectionEquality().hash(_products));
+int get hashCode => Object.hash(runtimeType,salesCount,totalUsd,totalVes,costUsd,costVes,profitUsd,profitVes,const DeepCollectionEquality().hash(_payments),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_creditCollections));
 
 @override
 String toString() {
-  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products)';
+  return 'SessionSalesReportDto(salesCount: $salesCount, totalUsd: $totalUsd, totalVes: $totalVes, costUsd: $costUsd, costVes: $costVes, profitUsd: $profitUsd, profitVes: $profitVes, payments: $payments, products: $products, creditCollections: $creditCollections)';
 }
 
 
@@ -1686,7 +1703,7 @@ abstract mixin class _$SessionSalesReportDtoCopyWith<$Res> implements $SessionSa
   factory _$SessionSalesReportDtoCopyWith(_SessionSalesReportDto value, $Res Function(_SessionSalesReportDto) _then) = __$SessionSalesReportDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products
+ int salesCount,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes,@DecimalConverter() Decimal costUsd,@DecimalConverter() Decimal costVes,@DecimalConverter() Decimal profitUsd,@DecimalConverter() Decimal profitVes, List<PaymentTotalDto> payments, List<ProductSalesDto> products, List<PaymentTotalDto> creditCollections
 });
 
 
@@ -1703,7 +1720,7 @@ class __$SessionSalesReportDtoCopyWithImpl<$Res>
 
 /// Create a copy of SessionSalesReportDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? salesCount = null,Object? totalUsd = null,Object? totalVes = null,Object? costUsd = null,Object? costVes = null,Object? profitUsd = null,Object? profitVes = null,Object? payments = null,Object? products = null,Object? creditCollections = null,}) {
   return _then(_SessionSalesReportDto(
 salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
 as int,totalUsd: null == totalUsd ? _self.totalUsd : totalUsd // ignore: cast_nullable_to_non_nullable
@@ -1714,7 +1731,8 @@ as Decimal,profitUsd: null == profitUsd ? _self.profitUsd : profitUsd // ignore:
 as Decimal,profitVes: null == profitVes ? _self.profitVes : profitVes // ignore: cast_nullable_to_non_nullable
 as Decimal,payments: null == payments ? _self._payments : payments // ignore: cast_nullable_to_non_nullable
 as List<PaymentTotalDto>,products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
-as List<ProductSalesDto>,
+as List<ProductSalesDto>,creditCollections: null == creditCollections ? _self._creditCollections : creditCollections // ignore: cast_nullable_to_non_nullable
+as List<PaymentTotalDto>,
   ));
 }
 

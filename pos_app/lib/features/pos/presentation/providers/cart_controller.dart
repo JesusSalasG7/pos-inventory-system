@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:pos_app/core/currency/money.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
+import 'package:pos_app/features/credits/domain/entities/customer.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 import 'package:pos_app/features/pos/domain/cart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -77,6 +78,13 @@ class CartController extends _$CartController {
   void setCustomer({String? taxId, String? name}) {
     state = state.copyWith(customerTaxId: taxId, customerName: name);
   }
+
+  /// Cliente de la venta a crédito. Al cambiarlo, el plazo vuelve al del cliente.
+  void setCreditCustomer(Customer? customer) {
+    state = state.copyWith(creditCustomer: () => customer, creditDays: () => customer?.creditDays);
+  }
+
+  void setCreditDays(int? days) => state = state.copyWith(creditDays: () => days);
 
   void clear() => state = const Cart();
 

@@ -9,6 +9,7 @@ import 'package:pos_app/app/router/app_router.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_spacing.dart';
 import 'package:pos_app/core/theme/app_theme.dart';
+import 'package:pos_app/features/credits/presentation/providers/credits_providers.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 
 class PosApp extends ConsumerStatefulWidget {
@@ -44,8 +45,13 @@ class _PosAppState extends ConsumerState<PosApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // La tasa puede haber cambiado mientras la app estaba en segundo plano.
-    if (state == AppLifecycleState.resumed) ref.invalidate(activeExchangeRateProvider);
+    // La tasa y las deudas pueden haber cambiado mientras la app estaba en
+    // segundo plano; al recargar las deudas se reprograman sus avisos.
+    if (state == AppLifecycleState.resumed) {
+      ref
+        ..invalidate(activeExchangeRateProvider)
+        ..invalidate(pendingCreditsProvider);
+    }
   }
 
   @override

@@ -16,6 +16,10 @@ import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart'
 import 'package:pos_app/features/cash_session/presentation/screens/cash_history_screen.dart';
 import 'package:pos_app/features/cash_session/presentation/screens/cash_screen.dart';
 import 'package:pos_app/features/cash_session/presentation/screens/close_session_screen.dart';
+import 'package:pos_app/features/credits/domain/entities/customer.dart';
+import 'package:pos_app/features/credits/presentation/screens/customer_detail_screen.dart';
+import 'package:pos_app/features/credits/presentation/screens/customer_form_screen.dart';
+import 'package:pos_app/features/credits/presentation/screens/customers_screen.dart';
 import 'package:pos_app/features/design_preview/presentation/design_preview_screen.dart';
 import 'package:pos_app/features/exchange_rate/presentation/screens/exchange_rate_screen.dart';
 import 'package:pos_app/features/home/presentation/screens/home_screen.dart';
@@ -119,6 +123,21 @@ GoRouter appRouter(Ref ref) {
         builder: (_, state) => UserFormScreen(user: state.extra as AppUser?),
       ),
       GoRoute(path: RouteNames.branches, builder: (_, _) => const BranchesScreen()),
+      GoRoute(
+        path: RouteNames.customers,
+        // `extra: true` abre la lista filtrada a los que deben.
+        builder: (_, state) => CustomersScreen(onlyDebtors: state.extra == true),
+      ),
+      GoRoute(
+        path: RouteNames.customerForm,
+        // Con un cliente en `extra` edita; sin él, crea uno nuevo.
+        builder: (_, state) => CustomerFormScreen(customer: state.extra as Customer?),
+      ),
+      GoRoute(
+        path: RouteNames.customerDetailPattern,
+        builder: (_, state) =>
+            CustomerDetailScreen(customerId: int.parse(state.pathParameters['customerId']!)),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) => MainShell(navigationShell: navigationShell),
         branches: [

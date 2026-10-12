@@ -59,6 +59,8 @@ _SaleDto _$SaleDtoFromJson(Map<String, dynamic> json) => _SaleDto(
       .toList(),
   customerTaxId: json['customer_tax_id'] as String? ?? '',
   customerName: json['customer_name'] as String? ?? '',
+  customer: (json['customer'] as num?)?.toInt(),
+  creditDueDate: json['credit_due_date'] as String?,
 );
 
 Map<String, dynamic> _$SaleDtoToJson(_SaleDto instance) => <String, dynamic>{
@@ -74,4 +76,6 @@ Map<String, dynamic> _$SaleDtoToJson(_SaleDto instance) => <String, dynamic>{
   'payments': instance.payments.map((e) => e.toJson()).toList(),
   'customer_tax_id': instance.customerTaxId,
   'customer_name': instance.customerName,
+  'customer': instance.customer,
+  'credit_due_date': instance.creditDueDate,
 };

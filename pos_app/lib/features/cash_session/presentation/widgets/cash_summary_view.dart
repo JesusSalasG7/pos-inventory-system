@@ -77,6 +77,12 @@ class CashSummaryView extends StatelessWidget {
       children: [
         MoneyLine(label: Strings.openingFloatShort, usd: summary.openingFloat, ves: Decimal.zero),
         MoneyLine(label: Strings.cashSales, usd: summary.cashSalesUsd, ves: summary.cashSalesVes),
+        if (summary.creditCashUsd > Decimal.zero || summary.creditCashVes > Decimal.zero)
+          MoneyLine(
+            label: Strings.creditCashPayments,
+            usd: summary.creditCashUsd,
+            ves: summary.creditCashVes,
+          ),
         MoneyLine(
           label: '− ${Strings.expenses}',
           usd: summary.expensesUsd,
@@ -105,6 +111,13 @@ class CashSummaryView extends StatelessWidget {
                 ves: summary.electronicSalesVes,
                 muted: true,
               ),
+              if (summary.creditElectronicVes > Decimal.zero)
+                MoneyLine(
+                  label: Strings.creditElectronicPayments,
+                  usd: Decimal.zero,
+                  ves: summary.creditElectronicVes,
+                  muted: true,
+                ),
               Text(Strings.electronicNote, style: AppTypography.bodySmall.copyWith(fontSize: 12)),
             ],
           ),

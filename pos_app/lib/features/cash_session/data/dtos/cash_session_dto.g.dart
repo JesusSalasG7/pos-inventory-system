@@ -63,6 +63,11 @@ _CashCountSummaryDto _$CashCountSummaryDtoFromJson(Map<String, dynamic> json) =>
       electronicSalesVes: const DecimalConverter().fromJson(json['electronic_sales_ves'] as String),
       expensesUsd: const DecimalConverter().fromJson(json['expenses_usd'] as String),
       expensesVes: const DecimalConverter().fromJson(json['expenses_ves'] as String),
+      creditCashUsd: const DecimalConverter().fromJson(json['credit_cash_usd'] as String),
+      creditCashVes: const DecimalConverter().fromJson(json['credit_cash_ves'] as String),
+      creditElectronicVes: const DecimalConverter().fromJson(
+        json['credit_electronic_ves'] as String,
+      ),
       expectedCashUsd: const DecimalConverter().fromJson(json['expected_cash_usd'] as String),
       expectedCashVes: const DecimalConverter().fromJson(json['expected_cash_ves'] as String),
     );
@@ -76,6 +81,9 @@ Map<String, dynamic> _$CashCountSummaryDtoToJson(_CashCountSummaryDto instance) 
       'electronic_sales_ves': const DecimalConverter().toJson(instance.electronicSalesVes),
       'expenses_usd': const DecimalConverter().toJson(instance.expensesUsd),
       'expenses_ves': const DecimalConverter().toJson(instance.expensesVes),
+      'credit_cash_usd': const DecimalConverter().toJson(instance.creditCashUsd),
+      'credit_cash_ves': const DecimalConverter().toJson(instance.creditCashVes),
+      'credit_electronic_ves': const DecimalConverter().toJson(instance.creditElectronicVes),
       'expected_cash_usd': const DecimalConverter().toJson(instance.expectedCashUsd),
       'expected_cash_ves': const DecimalConverter().toJson(instance.expectedCashVes),
     };
@@ -131,6 +139,11 @@ _SessionSalesReportDto _$SessionSalesReportDtoFromJson(Map<String, dynamic> json
       products: (json['products'] as List<dynamic>)
           .map((e) => ProductSalesDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      creditCollections:
+          (json['credit_collections'] as List<dynamic>?)
+              ?.map((e) => PaymentTotalDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$SessionSalesReportDtoToJson(_SessionSalesReportDto instance) =>
@@ -144,4 +157,5 @@ Map<String, dynamic> _$SessionSalesReportDtoToJson(_SessionSalesReportDto instan
       'profit_ves': const DecimalConverter().toJson(instance.profitVes),
       'payments': instance.payments.map((e) => e.toJson()).toList(),
       'products': instance.products.map((e) => e.toJson()).toList(),
+      'credit_collections': instance.creditCollections.map((e) => e.toJson()).toList(),
     };

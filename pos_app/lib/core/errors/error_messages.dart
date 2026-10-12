@@ -73,6 +73,15 @@ abstract final class ErrorMessages {
     'invalid_payment': 'Uno de los pagos no es válido.',
     'empty_sale': 'La venta debe tener al menos un producto.',
     'sale_not_found': 'La venta no existe.',
+    // Clientes y créditos.
+    'customer_required': 'Para vender a crédito hay que elegir el cliente.',
+    'customer_not_found': 'El cliente no existe.',
+    'inactive_customer': 'El cliente está inactivo: no se le puede vender a crédito.',
+    'invalid_customer_name': 'El nombre del cliente es obligatorio.',
+    'customer_tax_id_taken': 'Ya existe un cliente con esa cédula o RIF.',
+    'invalid_credit_days': 'El plazo debe estar entre 0 y 365 días.',
+    'no_pending_credit': 'El cliente no tiene deudas pendientes en esta tienda.',
+    'credit_overpayment': 'El abono supera lo que debe el cliente.',
   };
 
   /// Códigos con mensaje propio. Lo usan los tests para detectar olvidos.

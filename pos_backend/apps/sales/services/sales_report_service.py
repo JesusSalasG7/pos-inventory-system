@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+from apps.credits.services import credit_service
 from apps.sales.domain.dtos import PaymentTotal, ProductSales, SessionSalesReport
 from apps.sales.repositories import sale_repository
 from core.enums import PaymentMethod
@@ -21,7 +22,10 @@ def build_session_report(cash_session_id: int) -> SessionSalesReport:
       (`subtotal_ves`); los del costo se obtienen siempre con la tasa del BCV
       congelada en su venta (`bcv_rate_at_invoice`), nunca con la tasa manual
       con la que se cobró ni con la de hoy.
-    - Ganancia = total facturado − costo, en cada moneda.
+    - Ganancia = total facturado − costo, en cada moneda. Lo vendido a crédito
+      cuenta como vendido; su cobro aparece como pago `CREDIT`.
+    - `credit_collections` son los abonos de deudas cobrados en la caja, que
+      pueden venir de ventas de otros días.
 
     El acceso del usuario a la caja lo valida quien llama
     (`cash_session_service.get_session`).
@@ -68,12 +72,9 @@ def build_session_report(cash_session_id: int) -> SessionSalesReport:
     cost_usd = sum((product.cost_usd for product in products), ZERO)
     cost_ves = sum((product.cost_ves for product in products), ZERO)
 
-    payments = tuple(
-        PaymentTotal(method=method, currency=currency, amount=amount)
-        for (method, currency), amount in sorted(
-            sale_repository.payment_totals_by_session(cash_session_id).items(),
-            key=lambda entry: METHOD_ORDER.get(entry[0][0], len(METHOD_ORDER)),
-        )
+    payments = _payment_totals(sale_repository.payment_totals_by_session(cash_session_id))
+    credit_collections = _payment_totals(
+        credit_service.get_payment_totals_for_session(cash_session_id)
     )
 
     return SessionSalesReport(
@@ -86,4 +87,15 @@ def build_session_report(cash_session_id: int) -> SessionSalesReport:
         profit_ves=totals["total_ves"] - cost_ves,
         payments=payments,
         products=products,
+        credit_collections=credit_collections,
+    )
+
+
+def _payment_totals(totals: dict[tuple[str, str], Decimal]) -> tuple[PaymentTotal, ...]:
+    """Totales por método de pago, en el orden en que se declaran los métodos."""
+    return tuple(
+        PaymentTotal(method=method, currency=currency, amount=amount)
+        for (method, currency), amount in sorted(
+            totals.items(), key=lambda entry: METHOD_ORDER.get(entry[0][0], len(METHOD_ORDER))
+        )
     )

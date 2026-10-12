@@ -119,6 +119,11 @@ class MoreScreen extends ConsumerWidget {
                     onTap: () => context.push(RouteNames.salesHistory),
                   ),
                   _MoreTile(
+                    icon: Icons.handshake_rounded,
+                    label: Strings.customersTitle,
+                    onTap: () => context.push(RouteNames.customers),
+                  ),
+                  _MoreTile(
                     icon: Icons.sell_rounded,
                     label: Strings.priceListTitle,
                     onTap: () => context.push(RouteNames.priceList),

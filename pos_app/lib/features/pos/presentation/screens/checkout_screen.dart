@@ -1,11 +1,13 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_app/app/router/route_names.dart';
 import 'package:pos_app/core/currency/money_formatter.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
+import 'package:pos_app/core/formatting/date_formatter.dart';
 import 'package:pos_app/core/l10n/strings.dart';
 import 'package:pos_app/core/theme/app_colors.dart';
 import 'package:pos_app/core/theme/app_radius.dart';
@@ -18,6 +20,8 @@ import 'package:pos_app/core/widgets/primary_button.dart';
 import 'package:pos_app/core/widgets/quantity_input_dialog.dart';
 import 'package:pos_app/core/widgets/section_card.dart';
 import 'package:pos_app/features/auth/presentation/screens/auth_scaffold.dart';
+import 'package:pos_app/features/credits/presentation/widgets/customer_picker_sheet.dart';
+import 'package:pos_app/features/credits/presentation/widgets/customer_tile.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/pos/domain/cart.dart';
@@ -110,8 +114,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             rate: rate,
             lines: checkout.lines,
           );
+    final hasCredit = checkout.lines.any((line) => line.method == PaymentMethod.credit);
+    final missingCustomer = hasCredit && cart.creditCustomer == null;
     final canConfirm =
-        summary != null && summary.canConfirm && !cart.hasStockIssues && !checkout.isSubmitting;
+        summary != null &&
+        summary.canConfirm &&
+        !cart.hasStockIssues &&
+        !checkout.isSubmitting &&
+        !missingCustomer;
     final errorMessage = _errorMessage;
 
     return Scaffold(
@@ -221,6 +231,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 const SizedBox(height: AppSpacing.md),
                 _PaymentMethodButtons(
                   enabled: rate != null && !checkout.isSubmitting,
+                  creditTaken: hasCredit,
                   onSelected: controller.addLine,
                 ),
                 for (final line in checkout.lines) ...[
@@ -233,6 +244,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     onReferenceChanged: (text) => controller.updateReference(line.id, text),
                     onRemove: () => controller.removeLine(line.id),
                   ),
+                ],
+                if (hasCredit) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _CreditCustomerCard(enabled: !checkout.isSubmitting),
                 ],
               ],
             ),
@@ -370,9 +385,16 @@ class _CartItemRow extends ConsumerWidget {
 }
 
 class _PaymentMethodButtons extends StatelessWidget {
-  const _PaymentMethodButtons({required this.enabled, required this.onSelected});
+  const _PaymentMethodButtons({
+    required this.enabled,
+    required this.creditTaken,
+    required this.onSelected,
+  });
 
   final bool enabled;
+
+  /// Ya hay una línea a crédito: no se admite otra.
+  final bool creditTaken;
   final ValueChanged<PaymentMethod> onSelected;
 
   static const Map<PaymentMethod, IconData> _icons = {
@@ -380,6 +402,7 @@ class _PaymentMethodButtons extends StatelessWidget {
     PaymentMethod.cashVes: Icons.payments_outlined,
     PaymentMethod.mobilePayment: Icons.smartphone_rounded,
     PaymentMethod.posCard: Icons.credit_card_rounded,
+    PaymentMethod.credit: Icons.handshake_rounded,
   };
 
   @override
@@ -396,7 +419,9 @@ class _PaymentMethodButtons extends StatelessWidget {
                 width: width,
                 height: AppSpacing.primaryButtonHeight,
                 child: FilledButton.tonalIcon(
-                  onPressed: enabled ? () => onSelected(method) : null,
+                  onPressed: enabled && !(method == PaymentMethod.credit && creditTaken)
+                      ? () => onSelected(method)
+                      : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.accentSoft,
                     foregroundColor: AppColors.onAccent,
@@ -497,6 +522,106 @@ class _PaymentLineCard extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cliente y plazo de la parte a crédito. Sin cliente no se puede confirmar.
+class _CreditCustomerCard extends ConsumerWidget {
+  const _CreditCustomerCard({required this.enabled});
+
+  final bool enabled;
+
+  Future<void> _pick(BuildContext context, WidgetRef ref) async {
+    final customer = await showCustomerPicker(context);
+    if (customer != null) ref.read(cartControllerProvider.notifier).setCreditCustomer(customer);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.watch(cartControllerProvider);
+    final customer = cart.creditCustomer;
+    final days = cart.creditDays ?? customer?.creditDays;
+    final today = DateFormatter.caracasDay(DateTime.now());
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.accentSoft,
+        borderRadius: AppRadius.mdAll,
+        border: Border.all(color: customer == null ? AppColors.warning : AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(Strings.creditCustomer, style: AppTypography.subtitle),
+          const SizedBox(height: AppSpacing.sm),
+          if (customer == null) ...[
+            Text(Strings.creditNeedsCustomer, style: AppTypography.bodySmall),
+            const SizedBox(height: AppSpacing.sm),
+            PrimaryButton(
+              label: Strings.chooseCustomer,
+              icon: Icons.person_search_rounded,
+              variant: ButtonVariant.outlined,
+              onPressed: enabled ? () => _pick(context, ref) : null,
+            ),
+          ] else ...[
+            Row(
+              children: [
+                CustomerAvatar(customer: customer, size: 40),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        customer.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.subtitle,
+                      ),
+                      Text(
+                        customer.hasDebt
+                            ? '${Strings.owes} ${MoneyFormatter.usd(customer.balanceUsd)}'
+                            : Strings.noDebt,
+                        style: AppTypography.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: enabled ? () => _pick(context, ref) : null,
+                  child: const Text(Strings.changeCustomer),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              // Al cambiar de cliente el campo vuelve a su plazo.
+              key: ValueKey('credit-days-${customer.id}'),
+              initialValue: '${days ?? ''}',
+              enabled: enabled,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(3),
+              ],
+              decoration: const InputDecoration(labelText: Strings.creditDaysLabel),
+              onChanged: (value) =>
+                  ref.read(cartControllerProvider.notifier).setCreditDays(int.tryParse(value)),
+            ),
+            if (days != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                Strings.creditDueDate(DateFormatter.calendarDate(today.add(Duration(days: days)))),
+                style: AppTypography.label.copyWith(fontSize: 13, color: AppColors.onAccent),
+              ),
+            ],
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Text(Strings.creditNote, style: AppTypography.bodySmall.copyWith(fontSize: 12)),
         ],
       ),
     );

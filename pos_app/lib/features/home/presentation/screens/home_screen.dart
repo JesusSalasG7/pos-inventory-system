@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,8 @@ import 'package:pos_app/core/widgets/skeleton.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/widgets/expense_sheet.dart';
+import 'package:pos_app/features/credits/domain/entities/credit.dart';
+import 'package:pos_app/features/credits/presentation/providers/credits_providers.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/rate_history_provider.dart';
 import 'package:pos_app/features/home/presentation/providers/dashboard_providers.dart';
@@ -35,6 +38,7 @@ class HomeScreen extends ConsumerWidget {
       ..invalidate(todaySalesSummaryProvider)
       ..invalidate(lowStockCountProvider)
       ..invalidate(bcvRateProvider)
+      ..invalidate(pendingCreditsProvider)
       ..invalidate(currentSessionProvider);
     await ref.read(activeRateProvider.notifier).refresh();
   }
@@ -89,6 +93,8 @@ class HomeScreen extends ConsumerWidget {
                   const _SalesTodayCard(),
                   const SizedBox(height: AppSpacing.md),
                   const _CashCard(),
+                  const SizedBox(height: AppSpacing.md),
+                  const _DebtsCard(),
                   const SizedBox(height: AppSpacing.md),
                   const _LowStockCard(),
                   const SizedBox(height: AppSpacing.md),
@@ -216,6 +222,65 @@ class _CashCard extends ConsumerWidget {
                 variant: ButtonVariant.outlined,
                 onPressed: current == null ? null : () => _addExpense(context, current.id),
               ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Lo que deben los clientes en la tienda y cuántas deudas ya vencieron.
+class _DebtsCard extends ConsumerWidget {
+  const _DebtsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final credits = ref.watch(pendingCreditsProvider);
+    return SectionCard(
+      title: Strings.debtsCardTitle.toUpperCase(),
+      onTap: () => context.push(RouteNames.customers, extra: true),
+      child: AsyncValueView<List<Credit>>(
+        value: credits,
+        onRetry: () => ref.invalidate(pendingCreditsProvider),
+        loading: const SkeletonBox(height: 44),
+        data: (items) {
+          final debtors = items.map((credit) => credit.customerId).toSet().length;
+          final overdue = items.where((credit) => credit.isOverdue).length;
+          final total = items.fold(Decimal.zero, (sum, credit) => sum + credit.balanceUsd);
+          final (color, background, icon) = overdue > 0
+              ? (AppColors.error, AppColors.errorSoft, Icons.notification_important_rounded)
+              : debtors > 0
+              ? (AppColors.warning, AppColors.warningSoft, Icons.request_quote_rounded)
+              : (AppColors.success, AppColors.successSoft, Icons.check_rounded);
+          return Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+                child: Icon(icon, color: color),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      debtors > 0 ? Strings.debtorsCount(debtors) : Strings.noDebtsHome,
+                      style: AppTypography.subtitle,
+                    ),
+                    if (overdue > 0)
+                      Text(
+                        Strings.overdueDebtorsCount(overdue),
+                        style: AppTypography.label.copyWith(fontSize: 13, color: AppColors.error),
+                      ),
+                  ],
+                ),
+              ),
+              if (debtors > 0)
+                Text(MoneyFormatter.usd(total), style: AppTypography.amount(18, color: color)),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
             ],
           );
         },

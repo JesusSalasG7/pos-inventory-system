@@ -74,8 +74,13 @@ def bulk_create_payments(sale: Sale, payments: Sequence[PaymentInput]) -> list[S
 
 
 def get_by_id(sale_id: int) -> Sale | None:
-    """Devuelve la venta con `details` y `payments` precargados, o None."""
-    return Sale.objects.prefetch_related("details", "payments").filter(pk=sale_id).first()
+    """Devuelve la venta con `details`, `payments` y su deuda precargados, o None."""
+    return (
+        Sale.objects.select_related("credit")
+        .prefetch_related("details", "payments")
+        .filter(pk=sale_id)
+        .first()
+    )
 
 
 def list_filtered(
@@ -88,6 +93,7 @@ def list_filtered(
     """Lista ventas filtradas, de la más reciente a la más antigua."""
     return (
         _filtered(branch=branch, date_from=date_from, date_to=date_to, session_id=cash_session_id)
+        .select_related("credit")
         .prefetch_related("details", "payments")
         .order_by("-created_at", "-id")
     )

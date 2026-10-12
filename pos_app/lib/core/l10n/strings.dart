@@ -149,6 +149,8 @@ abstract final class Strings {
       'Esta caja pertenece a otra tienda ($branch). Ciérrala allí o desde aquí.';
   static const String expectedCash = 'Efectivo esperado';
   static const String cashSales = 'Ventas en efectivo';
+  static const String creditCashPayments = 'Abonos de clientes en efectivo';
+  static const String creditElectronicPayments = 'Abonos de clientes por punto y pago móvil';
   static const String electronicSales = 'Punto y pago móvil';
   static const String electronicNote = 'Informativo: no es efectivo en gaveta.';
   static const String expenses = 'Gastos';
@@ -207,6 +209,9 @@ abstract final class Strings {
   static String soldAmount(String amount) => 'Venta $amount';
   static String costAmount(String amount) => 'Costo $amount';
   static const String noSalesInSession = 'No se registraron ventas en este turno.';
+  static const String creditCollections = 'Abonos de clientes cobrados';
+  static const String creditCollectionsNote =
+      'Pagos de deudas de ventas a crédito. No son ventas de este turno.';
   static const String done = 'Listo';
 
   // Vender (POS).
@@ -479,6 +484,96 @@ abstract final class Strings {
   static const String emptyCategoriesMessage = 'Crea la primera para poder registrar productos.';
   static const String noCategoriesYet = 'Todavía no hay categorías. Crea una para continuar.';
 
+  // Clientes a crédito.
+  static const String customersTitle = 'Clientes a crédito';
+  static const String newCustomer = 'Nuevo cliente';
+  static const String editCustomer = 'Editar cliente';
+  static const String createCustomer = 'Crear cliente';
+  static const String customerCreated = 'Cliente creado';
+  static const String customerSaved = 'Cliente guardado';
+  static const String customerNameLabel = 'Nombre del cliente';
+  static const String customerNameRequired = 'Escribe el nombre del cliente';
+  static const String customerPhone = 'Teléfono (opcional)';
+  static const String customerTaxIdOptional = 'Cédula o RIF (opcional)';
+  static const String creditDaysLabel = 'Plazo para pagar (días)';
+  static const String creditDaysHelper =
+      'Se propone al venderle a crédito. Puedes cambiarlo en cada venta.';
+  static const String creditDaysRequired = 'Escribe el plazo en días';
+  static String creditDaysTooLong(int max) => 'Máximo $max días';
+  static String creditTerm(int days) => days == 1 ? 'Plazo: 1 día' : 'Plazo: $days días';
+  static const String activeCustomer = 'Cliente activo';
+  static const String activeCustomerHint =
+      'A un cliente inactivo no se le vende a crédito, pero puede seguir abonando.';
+  static const String inactiveCustomer = 'Inactivo';
+  static const String searchCustomers = 'Buscar por nombre, cédula o teléfono';
+  static const String onlyDebtors = 'Con deuda';
+  static const String emptyCustomersTitle = 'Aún no hay clientes';
+  static const String emptyCustomersMessage =
+      'Registra a los clientes que se llevan productos y pagan después.';
+  static const String noDebtorsTitle = 'Nadie debe nada';
+  static const String noDebtorsMessage = 'Los clientes con deudas pendientes aparecerán aquí.';
+  static const String noDebt = 'Sin deuda';
+  static const String owes = 'Debe';
+  static String overdueAmount(String amount) => 'Vencido: $amount';
+  static String nextDue(String date) => 'Vence el $date';
+  static String dueOn(String date) => 'Vence: $date';
+  static String overdueSince(String date) => 'Venció el $date';
+  static const String dueToday = 'Vence hoy';
+  static String openCreditsCount(int count) =>
+      count == 1 ? '1 compra pendiente' : '$count compras pendientes';
+  static const String balanceTitle = 'Lo que debe';
+  static String balanceInBs(String amount) => 'En bolívares hoy: $amount';
+  static String bcvRateToday(String rate) => 'Tasa BCV del día: Bs/\$ $rate';
+  static const String balanceBsNote =
+      'La deuda se guarda en dólares. Si paga en bolívares, se calcula con la tasa del BCV '
+      'del día del pago.';
+  static const String noBcvRateForBs =
+      'No hay tasa del BCV disponible: por ahora solo se pueden recibir dólares.';
+  static const String pendingPurchases = 'Compras pendientes';
+  static const String paidPurchases = 'Compras pagadas';
+  static String purchaseLine(int saleId, String date) => 'Venta #$saleId · $date';
+  static String originalAmount(String amount) => 'Total a crédito: $amount';
+  static const String paymentsHistory = 'Abonos recibidos';
+  static const String noPaymentsYet = 'Todavía no ha abonado nada.';
+  static String paidWithRate(String rate) => 'Tasa BCV: $rate';
+  static String appliedUsd(String amount) => 'Descontado: $amount';
+  static const String registerPayment = 'Registrar abono';
+  static const String paymentTitle = 'Abono del cliente';
+  static const String paymentMethodLabel = 'Forma de pago';
+  static const String payAll = 'Paga todo';
+  static const String paymentSaved = 'Abono registrado';
+  static const String debtSettled = 'Deuda saldada';
+  static const String paymentNeedsOpenCash = 'El abono entra en tu caja: ábrela antes de cobrar.';
+  static String paymentExceeds(String amount) => 'Debe solo $amount';
+  static const String callCustomer = 'Llamar';
+  static const String debtsCardTitle = 'Por cobrar';
+  static String debtorsCount(int count) => count == 1 ? '1 cliente debe' : '$count clientes deben';
+  static String overdueDebtorsCount(int count) =>
+      count == 1 ? '1 deuda vencida' : '$count deudas vencidas';
+  static const String noDebtsHome = 'Ningún cliente debe nada';
+
+  // Venta a crédito (cobro).
+  static const String creditCustomer = 'Cliente del crédito';
+  static const String chooseCustomer = 'Elegir cliente';
+  static const String changeCustomer = 'Cambiar';
+  static const String creditNeedsCustomer = 'Elige el cliente que se lleva los productos.';
+  static String creditDueDate(String date) => 'Pagará a más tardar el $date';
+  static const String creditNote =
+      'Lo que va a crédito queda como deuda en dólares. El resto se cobra ahora.';
+  static const String pickCustomerTitle = 'Elige el cliente';
+  static const String creditOnReceipt = 'Venta a crédito';
+
+  // Avisos de deudas (notificaciones del teléfono).
+  static const String debtChannelName = 'Deudas de clientes';
+  static const String debtChannelDescription = 'Avisa cuando vence el plazo de una deuda.';
+  static const String debtDueTitle = 'Vence hoy una deuda';
+  static String debtDueBody(String customer, String amount) =>
+      '$customer debe $amount. Toca para verlo.';
+  static const String overdueTitle = 'Deudas vencidas';
+  static String overdueBody(int customers, String amount) => customers == 1
+      ? 'Un cliente debe $amount con el plazo vencido.'
+      : '$customers clientes deben $amount con el plazo vencido.';
+
   // Carrito.
   static const String viewCart = 'Ver carrito';
   static String cartItems(int count) => count == 1 ? '1 producto' : '$count productos';
@@ -554,6 +649,7 @@ abstract final class Strings {
     PaymentMethod.cashVes => 'Bs Efectivo',
     PaymentMethod.mobilePayment => 'Pago Móvil',
     PaymentMethod.posCard => 'Punto de Venta',
+    PaymentMethod.credit => 'Crédito',
   };
 
   static String currency(Currency currency) => switch (currency) {

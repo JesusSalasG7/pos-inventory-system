@@ -194,6 +194,49 @@ void main() {
       expect(sales.createdSales.single.payments.single.amount, dec('7.50'));
     });
 
+    test('a crédito: abono inicial en efectivo y el resto como deuda del cliente', () async {
+      final container = await containerWithCart();
+      final checkout = container.read(checkoutControllerProvider.notifier)
+        ..addLine(PaymentMethod.cashUsd);
+      checkout
+        ..updateAmount(container.read(checkoutControllerProvider).lines.single.id, dec('2'))
+        ..addLine(PaymentMethod.credit)
+        // Una segunda línea a crédito no se admite.
+        ..addLine(PaymentMethod.credit);
+
+      final lines = container.read(checkoutControllerProvider).lines;
+      expect(lines.map((line) => line.method), [PaymentMethod.cashUsd, PaymentMethod.credit]);
+      // El crédito se prellena con lo que falta, en dólares.
+      expect(lines.last.amount, dec('5.50'));
+      expect(checkout.summary()!.status, CheckoutStatus.exact);
+      // Sin cliente no se puede enviar.
+      expect(checkout.submit, throwsStateError);
+
+      container.read(cartControllerProvider.notifier)
+        ..setCreditCustomer(customer(7, 'Ana Pérez', creditDays: 15))
+        ..setCreditDays(10);
+      final receipt = await checkout.submit();
+
+      final sent = sales.createdSales.single;
+      expect(sent.customerId, 7);
+      expect(sent.creditDays, 10);
+      expect(sent.payments.map((p) => (p.method, p.amount)), [
+        (PaymentMethod.cashUsd, dec('2.00')),
+        (PaymentMethod.credit, dec('5.50')),
+      ]);
+      expect(receipt.sale.isCredit, isTrue);
+      expect(receipt.sale.creditUsd, dec('5.50'));
+    });
+
+    test('al elegir el cliente, el plazo vuelve al suyo', () async {
+      final container = await containerWithCart();
+      final cart = container.read(cartControllerProvider.notifier)..setCreditDays(3);
+
+      cart.setCreditCustomer(customer(7, 'Ana Pérez', creditDays: 15));
+
+      expect(container.read(cartControllerProvider).creditDays, 15);
+    });
+
     test('tras vender se vuelve a pedir el catálogo (el stock cambió)', () async {
       final container = await containerWithCart();
       container.listen(sellableCatalogProvider, (_, _) {});

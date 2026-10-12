@@ -1,7 +1,7 @@
 # Contratos de la API del backend POS
 
 Fuente: código de `pos_backend/` y `openapi.yaml` (generado con `manage.py spectacular`) al
-2026-10-06. **El backend es la fuente de verdad**: si este documento y el backend difieren, manda
+2026-10-12. **El backend es la fuente de verdad**: si este documento y el backend difieren, manda
 el backend y este archivo se regenera.
 
 ## Convenciones generales
@@ -74,10 +74,11 @@ Errores de sucursal: `invalid_branch` (400, `meta.branch`, `meta.allowed`), `bra
 | `role` | `MANAGER` (Gerente), `SUPERVISOR` (Supervisor) |
 | `unit_of_measure` | `LITER` (Litro), `KILOGRAM` (Kilogramo), `UNIT` (Unidad) |
 | `movement_type` | `ENTRY` (Entrada), `SALE` (Venta), `WASTE` (Merma), `ADJUSTMENT` (Ajuste) |
-| `method` | `POS_CARD` (Punto de venta), `CASH_VES` (Efectivo VES), `CASH_USD` (Efectivo USD), `MOBILE_PAYMENT` (Pago móvil) |
+| `method` | `POS_CARD` (Punto de venta), `CASH_VES` (Efectivo VES), `CASH_USD` (Efectivo USD), `MOBILE_PAYMENT` (Pago móvil), `CREDIT` (Crédito) |
 | `currency` | `VES` (Bolívares), `USD` (Dólares) |
 
-Moneda obligatoria por método: `CASH_USD` → `USD`; `CASH_VES`, `POS_CARD`, `MOBILE_PAYMENT` → `VES`.
+Moneda obligatoria por método: `CASH_USD` y `CREDIT` → `USD`; `CASH_VES`, `POS_CARD`,
+`MOBILE_PAYMENT` → `VES`. `CREDIT` solo vale en una venta (lo que el cliente se lleva sin pagar).
 
 ## Auth
 
@@ -245,12 +246,15 @@ consulta, con caché de 6 horas.
 counted_amount_ves, difference_usd}`. Abierta ⇔ `closed_at == null`. `opening_float` está en USD.
 `CashExpense`: `{id, cash_session, reason, amount, currency, created_by, created_at}`.
 `CashCountSummary`: `{opening_float, cash_sales_usd, cash_sales_ves, electronic_sales_usd,
-electronic_sales_ves, expenses_usd, expenses_ves, expected_cash_usd, expected_cash_ves}`.
+electronic_sales_ves, expenses_usd, expenses_ves, credit_cash_usd, credit_cash_ves,
+credit_electronic_ves, expected_cash_usd, expected_cash_ves}`. `credit_*` son los abonos de
+deudas cobrados en la caja; lo vendido a crédito no entra en ningún total del arqueo.
 
 `SessionSalesReport`: `{sales_count, total_usd, total_ves, cost_usd, cost_ves, profit_usd,
 profit_ves, payments: [{method, currency, amount}], products: [{product, product_name, quantity,
-sales_usd, sales_ves, cost_usd, cost_ves, profit_usd, profit_ves}]}`. Sirve para una caja abierta
-o cerrada.
+sales_usd, sales_ves, cost_usd, cost_ves, profit_usd, profit_ves}], credit_collections:
+[{method, currency, amount}]}`. Sirve para una caja abierta o cerrada. `payments` incluye `CREDIT`
+(lo vendido a crédito); `credit_collections` son los abonos de deudas cobrados en la caja.
 
 - `cost_*` es la inversión: cantidad × costo del producto **al facturar** (cada línea de venta
   guarda su `unit_cost_usd`; no se expone en `Sale`). `profit_*` = total − costo. Los gastos de
@@ -260,8 +264,9 @@ o cerrada.
   tasa manual: `profit_ves` = facturado − costo al BCV.
 - `payments` agrupa lo cobrado por método, en la moneda del método. `products` va del que más
   vendió al que menos.
-- Esperado USD = fondo + ventas efectivo USD − egresos USD. Esperado VES = ventas efectivo VES −
-  egresos VES. `electronic_*` (punto y pago móvil) es informativo.
+- Esperado USD = fondo + ventas efectivo USD + abonos efectivo USD − egresos USD. Esperado VES =
+  ventas efectivo VES + abonos efectivo VES − egresos VES. `electronic_*` y
+  `credit_electronic_ves` (punto y pago móvil) son informativos.
 - `difference_usd` = (contado USD − esperado USD) + (contado VES − esperado VES) convertido a USD
   con la tasa activa. Positiva = sobrante; negativa = faltante.
 - Una sola caja abierta por usuario. Errores: `no_open_session` (409), `session_already_open`
@@ -295,6 +300,11 @@ o cerrada.
 
 - `branch`, `customer_tax_id` (máx. 20) y `customer_name` (máx. 150) son opcionales. Sin `branch`
   se factura en la sucursal de la caja abierta.
+- **Venta a crédito**: un pago `{"method": "CREDIT", "currency": "USD", "amount": "6.00"}` deja
+  ese monto como deuda del cliente en USD. Exige `customer_id` (cliente activo) y admite
+  `credit_days` (0–365; sin él, el plazo del cliente). Solo puede haber un pago `CREDIT`; el resto
+  de los pagos es lo que el cliente da al llevarse los productos. El nombre y la cédula del
+  cliente se copian a la venta si no vienen.
 - **El precio nunca se envía**: sale de la base de datos. La tasa activa se congela en la venta.
 - Los pagos deben cuadrar con el total dentro de 0,01 USD, **tanto si falta como si sobra**. El
   vuelto no existe en el backend: la app envía el monto exacto.
@@ -306,6 +316,7 @@ Respuesta 201, `Sale`:
 {
   "id": 41, "cash_session": 7, "user": 2, "branch": "PRINCIPAL",
   "customer_tax_id": "V12345678", "customer_name": "Ana Pérez",
+  "customer": null, "credit_due_date": null,
   "exchange_rate_at_invoice": "150.0000", "total_usd": "15.00", "total_ves": "2250.00",
   "created_at": "2026-10-06T10:15:00-04:00",
   "details": [{"id": 90, "product": 3, "quantity": "2.500", "unit_price_usd": "6.00", "subtotal_usd": "15.00", "subtotal_ves": "2250.00"}],
@@ -314,6 +325,7 @@ Respuesta 201, `Sale`:
 ```
 
 `details[].product` es solo el id: **el nombre del producto no viene en la venta**.
+`customer` y `credit_due_date` (fecha `YYYY-MM-DD`) solo vienen en las ventas a crédito.
 `details[].subtotal_ves` es lo facturado en bolívares por la línea; con el redondeo activo no
 coincide con `subtotal_usd × tasa`, así que se muestra siempre ese valor.
 
@@ -328,6 +340,49 @@ coincide con `subtotal_usd × tasa`, así que se muestra siempre ese valor.
 | `invalid_quantity` | 422 | `product_id`, `quantity` |
 | `empty_sale` | 422 | — |
 | `sale_not_found` | 404 | `sale_id` |
+| `customer_required` | 422 | — (pago `CREDIT` sin `customer_id`) |
+| `inactive_customer` | 422 | `customer_id` |
+| `invalid_credit_days` | 422 | `credit_days`, `max_credit_days` |
+
+## Clientes a crédito
+
+| Método y ruta | Permiso | Body / query | Respuesta |
+|---|---|---|---|
+| `GET customers/` | Operador | `?branch=`, `?search=`, `?active=true`, `?with_debt=true` | Página de `Customer`, por nombre |
+| `POST customers/` | Operador | `{name, tax_id?, phone?, credit_days?}` | 201 `Customer` |
+| `GET customers/<id>/` | Operador | `?branch=` | `Customer` |
+| `PATCH customers/<id>/` | Operador | `{name?, tax_id?, phone?, credit_days?, active?}` | `Customer` |
+| `GET customers/<id>/payments/` | Operador | `?branch=` | Página de `CreditPayment`, más reciente primero |
+| `POST customers/<id>/payments/` | Operador con caja abierta | `{method, currency, amount, approval_reference?}` | 201 `CreditPayment` |
+| `GET credits/` | Operador | `?branch=`, `?customer=<id>`, `?status=PENDING\|OVERDUE\|PAID\|ALL` (por defecto `PENDING`) | Página de `Credit`, la que vence antes primero |
+
+`Customer`: `{id, name, tax_id, phone, credit_days, active, balance_usd, overdue_usd,
+open_credits, next_due_date, balance_ves, payment_rate, created_at}`. Los clientes son de todo el
+negocio; los saldos, de la sucursal indicada (un MANAGER sin sucursal y sin `branch` ve la deuda
+total). `balance_ves` = `balance_usd` × `payment_rate`, la tasa del BCV del día; ambos llegan
+`null` si no hay tasa del BCV. La cédula (`tax_id`) se guarda en mayúsculas y no se repite.
+
+`Credit`: `{id, sale, customer, customer_name, customer_phone, branch, amount_usd, balance_usd,
+due_date, paid_at, is_overdue, created_at}`. `due_date` es fecha `YYYY-MM-DD`.
+
+`CreditPayment`: `{id, customer, cash_session, user, branch, method, currency, amount,
+approval_reference, usd_to_ves_rate, amount_usd, allocations: [{credit, amount_usd}], created_at}`.
+
+- **La deuda se guarda y se descuenta en USD.** Un abono en VES se convierte con la **tasa del
+  BCV del día del abono** (`usd_to_ves_rate`), no con la de la venta ni con una manual.
+- El abono entra en la caja abierta del usuario (cuenta en su arqueo) y se aplica a las deudas
+  del cliente en la sucursal de esa caja, la que vence antes primero.
+- Si cubre el saldo dentro de 0,01 USD, lo salda por completo. `CREDIT` no vale como abono.
+
+| `code` | HTTP | `meta` |
+|---|---|---|
+| `customer_not_found` | 404 | `customer_id` |
+| `customer_tax_id_taken` | 409 | `tax_id` |
+| `invalid_customer_name` | 422 | — |
+| `no_pending_credit` | 409 | `customer_id`, `branch` |
+| `credit_overpayment` | 422 | `balance_usd`, `balance_ves`, `paid_usd` |
+| `bcv_rate_unavailable` | 503 | — (abono en VES sin tasa del BCV) |
+| `no_open_session` | 409 | — |
 
 ## Diferencias respecto al encargo original
 
@@ -336,5 +391,5 @@ coincide con `subtotal_usd × tasa`, así que se muestra siempre ese valor.
 3. `auth/refresh/` devuelve solo `{access}`: el refresh no rota y vence a las 12 h del login.
 4. `inventory/` no filtra ni trae datos del producto (ver limitaciones de Inventario).
 5. Las ventas no traen el nombre del producto ni el del usuario; las cajas tampoco el del usuario.
-6. `ALLOWED_HOSTS` ya se lee de `DJANGO_ALLOWED_HOSTS` en `pos_backend/.env`: no hace falta
-   tocar el backend para el método Wi-Fi.
+6. En desarrollo (`config.settings.dev`) `ALLOWED_HOSTS` acepta cualquier host: el método
+   Wi-Fi funciona en cualquier red sin tocar el backend. Producción usa `DJANGO_ALLOWED_HOSTS`.

@@ -4,6 +4,7 @@ import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/session/active_branch_provider.dart';
 import 'package:pos_app/features/cash_session/presentation/providers/current_session_provider.dart';
+import 'package:pos_app/features/credits/presentation/providers/credits_providers.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/active_rate_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/pricing_settings_provider.dart';
 import 'package:pos_app/features/home/presentation/providers/dashboard_providers.dart';
@@ -53,8 +54,13 @@ class CheckoutController extends _$CheckoutController {
     );
   }
 
+  /// Hay una línea a crédito: la venta necesita un cliente.
+  bool get hasCredit => state.lines.any((line) => line.method == PaymentMethod.credit);
+
   /// Agrega una línea del método indicado, prellenada con lo que falta por cobrar.
+  /// Solo se admite una línea a crédito.
   void addLine(PaymentMethod method) {
+    if (method == PaymentMethod.credit && hasCredit) return;
     final rate = ref.read(activeRateProvider).value;
     final cart = ref.read(cartControllerProvider);
     final prefill = rate == null
@@ -100,7 +106,13 @@ class CheckoutController extends _$CheckoutController {
     final cart = ref.read(cartControllerProvider);
     final branch = ref.read(activeBranchProvider);
     final checkout = summary();
-    if (state.isSubmitting || branch == null || checkout == null || !checkout.canConfirm) {
+    final isCredit = hasCredit;
+    final creditCustomer = cart.creditCustomer;
+    if (state.isSubmitting ||
+        branch == null ||
+        checkout == null ||
+        !checkout.canConfirm ||
+        (isCredit && creditCustomer == null)) {
       throw StateError('La venta no está lista para enviarse.');
     }
 
@@ -118,6 +130,8 @@ class CheckoutController extends _$CheckoutController {
                   NewSaleItem(productId: item.product.id, quantity: item.quantity),
               ],
               payments: checkout.payments,
+              customerId: isCredit ? creditCustomer?.id : null,
+              creditDays: isCredit ? cart.creditDays : null,
             ),
           );
       final receipt = SaleReceipt(
@@ -135,6 +149,7 @@ class CheckoutController extends _$CheckoutController {
         ..invalidate(lowStockCountProvider)
         ..invalidate(sessionSummaryProvider(sale.cashSessionId))
         ..invalidate(sessionSalesReportProvider(sale.cashSessionId));
+      if (sale.customerId != null) debtsChanged(ref, customerId: sale.customerId);
       state = const CheckoutState();
       return receipt;
     } on Failure catch (failure) {

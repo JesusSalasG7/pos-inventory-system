@@ -43,6 +43,17 @@ Android, para tiendas de productos de limpieza en Venezuela.
   `effective_date`). La app vuelve a consultar la tasa al abrir, al volver a primer plano y cada
   10 minutos, y `RateChangeNoticeController` avisa cuando cambia respecto a la última vista en el
   dispositivo.
+- **Clientes a crédito** (`features/credits`): en el cobro, el método **Crédito** (una sola línea,
+  en USD) exige elegir un cliente (`Cart.creditCustomer`) y un plazo en días (`Cart.creditDays`,
+  por defecto el del cliente). La deuda vive en USD; el saldo en Bs que muestra la app es el que
+  calcula el backend con la tasa del BCV del día (`balanceVes`, `paymentRate`). Los abonos se
+  cobran desde el detalle del cliente y entran en la caja abierta. `PaymentMethod.money` son los
+  métodos válidos para abonar (todos menos el crédito).
+- **Avisos de deudas**: `CreditReminders` (vivo mientras `MainShell` está montado) reprograma con
+  `flutter_local_notifications` los avisos cada vez que cambian las deudas pendientes
+  (`pendingCreditsProvider`): uno a las 9:00 del día en que vence cada deuda y un recordatorio
+  diario a las 9:00 mientras haya vencidas. `CreditReminderPlan` (dominio puro) decide qué
+  programar; los tests usan `InMemoryDebtNotifier`.
 - `flutter analyze` sin advertencias. Formato con `dart format` (ancho 100).
 
 ## Arquitectura
@@ -133,7 +144,7 @@ se recuerda en el dispositivo. El rol y la sucursal vienen de la cuenta: nunca s
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 scripts/run_device.sh                 # teléfono por USB (adb reverse)
-scripts/run_device.sh 192.168.1.50    # teléfono por Wi-Fi; la IP va en DJANGO_ALLOWED_HOSTS
+scripts/run_device.sh 192.168.1.50    # teléfono por Wi-Fi (IP actual del PC)
 flutter analyze
 flutter test
 flutter test test/unit/money_test.dart
@@ -146,7 +157,7 @@ Los tests de widgets cargan la fuente real con `test/mocks/test_fonts.dart`; sin
 
 ## Estado
 
-Las seis fases están hechas:
+Las siete fases están hechas:
 
 1. **Base y diseño** — hecho: `core/` completo, tema, widgets globales y vista previa.
 2. **Auth y sucursal** — hecho: splash, login, refresco de token, `me`, primera sucursal, selector
@@ -171,6 +182,11 @@ Las seis fases están hechas:
    y para un MANAGER la administración de categorías, usuarios y tiendas. El recorrido principal
    (`test/flows/main_flow.dart`) lo comparten el test de widgets y el de integración
    (`integration_test/app_flow_test.dart`), que corre en el teléfono sin servidor.
+
+7. **Clientes a crédito** — hecho: clientes (Más → Clientes a crédito), venta a crédito con
+   pago inicial opcional, detalle con saldo en USD y en Bs al BCV del día, compras pendientes y
+   abonos, cobro de abonos, tarjeta "Por cobrar" en Inicio, abonos en el arqueo y en el resumen de
+   la caja, y avisos en el teléfono según el plazo de cada venta.
 
 Al cerrar una caja, la pantalla de arqueo pasa a mostrar el resultado: la diferencia definitiva
 y el resumen de ventas del turno (`SessionSalesReportSection`: totales, cobros por forma de pago,

@@ -23,6 +23,9 @@ String buildReceiptText(SaleReceipt receipt) {
     '',
     '${Strings.total}: ${MoneyFormatter.usd(sale.totalUsd)}  /  ${MoneyFormatter.ves(sale.totalVes)}',
     Strings.rateUsed(MoneyFormatter.rate(sale.exchangeRateAtInvoice)),
+    if (sale.creditDueDate != null)
+      '${Strings.creditOnReceipt}: ${MoneyFormatter.usd(sale.creditUsd)} · '
+          '${Strings.dueOn(DateFormatter.calendarDate(sale.creditDueDate!))}',
     '',
     for (final payment in sale.payments)
       '${Strings.paymentMethod(payment.method)}: '

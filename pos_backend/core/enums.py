@@ -26,6 +26,9 @@ class PaymentMethod(models.TextChoices):
     CASH_VES = "CASH_VES", "Efectivo VES"
     CASH_USD = "CASH_USD", "Efectivo USD"
     MOBILE_PAYMENT = "MOBILE_PAYMENT", "Pago móvil"
+    # Lo que el cliente se lleva sin pagar: abre una deuda en USD (app `credits`).
+    # No es dinero en caja; solo vale en una venta, nunca en un abono.
+    CREDIT = "CREDIT", "Crédito"
 
 
 class RateSource(models.TextChoices):

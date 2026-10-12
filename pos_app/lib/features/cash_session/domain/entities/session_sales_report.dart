@@ -19,6 +19,7 @@ class SessionSalesReport {
     required this.profitVes,
     required this.payments,
     required this.products,
+    this.creditCollections = const [],
   });
 
   final int salesCount;
@@ -36,6 +37,10 @@ class SessionSalesReport {
 
   /// Productos vendidos, del que más vendió al que menos.
   final List<ProductSales> products;
+
+  /// Abonos de deudas cobrados en la caja, por forma de pago. No son ventas
+  /// del turno: pueden venir de ventas a crédito de otros días.
+  final List<PaymentTotal> creditCollections;
 }
 
 /// Total cobrado con una forma de pago, en la moneda de esa forma de pago.

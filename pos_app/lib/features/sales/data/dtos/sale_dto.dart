@@ -71,6 +71,12 @@ abstract class SaleDto with _$SaleDto {
     required List<SalePaymentDto> payments,
     @Default('') String customerTaxId,
     @Default('') String customerName,
+
+    /// Solo en las ventas a crédito.
+    int? customer,
+
+    /// Fecha de calendario `YYYY-MM-DD`; solo en las ventas a crédito.
+    String? creditDueDate,
   }) = _SaleDto;
 
   const SaleDto._();
@@ -90,5 +96,7 @@ abstract class SaleDto with _$SaleDto {
     createdAt: createdAt,
     details: [for (final detail in details) detail.toEntity()],
     payments: [for (final payment in payments) payment.toEntity()],
+    customerId: customer,
+    creditDueDate: creditDueDate == null ? null : DateTime.parse(creditDueDate!),
   );
 }

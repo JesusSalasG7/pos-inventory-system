@@ -23,6 +23,13 @@ import 'package:pos_app/features/cash_session/domain/cash_count.dart';
 import 'package:pos_app/features/cash_session/domain/entities/cash_session.dart';
 import 'package:pos_app/features/cash_session/domain/entities/session_sales_report.dart';
 import 'package:pos_app/features/cash_session/domain/repositories/cash_session_repository.dart';
+import 'package:pos_app/features/credits/data/debt_notifier.dart';
+import 'package:pos_app/features/credits/data/repositories/credits_repository_impl.dart';
+import 'package:pos_app/features/credits/domain/entities/credit.dart';
+import 'package:pos_app/features/credits/domain/entities/credit_payment.dart';
+import 'package:pos_app/features/credits/domain/entities/customer.dart';
+import 'package:pos_app/features/credits/domain/repositories/credits_repository.dart';
+import 'package:pos_app/features/credits/presentation/providers/credit_reminders_provider.dart';
 import 'package:pos_app/features/exchange_rate/data/repositories/exchange_rate_repository_impl.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/exchange_rate.dart';
 import 'package:pos_app/features/exchange_rate/domain/entities/pricing_settings.dart';
@@ -343,6 +350,9 @@ class FakeCashSessionRepository implements CashSessionRepository {
       electronicSalesVes: Decimal.zero,
       expensesUsd: expensesUsd,
       expensesVes: expensesVes,
+      creditCashUsd: Decimal.zero,
+      creditCashVes: Decimal.zero,
+      creditElectronicVes: Decimal.zero,
       expectedCashUsd: session.openingFloat + cashSalesUsd - expensesUsd,
       expectedCashVes: cashSalesVes - expensesVes,
     );
@@ -489,8 +499,15 @@ class FakeSalesRepository implements SalesRepository {
         ),
     ];
     final totalUsd = details.fold(Decimal.zero, (sum, detail) => sum + detail.subtotalUsd);
+    final creditDays = sale.customerId == null ? null : (sale.creditDays ?? 7);
     final created = Sale(
       id: createdSales.length,
+      customerId: sale.payments.any((p) => p.method == PaymentMethod.credit)
+          ? sale.customerId
+          : null,
+      creditDueDate: sale.payments.any((p) => p.method == PaymentMethod.credit)
+          ? DateTime(2026, 10, 6).add(Duration(days: creditDays ?? 7))
+          : null,
       cashSessionId: 1,
       userId: 1,
       branchCode: sale.branchCode,
@@ -858,6 +875,138 @@ class FakeInventoryRepository implements InventoryRepository {
   }
 }
 
+Customer customer(
+  int id,
+  String name, {
+  String balance = '0',
+  String overdue = '0',
+  String? rate = '150',
+  int creditDays = 7,
+  bool active = true,
+}) {
+  final balanceUsd = dec(balance);
+  final paymentRate = rate == null ? null : dec(rate);
+  return Customer(
+    id: id,
+    name: name,
+    taxId: 'V-$id',
+    phone: '',
+    creditDays: creditDays,
+    active: active,
+    balanceUsd: balanceUsd,
+    overdueUsd: dec(overdue),
+    openCredits: balanceUsd > Decimal.zero ? 1 : 0,
+    nextDueDate: balanceUsd > Decimal.zero ? DateTime(2026, 10, 13) : null,
+    balanceVes: paymentRate == null ? null : CurrencyConverter.usdToVes(balanceUsd, paymentRate),
+    paymentRate: paymentRate,
+  );
+}
+
+Credit credit(
+  int id,
+  Customer customer, {
+  required String balance,
+  required DateTime dueDate,
+  bool overdue = false,
+}) => Credit(
+  id: id,
+  saleId: id,
+  customerId: customer.id,
+  customerName: customer.name,
+  customerPhone: customer.phone,
+  branchCode: 'VILLA_LIBERTAD',
+  amountUsd: dec(balance),
+  balanceUsd: dec(balance),
+  dueDate: dueDate,
+  isOverdue: overdue,
+  createdAt: DateTime.utc(2026, 10, 1, 15),
+);
+
+class FakeCreditsRepository implements CreditsRepository {
+  final List<Customer> customers = [];
+  final List<Credit> credits = [];
+  final List<(int, NewCreditPayment)> registeredPayments = [];
+  Failure? paymentFailure;
+
+  /// Demora de las escrituras, para simular la red.
+  Duration delay = Duration.zero;
+
+  @override
+  Future<List<Customer>> fetchCustomers({
+    required String branchCode,
+    String search = '',
+    bool onlyActive = false,
+    bool withDebt = false,
+  }) async => [
+    for (final c in customers)
+      if ((!onlyActive || c.active) &&
+          (!withDebt || c.hasDebt) &&
+          c.name.toLowerCase().contains(search.toLowerCase()))
+        c,
+  ];
+
+  @override
+  Future<Customer> fetchCustomer(int customerId, {required String branchCode}) async =>
+      customers.firstWhere((c) => c.id == customerId);
+
+  @override
+  Future<Customer> createCustomer(CustomerDraft draft, {required String branchCode}) async {
+    if (delay > Duration.zero) await Future<void>.delayed(delay);
+    final created = customer(customers.length + 1, draft.name, creditDays: draft.creditDays);
+    customers.add(created);
+    return created;
+  }
+
+  @override
+  Future<Customer> updateCustomer(
+    int customerId,
+    CustomerDraft draft, {
+    required String branchCode,
+  }) async => customers.firstWhere((c) => c.id == customerId);
+
+  @override
+  Future<List<Credit>> fetchCredits({
+    required String branchCode,
+    CreditStatus status = CreditStatus.pending,
+    int? customerId,
+  }) async => [
+    for (final c in credits)
+      if ((customerId == null || c.customerId == customerId) &&
+          switch (status) {
+            CreditStatus.pending => !c.isPaid,
+            CreditStatus.overdue => c.isOverdue,
+            CreditStatus.paid => c.isPaid,
+          })
+        c,
+  ];
+
+  @override
+  Future<List<CreditPayment>> fetchPayments(int customerId, {required String branchCode}) async =>
+      const [];
+
+  @override
+  Future<CreditPayment> registerPayment(int customerId, NewCreditPayment payment) async {
+    if (delay > Duration.zero) await Future<void>.delayed(delay);
+    final failure = paymentFailure;
+    if (failure != null) throw failure;
+    registeredPayments.add((customerId, payment));
+    final rate = customers.firstWhere((c) => c.id == customerId).paymentRate ?? Decimal.one;
+    return CreditPayment(
+      id: registeredPayments.length,
+      customerId: customerId,
+      method: payment.method,
+      currency: payment.method.currency,
+      amount: payment.amount,
+      approvalReference: payment.approvalReference,
+      usdToVesRate: rate,
+      amountUsd: payment.method.currency == Currency.usd
+          ? payment.amount
+          : CurrencyConverter.vesToUsd(payment.amount, rate),
+      createdAt: DateTime.utc(2026, 10, 6, 17),
+    );
+  }
+}
+
 /// Overrides para montar la sesión con repositorios falsos.
 List<Override> sessionOverrides({
   required FakeAuthRepository auth,
@@ -870,8 +1019,12 @@ List<Override> sessionOverrides({
   FakeInventoryRepository? inventory,
   FakeUsersRepository? users,
   InMemoryRateNoticeStorage? rateNotice,
+  FakeCreditsRepository? credits,
+  InMemoryDebtNotifier? debtNotifier,
 }) => [
   rateNoticeStorageProvider.overrideWithValue(rateNotice ?? InMemoryRateNoticeStorage()),
+  creditsRepositoryProvider.overrideWithValue(credits ?? FakeCreditsRepository()),
+  debtNotificationsProvider.overrideWithValue(debtNotifier ?? InMemoryDebtNotifier()),
   cashSessionRepositoryProvider.overrideWithValue(cash ?? FakeCashSessionRepository()),
   salesRepositoryProvider.overrideWithValue(sales ?? FakeSalesRepository()),
   inventoryRepositoryProvider.overrideWithValue(inventory ?? FakeInventoryRepository()),

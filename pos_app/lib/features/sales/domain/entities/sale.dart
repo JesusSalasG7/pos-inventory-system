@@ -18,6 +18,8 @@ class Sale {
     required this.createdAt,
     required this.details,
     required this.payments,
+    this.customerId,
+    this.creditDueDate,
   });
 
   final int id;
@@ -35,6 +37,19 @@ class Sale {
   final DateTime createdAt;
   final List<SaleDetail> details;
   final List<SalePayment> payments;
+
+  /// Cliente de la deuda; solo en las ventas a crédito.
+  final int? customerId;
+
+  /// Último día para pagar lo que quedó a crédito (fecha de calendario).
+  final DateTime? creditDueDate;
+
+  bool get isCredit => creditDueDate != null;
+
+  /// Lo que quedó a crédito, en USD.
+  Decimal get creditUsd => payments
+      .where((payment) => payment.method == PaymentMethod.credit)
+      .fold(Decimal.zero, (sum, payment) => sum + payment.amount);
 }
 
 /// Línea de una venta. El backend solo guarda el id del producto, no su nombre.
@@ -87,6 +102,8 @@ class NewSale {
     required this.payments,
     this.customerTaxId = '',
     this.customerName = '',
+    this.customerId,
+    this.creditDays,
   });
 
   final String branchCode;
@@ -94,6 +111,12 @@ class NewSale {
   final List<NewSalePayment> payments;
   final String customerTaxId;
   final String customerName;
+
+  /// Cliente registrado. El backend lo exige si un pago es a crédito.
+  final int? customerId;
+
+  /// Plazo de la deuda en días; `null` usa el del cliente.
+  final int? creditDays;
 }
 
 @immutable

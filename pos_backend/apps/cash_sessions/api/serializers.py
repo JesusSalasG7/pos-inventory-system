@@ -48,6 +48,9 @@ class CashCountSummarySerializer(serializers.Serializer):
     electronic_sales_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
     expenses_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
     expenses_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    credit_cash_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
+    credit_cash_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
+    credit_electronic_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
     expected_cash_usd = serializers.DecimalField(max_digits=14, decimal_places=2)
     expected_cash_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
 
@@ -82,3 +85,4 @@ class SessionSalesReportSerializer(serializers.Serializer):
     profit_ves = serializers.DecimalField(max_digits=14, decimal_places=2)
     payments = PaymentTotalSerializer(many=True)
     products = ProductSalesSerializer(many=True)
+    credit_collections = PaymentTotalSerializer(many=True)

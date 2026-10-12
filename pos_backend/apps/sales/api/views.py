@@ -71,6 +71,8 @@ class SaleListCreateView(GenericAPIView):
             branch=data.get("branch"),
             customer_tax_id=data.get("customer_tax_id", ""),
             customer_name=data.get("customer_name", ""),
+            customer_id=data.get("customer_id"),
+            credit_days=data.get("credit_days"),
         )
         sale = sale_service.create_sale(sale_input, request.user)
         return Response(SaleSerializer(sale).data, status=status.HTTP_201_CREATED)

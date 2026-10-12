@@ -514,6 +514,266 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
+  /api/v1/credits/:
+    get:
+      operationId: credits_list
+      description: Deudas de la sucursal, de la que vence antes a la que vence después.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+      - in: query
+        name: customer
+        schema:
+          type: integer
+          minimum: 1
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - PENDING
+          - OVERDUE
+          - PAID
+          - ALL
+          type: string
+          default: PENDING
+          minLength: 1
+        description: |-
+          * `PENDING` - Pendientes
+          * `OVERDUE` - Vencidas
+          * `PAID` - Saldadas
+          * `ALL` - Todas
+      tags:
+      - credits
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCreditList'
+          description: ''
+  /api/v1/customers/:
+    get:
+      operationId: customers_list
+      description: Clientes ordenados por nombre, con lo que deben en la sucursal.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo clientes activos.
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          maxLength: 100
+      - in: query
+        name: with_debt
+        schema:
+          type: boolean
+        description: Solo clientes que deben.
+      tags:
+      - credits
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomerList'
+          description: ''
+    post:
+      operationId: customers_create
+      description: Registra un cliente activo.
+      tags:
+      - credits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/v1/customers/{id}/:
+    get:
+      operationId: customers_retrieve
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+        description: Código de la sucursal de las deudas.
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - credits
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    patch:
+      operationId: customers_partial_update
+      description: Cambia los datos del cliente o lo activa/desactiva.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - credits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/v1/customers/{id}/payments/:
+    get:
+      operationId: customers_payments_list
+      description: Abonos del cliente, del más reciente al más antiguo.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+        description: Código de la sucursal de las deudas.
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - credits
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCreditPaymentList'
+          description: ''
+    post:
+      operationId: customers_payments_create
+      description: |-
+        Cobra un abono en la caja abierta del usuario.
+
+        Los bolívares se pasan a USD con la tasa del BCV del día. El abono se
+        reparte entre las deudas del cliente, la que vence antes primero.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - credits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditPaymentCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreditPaymentCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreditPaymentCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditPayment'
+          description: ''
   /api/v1/exchange-rates/:
     get:
       operationId: exchange_rates_list
@@ -1355,6 +1615,18 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        credit_cash_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        credit_cash_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        credit_electronic_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
         expected_cash_usd:
           type: string
           format: decimal
@@ -1366,6 +1638,9 @@ components:
       required:
       - cash_sales_usd
       - cash_sales_ves
+      - credit_cash_usd
+      - credit_cash_ves
+      - credit_electronic_ves
       - electronic_sales_usd
       - electronic_sales_ves
       - expected_cash_usd
@@ -1518,6 +1793,16 @@ components:
         customer_name:
           type: string
           maxLength: 150
+        customer_id:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Obligatorio con un pago CREDIT.
+        credit_days:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Plazo de la deuda en días; sin indicarlo, el del cliente.
         items:
           type: array
           items:
@@ -1529,6 +1814,165 @@ components:
       required:
       - items
       - payments
+    Credit:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sale:
+          type: integer
+          readOnly: true
+        customer:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        customer_phone:
+          type: string
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        amount_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        balance_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        due_date:
+          type: string
+          format: date
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_overdue:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount_usd
+      - balance_usd
+      - branch
+      - created_at
+      - customer
+      - customer_name
+      - customer_phone
+      - due_date
+      - id
+      - is_overdue
+      - paid_at
+      - sale
+    CreditPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        customer:
+          type: integer
+          readOnly: true
+        cash_session:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        approval_reference:
+          type: string
+          readOnly: true
+        usd_to_ves_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          readOnly: true
+        amount_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditPaymentAllocation'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - allocations
+      - amount
+      - amount_usd
+      - approval_reference
+      - branch
+      - cash_session
+      - created_at
+      - currency
+      - customer
+      - id
+      - method
+      - usd_to_ves_rate
+      - user
+    CreditPaymentAllocation:
+      type: object
+      properties:
+        credit:
+          type: integer
+          readOnly: true
+        amount_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - amount_usd
+      - credit
+    CreditPaymentCreate:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        approval_reference:
+          type: string
+          maxLength: 50
+      required:
+      - amount
+      - currency
+      - method
     CurrencyEnum:
       enum:
       - VES
@@ -1537,6 +1981,99 @@ components:
       description: |-
         * `VES` - Bolívares
         * `USD` - Dólares
+    Customer:
+      type: object
+      description: |-
+        Cliente con lo que debe en la sucursal consultada.
+
+        `balance_ves` es el saldo en bolívares a la tasa del BCV del día
+        (`payment_rate`): lo que pagaría hoy si abonara todo en bolívares.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        tax_id:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        credit_days:
+          type: integer
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        balance_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        overdue_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        open_credits:
+          type: integer
+          readOnly: true
+        next_due_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        balance_ves:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          nullable: true
+          readOnly: true
+        payment_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - active
+      - balance_usd
+      - balance_ves
+      - created_at
+      - credit_days
+      - id
+      - name
+      - next_due_date
+      - open_credits
+      - overdue_usd
+      - payment_rate
+      - phone
+      - tax_id
+    CustomerCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 150
+        tax_id:
+          type: string
+          maxLength: 20
+        phone:
+          type: string
+          maxLength: 30
+        credit_days:
+          type: integer
+          maximum: 365
+          minimum: 0
+          description: Plazo propuesto.
+      required:
+      - name
     ExchangeRate:
       type: object
       properties:
@@ -1681,12 +2218,14 @@ components:
       - CASH_VES
       - CASH_USD
       - MOBILE_PAYMENT
+      - CREDIT
       type: string
       description: |-
         * `POS_CARD` - Punto de venta
         * `CASH_VES` - Efectivo VES
         * `CASH_USD` - Efectivo USD
         * `MOBILE_PAYMENT` - Pago móvil
+        * `CREDIT` - Crédito
     OpenCashSession:
       type: object
       properties:
@@ -1814,6 +2353,75 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Category'
+    PaginatedCreditList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Credit'
+    PaginatedCreditPaymentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditPayment'
+    PaginatedCustomerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
     PaginatedExchangeRateList:
       type: object
       required:
@@ -1946,6 +2554,25 @@ components:
         icon:
           type: string
           maxLength: 16
+        active:
+          type: boolean
+    PatchedCustomerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 150
+        tax_id:
+          type: string
+          maxLength: 20
+        phone:
+          type: string
+          maxLength: 30
+        credit_days:
+          type: integer
+          maximum: 365
+          minimum: 0
+          description: Plazo propuesto.
         active:
           type: boolean
     PatchedMinimumStock:
@@ -2178,6 +2805,13 @@ components:
         customer_name:
           type: string
           readOnly: true
+        customer:
+          type: integer
+          readOnly: true
+        credit_due_date:
+          type: string
+          format: date
+          readOnly: true
         exchange_rate_at_invoice:
           type: string
           format: decimal
@@ -2211,6 +2845,8 @@ components:
       - branch
       - cash_session
       - created_at
+      - credit_due_date
+      - customer
       - customer_name
       - customer_tax_id
       - details
@@ -2354,9 +2990,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductSales'
+        credit_collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTotal'
       required:
       - cost_usd
       - cost_ves
+      - credit_collections
       - payments
       - products
       - profit_usd

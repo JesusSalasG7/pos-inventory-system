@@ -7,8 +7,8 @@ from apps.cash_sessions.models import CashSession
 from apps.cash_sessions.repositories import cash_expense_repository
 from core.enums import Currency, PaymentMethod
 from core.money import quantize_money, ves_to_usd
+from core.payment_rules import CASH_METHODS
 
-CASH_METHODS = (PaymentMethod.CASH_USD, PaymentMethod.CASH_VES)
 ZERO = Decimal("0.00")
 
 
@@ -23,6 +23,10 @@ class CashCountSummary:
     electronic_sales_ves: Decimal
     expenses_usd: Decimal
     expenses_ves: Decimal
+    # Abonos de deudas cobrados en la caja.
+    credit_cash_usd: Decimal
+    credit_cash_ves: Decimal
+    credit_electronic_ves: Decimal
     expected_cash_usd: Decimal
     expected_cash_ves: Decimal
 
@@ -30,28 +34,30 @@ class CashCountSummary:
 def build_summary(session: CashSession) -> CashCountSummary:
     """Calcula el efectivo esperado en la caja.
 
-    Efectivo esperado USD = fondo inicial + ventas en efectivo USD − egresos USD.
-    Efectivo esperado VES = ventas en efectivo VES − egresos VES.
+    Efectivo esperado USD = fondo inicial + ventas en efectivo USD
+                            + abonos en efectivo USD − egresos USD.
+    Efectivo esperado VES = ventas en efectivo VES + abonos en efectivo VES − egresos VES.
     POS_CARD y MOBILE_PAYMENT se informan aparte: no son efectivo en gaveta.
+    Lo vendido a crédito (`CREDIT`) no entra: es una deuda, no dinero.
 
     El acceso del usuario a la caja lo valida quien llama
     (`cash_session_service.get_session`).
     """
-    # Import local: sale_service depende a su vez de los services de esta app.
+    # Imports locales: sale_service y credit_service dependen a su vez de los
+    # services de esta app.
+    from apps.credits.services import credit_service
     from apps.sales.services import sale_service
 
-    totals: dict[tuple[bool, str], Decimal] = {}
-    for (method, currency), amount in sale_service.get_payment_totals_for_session(
-        session.pk
-    ).items():
-        key = (method in CASH_METHODS, currency)
-        totals[key] = totals.get(key, ZERO) + amount
+    totals = _group_by_cash(sale_service.get_payment_totals_for_session(session.pk))
+    collections = _group_by_cash(credit_service.get_payment_totals_for_session(session.pk))
 
     expenses = cash_expense_repository.totals_by_currency(session.pk)
     cash_sales_usd = totals.get((True, Currency.USD), ZERO)
     cash_sales_ves = totals.get((True, Currency.VES), ZERO)
     expenses_usd = expenses.get(Currency.USD, ZERO)
     expenses_ves = expenses.get(Currency.VES, ZERO)
+    credit_cash_usd = collections.get((True, Currency.USD), ZERO)
+    credit_cash_ves = collections.get((True, Currency.VES), ZERO)
 
     return CashCountSummary(
         opening_float=session.opening_float,
@@ -61,9 +67,25 @@ def build_summary(session: CashSession) -> CashCountSummary:
         electronic_sales_ves=totals.get((False, Currency.VES), ZERO),
         expenses_usd=expenses_usd,
         expenses_ves=expenses_ves,
-        expected_cash_usd=session.opening_float + cash_sales_usd - expenses_usd,
-        expected_cash_ves=cash_sales_ves - expenses_ves,
+        credit_cash_usd=credit_cash_usd,
+        credit_cash_ves=credit_cash_ves,
+        credit_electronic_ves=collections.get((False, Currency.VES), ZERO),
+        expected_cash_usd=session.opening_float + cash_sales_usd + credit_cash_usd - expenses_usd,
+        expected_cash_ves=cash_sales_ves + credit_cash_ves - expenses_ves,
     )
+
+
+def _group_by_cash(
+    totals_by_method: dict[tuple[str, str], Decimal],
+) -> dict[tuple[bool, str], Decimal]:
+    """Agrupa totales por (es efectivo, moneda). Ignora lo vendido a crédito."""
+    grouped: dict[tuple[bool, str], Decimal] = {}
+    for (method, currency), amount in totals_by_method.items():
+        if method == PaymentMethod.CREDIT:
+            continue
+        key = (method in CASH_METHODS, currency)
+        grouped[key] = grouped.get(key, ZERO) + amount
+    return grouped
 
 
 def calculate_difference(

@@ -128,6 +128,14 @@ class SaleReceiptScreen extends StatelessWidget {
                       style: AppTypography.body,
                     ),
                   ],
+                  if (sale.creditDueDate != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      '${Strings.creditOnReceipt}: ${MoneyFormatter.usd(sale.creditUsd)} · '
+                      '${Strings.dueOn(DateFormatter.calendarDate(sale.creditDueDate!))}',
+                      style: AppTypography.label.copyWith(fontSize: 14, color: AppColors.warning),
+                    ),
+                  ],
                 ],
               ),
             ),

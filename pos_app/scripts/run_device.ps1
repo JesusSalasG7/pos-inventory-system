@@ -17,7 +17,6 @@ $Port = if ($env:API_PORT) { $env:API_PORT } else { "8000" }
 if ($LanIp) {
     $ApiBaseUrl = "http://${LanIp}:${Port}"
     Write-Host "Modo Wi-Fi: el backend debe correr con 'runserver 0.0.0.0:${Port}'"
-    Write-Host "y ${LanIp} debe estar en DJANGO_ALLOWED_HOSTS de pos_backend/.env"
 } else {
     adb reverse "tcp:${Port}" "tcp:${Port}"
     if ($LASTEXITCODE -ne 0) { throw "adb reverse falló. ¿Está el teléfono conectado y autorizado?" }

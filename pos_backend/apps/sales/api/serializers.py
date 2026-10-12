@@ -22,6 +22,15 @@ class CreateSaleSerializer(serializers.Serializer):
     branch = serializers.CharField(max_length=20, required=False)
     customer_tax_id = serializers.CharField(max_length=20, required=False, allow_blank=True)
     customer_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    customer_id = serializers.IntegerField(
+        min_value=1, required=False, allow_null=True, help_text="Obligatorio con un pago CREDIT."
+    )
+    credit_days = serializers.IntegerField(
+        min_value=0,
+        required=False,
+        allow_null=True,
+        help_text="Plazo de la deuda en días; sin indicarlo, el del cliente.",
+    )
     items = SaleItemInputSerializer(many=True, allow_empty=False)
     payments = PaymentInputSerializer(many=True, allow_empty=False)
 
@@ -44,6 +53,10 @@ class SaleSerializer(serializers.ModelSerializer):
     details = SaleDetailSerializer(many=True, read_only=True)
     payments = SalePaymentSerializer(many=True, read_only=True)
     branch = serializers.CharField(source="branch_id", read_only=True)
+    # Solo en las ventas a crédito; si no, null. La relación inversa ausente
+    # lanza un AttributeError y DRF usa el `default`.
+    customer = serializers.IntegerField(source="credit.customer_id", default=None, read_only=True)
+    credit_due_date = serializers.DateField(source="credit.due_date", default=None, read_only=True)
 
     class Meta:
         model = Sale
@@ -54,6 +67,8 @@ class SaleSerializer(serializers.ModelSerializer):
             "branch",
             "customer_tax_id",
             "customer_name",
+            "customer",
+            "credit_due_date",
             "exchange_rate_at_invoice",
             "total_usd",
             "total_ves",

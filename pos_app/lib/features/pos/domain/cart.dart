@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pos_app/core/currency/currency_converter.dart';
 import 'package:pos_app/core/currency/money.dart';
 import 'package:pos_app/core/currency/ves_pricing.dart';
+import 'package:pos_app/features/credits/domain/entities/customer.dart';
 import 'package:pos_app/features/inventory/domain/entities/product.dart';
 
 /// Línea del carrito: un producto, la cantidad pedida y el stock que había
@@ -43,12 +44,24 @@ class CartItem {
 /// definitivos son los que devuelve el backend al registrar la venta.
 @immutable
 class Cart {
-  const Cart({this.items = const [], this.customerTaxId = '', this.customerName = ''});
+  const Cart({
+    this.items = const [],
+    this.customerTaxId = '',
+    this.customerName = '',
+    this.creditCustomer,
+    this.creditDays,
+  });
 
   /// Líneas en el orden en que se agregaron.
   final List<CartItem> items;
   final String customerTaxId;
   final String customerName;
+
+  /// Cliente que se lleva los productos a crédito.
+  final Customer? creditCustomer;
+
+  /// Plazo de la deuda en días; `null` usa el del cliente.
+  final int? creditDays;
 
   bool get isEmpty => items.isEmpty;
 
@@ -74,9 +87,17 @@ class Cart {
     return Decimal.zero;
   }
 
-  Cart copyWith({List<CartItem>? items, String? customerTaxId, String? customerName}) => Cart(
+  Cart copyWith({
+    List<CartItem>? items,
+    String? customerTaxId,
+    String? customerName,
+    Customer? Function()? creditCustomer,
+    int? Function()? creditDays,
+  }) => Cart(
     items: items ?? this.items,
     customerTaxId: customerTaxId ?? this.customerTaxId,
     customerName: customerName ?? this.customerName,
+    creditCustomer: creditCustomer == null ? this.creditCustomer : creditCustomer(),
+    creditDays: creditDays == null ? this.creditDays : creditDays(),
   );
 }

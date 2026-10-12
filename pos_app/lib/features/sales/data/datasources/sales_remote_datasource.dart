@@ -51,6 +51,8 @@ class SalesRemoteDataSource {
     'branch': sale.branchCode,
     if (sale.customerTaxId.trim().isNotEmpty) 'customer_tax_id': sale.customerTaxId.trim(),
     if (sale.customerName.trim().isNotEmpty) 'customer_name': sale.customerName.trim(),
+    'customer_id': ?sale.customerId,
+    'credit_days': ?sale.creditDays,
     'items': [
       for (final item in sale.items)
         {'product_id': item.productId, 'quantity': quantityToApi(item.quantity)},

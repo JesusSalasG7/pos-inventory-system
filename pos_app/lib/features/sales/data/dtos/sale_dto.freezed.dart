@@ -568,7 +568,9 @@ as String,
 /// @nodoc
 mixin _$SaleDto {
 
- int get id; int get cashSession; int get user; String get branch;@DecimalConverter() Decimal get exchangeRateAtInvoice;@DecimalConverter() Decimal get totalUsd;@DecimalConverter() Decimal get totalVes; DateTime get createdAt; List<SaleDetailDto> get details; List<SalePaymentDto> get payments; String get customerTaxId; String get customerName;
+ int get id; int get cashSession; int get user; String get branch;@DecimalConverter() Decimal get exchangeRateAtInvoice;@DecimalConverter() Decimal get totalUsd;@DecimalConverter() Decimal get totalVes; DateTime get createdAt; List<SaleDetailDto> get details; List<SalePaymentDto> get payments; String get customerTaxId; String get customerName;/// Solo en las ventas a crédito.
+ int? get customer;/// Fecha de calendario `YYYY-MM-DD`; solo en las ventas a crédito.
+ String? get creditDueDate;
 /// Create a copy of SaleDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -581,16 +583,16 @@ $SaleDtoCopyWith<SaleDto> get copyWith => _$SaleDtoCopyWithImpl<SaleDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaleDto&&(identical(other.id, id) || other.id == id)&&(identical(other.cashSession, cashSession) || other.cashSession == cashSession)&&(identical(other.user, user) || other.user == user)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.exchangeRateAtInvoice, exchangeRateAtInvoice) || other.exchangeRateAtInvoice == exchangeRateAtInvoice)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.details, details)&&const DeepCollectionEquality().equals(other.payments, payments)&&(identical(other.customerTaxId, customerTaxId) || other.customerTaxId == customerTaxId)&&(identical(other.customerName, customerName) || other.customerName == customerName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaleDto&&(identical(other.id, id) || other.id == id)&&(identical(other.cashSession, cashSession) || other.cashSession == cashSession)&&(identical(other.user, user) || other.user == user)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.exchangeRateAtInvoice, exchangeRateAtInvoice) || other.exchangeRateAtInvoice == exchangeRateAtInvoice)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.details, details)&&const DeepCollectionEquality().equals(other.payments, payments)&&(identical(other.customerTaxId, customerTaxId) || other.customerTaxId == customerTaxId)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customer, customer) || other.customer == customer)&&(identical(other.creditDueDate, creditDueDate) || other.creditDueDate == creditDueDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,cashSession,user,branch,exchangeRateAtInvoice,totalUsd,totalVes,createdAt,const DeepCollectionEquality().hash(details),const DeepCollectionEquality().hash(payments),customerTaxId,customerName);
+int get hashCode => Object.hash(runtimeType,id,cashSession,user,branch,exchangeRateAtInvoice,totalUsd,totalVes,createdAt,const DeepCollectionEquality().hash(details),const DeepCollectionEquality().hash(payments),customerTaxId,customerName,customer,creditDueDate);
 
 @override
 String toString() {
-  return 'SaleDto(id: $id, cashSession: $cashSession, user: $user, branch: $branch, exchangeRateAtInvoice: $exchangeRateAtInvoice, totalUsd: $totalUsd, totalVes: $totalVes, createdAt: $createdAt, details: $details, payments: $payments, customerTaxId: $customerTaxId, customerName: $customerName)';
+  return 'SaleDto(id: $id, cashSession: $cashSession, user: $user, branch: $branch, exchangeRateAtInvoice: $exchangeRateAtInvoice, totalUsd: $totalUsd, totalVes: $totalVes, createdAt: $createdAt, details: $details, payments: $payments, customerTaxId: $customerTaxId, customerName: $customerName, customer: $customer, creditDueDate: $creditDueDate)';
 }
 
 
@@ -601,7 +603,7 @@ abstract mixin class $SaleDtoCopyWith<$Res>  {
   factory $SaleDtoCopyWith(SaleDto value, $Res Function(SaleDto) _then) = _$SaleDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, int cashSession, int user, String branch,@DecimalConverter() Decimal exchangeRateAtInvoice,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes, DateTime createdAt, List<SaleDetailDto> details, List<SalePaymentDto> payments, String customerTaxId, String customerName
+ int id, int cashSession, int user, String branch,@DecimalConverter() Decimal exchangeRateAtInvoice,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes, DateTime createdAt, List<SaleDetailDto> details, List<SalePaymentDto> payments, String customerTaxId, String customerName, int? customer, String? creditDueDate
 });
 
 
@@ -618,7 +620,7 @@ class _$SaleDtoCopyWithImpl<$Res>
 
 /// Create a copy of SaleDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? cashSession = null,Object? user = null,Object? branch = null,Object? exchangeRateAtInvoice = null,Object? totalUsd = null,Object? totalVes = null,Object? createdAt = null,Object? details = null,Object? payments = null,Object? customerTaxId = null,Object? customerName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? cashSession = null,Object? user = null,Object? branch = null,Object? exchangeRateAtInvoice = null,Object? totalUsd = null,Object? totalVes = null,Object? createdAt = null,Object? details = null,Object? payments = null,Object? customerTaxId = null,Object? customerName = null,Object? customer = freezed,Object? creditDueDate = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,cashSession: null == cashSession ? _self.cashSession : cashSession // ignore: cast_nullable_to_non_nullable
@@ -632,7 +634,9 @@ as DateTime,details: null == details ? _self.details : details // ignore: cast_n
 as List<SaleDetailDto>,payments: null == payments ? _self.payments : payments // ignore: cast_nullable_to_non_nullable
 as List<SalePaymentDto>,customerTaxId: null == customerTaxId ? _self.customerTaxId : customerTaxId // ignore: cast_nullable_to_non_nullable
 as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,customer: freezed == customer ? _self.customer : customer // ignore: cast_nullable_to_non_nullable
+as int?,creditDueDate: freezed == creditDueDate ? _self.creditDueDate : creditDueDate // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -717,10 +721,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName,  int? customer,  String? creditDueDate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SaleDto() when $default != null:
-return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName);case _:
+return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName,_that.customer,_that.creditDueDate);case _:
   return orElse();
 
 }
@@ -738,10 +742,10 @@ return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchang
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName,  int? customer,  String? creditDueDate)  $default,) {final _that = this;
 switch (_that) {
 case _SaleDto():
-return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName);case _:
+return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName,_that.customer,_that.creditDueDate);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -758,10 +762,10 @@ return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchang
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int cashSession,  int user,  String branch, @DecimalConverter()  Decimal exchangeRateAtInvoice, @DecimalConverter()  Decimal totalUsd, @DecimalConverter()  Decimal totalVes,  DateTime createdAt,  List<SaleDetailDto> details,  List<SalePaymentDto> payments,  String customerTaxId,  String customerName,  int? customer,  String? creditDueDate)?  $default,) {final _that = this;
 switch (_that) {
 case _SaleDto() when $default != null:
-return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName);case _:
+return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchangeRateAtInvoice,_that.totalUsd,_that.totalVes,_that.createdAt,_that.details,_that.payments,_that.customerTaxId,_that.customerName,_that.customer,_that.creditDueDate);case _:
   return null;
 
 }
@@ -773,7 +777,7 @@ return $default(_that.id,_that.cashSession,_that.user,_that.branch,_that.exchang
 @JsonSerializable()
 
 class _SaleDto extends SaleDto {
-  const _SaleDto({required this.id, required this.cashSession, required this.user, required this.branch, @DecimalConverter() required this.exchangeRateAtInvoice, @DecimalConverter() required this.totalUsd, @DecimalConverter() required this.totalVes, required this.createdAt, required final  List<SaleDetailDto> details, required final  List<SalePaymentDto> payments, this.customerTaxId = '', this.customerName = ''}): _details = details,_payments = payments,super._();
+  const _SaleDto({required this.id, required this.cashSession, required this.user, required this.branch, @DecimalConverter() required this.exchangeRateAtInvoice, @DecimalConverter() required this.totalUsd, @DecimalConverter() required this.totalVes, required this.createdAt, required final  List<SaleDetailDto> details, required final  List<SalePaymentDto> payments, this.customerTaxId = '', this.customerName = '', this.customer, this.creditDueDate}): _details = details,_payments = payments,super._();
   factory _SaleDto.fromJson(Map<String, dynamic> json) => _$SaleDtoFromJson(json);
 
 @override final  int id;
@@ -800,6 +804,10 @@ class _SaleDto extends SaleDto {
 
 @override@JsonKey() final  String customerTaxId;
 @override@JsonKey() final  String customerName;
+/// Solo en las ventas a crédito.
+@override final  int? customer;
+/// Fecha de calendario `YYYY-MM-DD`; solo en las ventas a crédito.
+@override final  String? creditDueDate;
 
 /// Create a copy of SaleDto
 /// with the given fields replaced by the non-null parameter values.
@@ -814,16 +822,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaleDto&&(identical(other.id, id) || other.id == id)&&(identical(other.cashSession, cashSession) || other.cashSession == cashSession)&&(identical(other.user, user) || other.user == user)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.exchangeRateAtInvoice, exchangeRateAtInvoice) || other.exchangeRateAtInvoice == exchangeRateAtInvoice)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._details, _details)&&const DeepCollectionEquality().equals(other._payments, _payments)&&(identical(other.customerTaxId, customerTaxId) || other.customerTaxId == customerTaxId)&&(identical(other.customerName, customerName) || other.customerName == customerName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SaleDto&&(identical(other.id, id) || other.id == id)&&(identical(other.cashSession, cashSession) || other.cashSession == cashSession)&&(identical(other.user, user) || other.user == user)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.exchangeRateAtInvoice, exchangeRateAtInvoice) || other.exchangeRateAtInvoice == exchangeRateAtInvoice)&&(identical(other.totalUsd, totalUsd) || other.totalUsd == totalUsd)&&(identical(other.totalVes, totalVes) || other.totalVes == totalVes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._details, _details)&&const DeepCollectionEquality().equals(other._payments, _payments)&&(identical(other.customerTaxId, customerTaxId) || other.customerTaxId == customerTaxId)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customer, customer) || other.customer == customer)&&(identical(other.creditDueDate, creditDueDate) || other.creditDueDate == creditDueDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,cashSession,user,branch,exchangeRateAtInvoice,totalUsd,totalVes,createdAt,const DeepCollectionEquality().hash(_details),const DeepCollectionEquality().hash(_payments),customerTaxId,customerName);
+int get hashCode => Object.hash(runtimeType,id,cashSession,user,branch,exchangeRateAtInvoice,totalUsd,totalVes,createdAt,const DeepCollectionEquality().hash(_details),const DeepCollectionEquality().hash(_payments),customerTaxId,customerName,customer,creditDueDate);
 
 @override
 String toString() {
-  return 'SaleDto(id: $id, cashSession: $cashSession, user: $user, branch: $branch, exchangeRateAtInvoice: $exchangeRateAtInvoice, totalUsd: $totalUsd, totalVes: $totalVes, createdAt: $createdAt, details: $details, payments: $payments, customerTaxId: $customerTaxId, customerName: $customerName)';
+  return 'SaleDto(id: $id, cashSession: $cashSession, user: $user, branch: $branch, exchangeRateAtInvoice: $exchangeRateAtInvoice, totalUsd: $totalUsd, totalVes: $totalVes, createdAt: $createdAt, details: $details, payments: $payments, customerTaxId: $customerTaxId, customerName: $customerName, customer: $customer, creditDueDate: $creditDueDate)';
 }
 
 
@@ -834,7 +842,7 @@ abstract mixin class _$SaleDtoCopyWith<$Res> implements $SaleDtoCopyWith<$Res> {
   factory _$SaleDtoCopyWith(_SaleDto value, $Res Function(_SaleDto) _then) = __$SaleDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int cashSession, int user, String branch,@DecimalConverter() Decimal exchangeRateAtInvoice,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes, DateTime createdAt, List<SaleDetailDto> details, List<SalePaymentDto> payments, String customerTaxId, String customerName
+ int id, int cashSession, int user, String branch,@DecimalConverter() Decimal exchangeRateAtInvoice,@DecimalConverter() Decimal totalUsd,@DecimalConverter() Decimal totalVes, DateTime createdAt, List<SaleDetailDto> details, List<SalePaymentDto> payments, String customerTaxId, String customerName, int? customer, String? creditDueDate
 });
 
 
@@ -851,7 +859,7 @@ class __$SaleDtoCopyWithImpl<$Res>
 
 /// Create a copy of SaleDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? cashSession = null,Object? user = null,Object? branch = null,Object? exchangeRateAtInvoice = null,Object? totalUsd = null,Object? totalVes = null,Object? createdAt = null,Object? details = null,Object? payments = null,Object? customerTaxId = null,Object? customerName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? cashSession = null,Object? user = null,Object? branch = null,Object? exchangeRateAtInvoice = null,Object? totalUsd = null,Object? totalVes = null,Object? createdAt = null,Object? details = null,Object? payments = null,Object? customerTaxId = null,Object? customerName = null,Object? customer = freezed,Object? creditDueDate = freezed,}) {
   return _then(_SaleDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,cashSession: null == cashSession ? _self.cashSession : cashSession // ignore: cast_nullable_to_non_nullable
@@ -865,7 +873,9 @@ as DateTime,details: null == details ? _self._details : details // ignore: cast_
 as List<SaleDetailDto>,payments: null == payments ? _self._payments : payments // ignore: cast_nullable_to_non_nullable
 as List<SalePaymentDto>,customerTaxId: null == customerTaxId ? _self.customerTaxId : customerTaxId // ignore: cast_nullable_to_non_nullable
 as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,customer: freezed == customer ? _self.customer : customer // ignore: cast_nullable_to_non_nullable
+as int?,creditDueDate: freezed == creditDueDate ? _self.creditDueDate : creditDueDate // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

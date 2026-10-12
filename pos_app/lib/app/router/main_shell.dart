@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pos_app/app/router/route_names.dart';
 import 'package:pos_app/core/l10n/strings.dart';
+import 'package:pos_app/features/credits/data/debt_notifier.dart';
+import 'package:pos_app/features/credits/presentation/providers/credit_reminders_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/providers/rate_change_notice_provider.dart';
 import 'package:pos_app/features/exchange_rate/presentation/widgets/rate_change_dialog.dart';
 
 /// Armazón de la navegación principal: cinco pestañas en la barra inferior.
 /// Cada pestaña conserva su estado al cambiar a otra.
 ///
-/// También es quien muestra el aviso de cambio de tasa: está montado mientras
-/// la sesión está lista, sea cual sea la pestaña.
+/// También es quien muestra el aviso de cambio de tasa y mantiene al día los
+/// avisos de deudas del teléfono: está montado mientras la sesión está lista,
+/// sea cual sea la pestaña.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({required this.navigationShell, super.key});
 
@@ -21,6 +25,7 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   bool _noticeVisible = false;
+  late final DebtNotifier _debtNotifier;
 
   @override
   void initState() {
@@ -29,6 +34,17 @@ class _MainShellState extends ConsumerState<MainShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _showNotice(ref.read(rateChangeNoticeControllerProvider));
     });
+    // Tocar un aviso de deuda abre la lista de los que deben.
+    _debtNotifier = ref.read(debtNotificationsProvider)
+      ..onOpen = () {
+        if (mounted) context.push(RouteNames.customers, extra: true);
+      };
+  }
+
+  @override
+  void dispose() {
+    _debtNotifier.onOpen = null;
+    super.dispose();
   }
 
   Future<void> _showNotice(RateChangeNotice? notice) async {
@@ -44,7 +60,10 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(rateChangeNoticeControllerProvider, (_, notice) => _showNotice(notice));
+    ref
+      ..listen(rateChangeNoticeControllerProvider, (_, notice) => _showNotice(notice))
+      // Reprograma los avisos de deudas cada vez que cambian.
+      ..watch(creditRemindersProvider);
     final navigationShell = widget.navigationShell;
 
     return Scaffold(
