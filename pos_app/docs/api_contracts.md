@@ -136,6 +136,28 @@ vacío significa que la app le asigna un ícono. El nombre no se repite, sin dis
 inactiva conserva sus productos, pero no admite productos nuevos. Errores:
 `invalid_category_name` (422), `category_name_taken` (409), `category_not_found` (404).
 
+## Subcategorías
+
+Segundo nivel del catálogo, dentro de una categoría. Son opcionales: un producto puede no tener.
+No se borran (se desactivan) ni cambian de categoría.
+
+| Método y ruta | Permiso | Body / query | Respuesta |
+|---|---|---|---|
+| `GET subcategories/` | Operador | `?category=<id>&active=true` | Página de `Subcategory`, por nombre |
+| `POST subcategories/` | MANAGER | `{category, name}` | 201 `Subcategory` |
+| `GET subcategories/<id>/` | Operador | — | `Subcategory` |
+| `PATCH subcategories/<id>/` | MANAGER | `{name?, active?}` | `Subcategory` |
+
+`Subcategory`: `{id, category, name, active}`. El nombre no se repite dentro de la misma
+categoría, sin distinguir mayúsculas. Errores: `invalid_subcategory_name` (422),
+`subcategory_name_taken` (409), `subcategory_not_found` (404), y al crear `category_not_found`
+(404) o `inactive_category` (422).
+
+Un producto lleva `subcategory` (id o `null`) y `subcategory_name`; `GET products/` admite
+`?subcategory=<id>`. Al asignarla debe estar activa y ser de la categoría del producto:
+`inactive_subcategory` o `subcategory_category_mismatch` (422). Si un `PATCH` cambia la categoría
+sin enviar `subcategory`, el producto queda sin subcategoría.
+
 ## Productos (catálogo global)
 
 | Método y ruta | Permiso | Body / query | Respuesta |
@@ -383,6 +405,53 @@ approval_reference, usd_to_ves_rate, amount_usd, allocations: [{credit, amount_u
 | `credit_overpayment` | 422 | `balance_usd`, `balance_ves`, `paid_usd` |
 | `bcv_rate_unavailable` | 503 | — (abono en VES sin tasa del BCV) |
 | `no_open_session` | 409 | — |
+
+## Estadísticas (solo MANAGER)
+
+Todo en USD y de una sola sucursal (`branch`). **Los decimales viajan como números de JSON, no
+como string**: es el único módulo que lo hace. Una venta cuenta por la fecha en que se facturó, en
+la zona horaria de la tienda.
+
+Filtros comunes (query): `branch`, `date_from` y `date_to` (`yyyy-MM-dd`, ambos incluidos; por
+defecto los últimos 30 días), `category` y `subcategory` (ids).
+
+| Método y ruta | Query adicional | Respuesta |
+|---|---|---|
+| `GET statistics/summary/` | — | `{period, previous_period, current, previous, change}` |
+| `GET statistics/credit-breakdown/` | — | `{cash, credit, pending, credit_share}` |
+| `GET statistics/groups/` | — | `{level, category_id, category_name, groups[]}` |
+| `GET statistics/products/ranking/` | `order_by` (`units`, `revenue`, `profit`, `margin`; por defecto `profit`), `limit` (10; máx. 100), `min_units` (5) | `{order_by, results[]}` |
+| `GET statistics/matrix/` | — | `{median_units, median_margin, counts[], products[]}` |
+| `GET statistics/inventory-health/` | `no_sales_days` (30), `max_days_left` (15) | `{as_of, immobilized_capital_total, no_movement[], running_out[]}` |
+
+- **Métricas**: ingresos = Σ `subtotal_usd`; ganancia = ingresos − Σ (cantidad × costo congelado
+  en la línea); `margin` = ganancia ÷ ingresos × 100 (0 sin ingresos); `average_ticket` =
+  ingresos ÷ `sales_count`.
+- **`summary`**: `current` y `previous` son `{revenue, profit, margin, units, sales_count,
+  average_ticket}`. `previous_period` tiene la misma duración y termina el día antes. `change` es
+  la variación % de cada métrica (`null` si la anterior es 0); `change.margin` va en puntos
+  porcentuales (`null` si el período anterior no tuvo ventas).
+- **`credit-breakdown`**: `cash` y `credit` son `{revenue, profit, margin}` y suman los totales
+  de `summary`. Una venta a crédito cuenta entera el día en que se factura; si solo una parte
+  quedó como deuda, sus líneas se reparten en la proporción deuda ÷ total de la venta. `pending`
+  (`{revenue, profit}`) es lo que sigue sin cobrarse **hoy** de esas ventas. `credit_share` es el
+  porcentaje de los ingresos vendido a crédito.
+- **`groups`**: sin `category`, `level = "category"`; con ella, `"subcategory"`. Cada grupo es
+  `{id, name, units, revenue, profit, margin}`, por ganancia descendente. Los productos sin
+  subcategoría forman un grupo con `id: null`.
+- **`ranking`**: cada fila es `{product_id, name, unit_of_measure, category_id, category_name,
+  subcategory_id, subcategory_name, units, revenue, profit, margin}`. `min_units` solo aplica al
+  ordenar por margen.
+- **`matrix`**: los cortes son las medianas. `quadrant`: `STAR` (unidades y margen ≥ mediana),
+  `VOLUME_DRIVER` (unidades ≥, margen <), `PROFITABLE_NICHE` (unidades <, margen ≥), `REVIEW`.
+- **`inventory-health`**: usa la fecha de hoy, no el período. `no_movement`: productos con stock
+  sin ventas en `no_sales_days` días (`last_sale_date` nulo si nunca se vendieron), con
+  `immobilized_capital` = stock × costo actual, de mayor a menor. `running_out`: productos activos
+  con ventas en los últimos 30 días cuyo stock dura `max_days_left` días o menos al ritmo de esos
+  30 días, de menor a mayor (`days_left`).
+
+Errores: `invalid_period` (422), `category_not_found` / `subcategory_not_found` (404),
+`subcategory_category_mismatch` (422).
 
 ## Diferencias respecto al encargo original
 

@@ -6,7 +6,7 @@ sucursales. Django 5.2 + DRF sobre PostgreSQL, en `pos_backend/`.
 ## Arquitectura en capas
 
 Cada módulo es una app Django en `pos_backend/apps/` (`auth`, `branches`, `inventory`,
-`exchange_rate`, `cash_sessions`, `sales`, `credits`) con esta división interna:
+`exchange_rate`, `cash_sessions`, `sales`, `credits`, `statistics`) con esta división interna:
 
 | Capa | Contenido | Regla |
 |---|---|---|
@@ -62,6 +62,20 @@ resolución de sucursal, utilidades de dinero y paginación.
   nunca se borran (se desactivan). Un producto solo puede crearse o pasar a una categoría activa
   (`category_service.require_active`), pero conserva la suya si después se desactiva. No hay
   categorías por defecto; `icon` es un emoji opcional.
+- **Subcategorías**: filas de `inventory.Subcategory` dentro de una categoría; tampoco se borran ni
+  cambian de categoría. `Product.subcategory` es opcional y debe ser de la categoría del producto
+  (`subcategory_service.require_active_in_category`); al cambiar la categoría sin indicar otra
+  subcategoría, el producto se queda sin ella.
+- **Estadísticas**: `apps/statistics` no tiene modelos ni repositorios. Sus fórmulas están solo en
+  `statistics/services/metrics.py` (funciones puras) y sus datos salen de
+  `sales_stats_service` e `inventory.stock_service`. Todo en USD y por sucursal, solo MANAGER.
+  Ingresos = `subtotal_usd`; costo = cantidad × `unit_cost_usd` redondeado por línea, igual que en
+  el resumen de caja. Sus serializers devuelven los decimales como números de JSON
+  (`coerce_to_string=False`), a diferencia del resto de la API. Lo vendido a crédito
+  cuenta al facturarse; `get_credit_breakdown` reparte cada venta entre contado y crédito en la
+  proporción `Credit.amount_usd ÷ Sale.total_usd` y da lo pendiente con `balance_usd`. Las ventas todavía no se pueden
+  anular: cuando se pueda, se excluyen en `sales_stats_repository._lines`, por donde pasan todas
+  las consultas.
 - **Ventas a crédito**: un pago `CREDIT` (siempre en USD) deja ese monto como deuda del cliente
   (`credits.Credit`), en la misma transacción que la venta (`credit_service.open_credit`). Exige un
   `credits.Customer` activo; los clientes nunca se borran (se desactivan). La deuda se guarda y se
@@ -104,8 +118,8 @@ python manage.py spectacular --validate --fail-on-warn   # valida el esquema Ope
 ## Estado
 
 Todas las apps están implementadas de punta a punta: `auth` (login, refresh, `me` y gestión de
-usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory`, `sales` y `credits`
-(clientes, deudas y abonos). No quedan stubs.
+usuarios), `branches`, `exchange_rate`, `cash_sessions`, `inventory`, `sales`, `credits`
+(clientes, deudas y abonos) y `statistics`. No quedan stubs.
 
 Convenciones que no se deducen a simple vista:
 
@@ -127,8 +141,8 @@ Convenciones que no se deducen a simple vista:
 - `sale_service.create_sale` bloquea primero la caja y después el inventario (ordenado por
   `product_id`). Cualquier flujo nuevo que tome ambos bloqueos debe respetar ese orden.
 - Los pagos deben cuadrar con el total dentro de `PAYMENT_TOLERANCE_USD`; el vuelto no se modela.
-  `CASH_USD` se cobra en USD y el resto de métodos en VES; `POS_CARD` y `MOBILE_PAYMENT` exigen
-  `approval_reference`.
+  `CASH_USD` se cobra en USD y el resto de métodos en VES. `approval_reference` es opcional en
+  todos los métodos, también en `POS_CARD` y `MOBILE_PAYMENT`.
 - `cash_count_service` importa `sale_service` y `credit_service` dentro de la función: ambos
   dependen de `cash_session_service` y un import a nivel de módulo crearía un ciclo.
 - Las reglas de cada método de pago (moneda, referencia, efectivo) están en `core/payment_rules.py`,

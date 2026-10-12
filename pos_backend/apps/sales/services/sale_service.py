@@ -27,7 +27,7 @@ from core.branch_scope import can_access_branch, has_all_branches_access, resolv
 from core.enums import Currency, PaymentMethod
 from core.exceptions import BranchAccessDeniedError, DomainError, NotFoundError
 from core.money import quantize_money, quantize_quantity
-from core.payment_rules import METHOD_CURRENCY, REFERENCE_REQUIRED
+from core.payment_rules import METHOD_CURRENCY
 
 
 def create_sale(data: CreateSaleInput, user: User) -> Sale:
@@ -268,12 +268,6 @@ def _clean_payments(payments: Iterable[PaymentInput]) -> tuple[PaymentInput, ...
                 index,
                 method=str(payment.method),
                 currency=str(payment.currency),
-            )
-        if payment.method in REFERENCE_REQUIRED and not reference:
-            raise _invalid_payment(
-                "Este método de pago requiere la referencia de aprobación.",
-                index,
-                method=str(payment.method),
             )
         cleaned.append(
             PaymentInput(

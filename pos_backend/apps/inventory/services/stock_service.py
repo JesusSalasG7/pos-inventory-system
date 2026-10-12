@@ -12,6 +12,7 @@ from django.db import transaction
 from django.db.models import QuerySet
 
 from apps.auth.models import User
+from apps.inventory.domain.dtos import ProductStock
 from apps.inventory.models import BranchInventory, InventoryMovement
 from apps.inventory.repositories import branch_inventory_repository, movement_repository
 from apps.inventory.services import product_service
@@ -35,6 +36,19 @@ def get_branch_inventory(branch: str) -> QuerySet[BranchInventory]:
 def get_low_stock(branch: str) -> QuerySet[BranchInventory]:
     """Lista los productos activos cuyo stock está en o por debajo del mínimo."""
     return branch_inventory_repository.list_low_stock(branch)
+
+
+def get_product_stock(
+    branch: str, *, category_id: int | None = None, subcategory_id: int | None = None
+) -> list[ProductStock]:
+    """Existencias y costo actual de cada producto de la sucursal, ordenados por nombre.
+
+    Lo usa la app de estadísticas para la salud del inventario.
+    """
+    rows = branch_inventory_repository.list_product_stock(
+        branch, category_id=category_id, subcategory_id=subcategory_id
+    )
+    return [ProductStock(**row) for row in rows]
 
 
 def set_minimum_stock(branch: str, product_id: int, minimum_stock: Decimal) -> BranchInventory:

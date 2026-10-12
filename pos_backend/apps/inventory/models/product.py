@@ -12,6 +12,14 @@ class Product(TimeStampedModel):
     category = models.ForeignKey(
         "inventory.Category", on_delete=models.PROTECT, related_name="products"
     )
+    # Opcional. Si la tiene, pertenece a `category` (lo valida `product_service`).
+    subcategory = models.ForeignKey(
+        "inventory.Subcategory",
+        on_delete=models.PROTECT,
+        related_name="products",
+        null=True,
+        blank=True,
+    )
     unit_of_measure = models.CharField(max_length=20, choices=UnitOfMeasure.choices)
     cost_price_usd = models.DecimalField(max_digits=14, decimal_places=2)
     sale_price_usd = models.DecimalField(max_digits=14, decimal_places=2)

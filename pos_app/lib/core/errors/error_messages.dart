@@ -56,6 +56,12 @@ abstract final class ErrorMessages {
     'category_name_taken': 'Ya existe una categoría con ese nombre.',
     'category_not_found': 'La categoría no existe.',
     'inactive_category': 'La categoría está inactiva. Elige otra.',
+    'invalid_subcategory_name': 'El nombre de la subcategoría es obligatorio.',
+    'subcategory_name_taken': 'La categoría ya tiene una subcategoría con ese nombre.',
+    'subcategory_not_found': 'La subcategoría no existe.',
+    'inactive_subcategory': 'La subcategoría está inactiva. Elige otra.',
+    'subcategory_category_mismatch': 'La subcategoría no pertenece a esa categoría.',
+    'invalid_period': 'La fecha inicial no puede ser posterior a la final.',
     // Tasa de cambio.
     'exchange_rate_not_set': 'Todavía no se ha registrado la tasa de cambio.',
     'invalid_exchange_rate': 'La tasa de cambio debe ser mayor que cero.',

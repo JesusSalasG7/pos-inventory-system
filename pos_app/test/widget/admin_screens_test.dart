@@ -182,6 +182,42 @@ void main() {
       expect(inventory.categories, hasLength(3));
     });
 
+    testWidgets('gestiona las subcategorías de una categoría desde su hoja', (tester) async {
+      inventory
+        ..categories = [const ProductCategory(id: 1, name: 'Líquidos')]
+        ..subcategories = [const ProductSubcategory(id: 5, categoryId: 1, name: 'Cloros')];
+      await pump(tester, const CategoriesScreen());
+      expect(find.text(Strings.subcategoryCount(1)), findsOneWidget);
+
+      await tester.tap(find.byTooltip(Strings.manageSubcategories));
+      await tester.pumpAndSettle();
+      expect(find.text(Strings.subcategoriesOf('Líquidos')), findsOneWidget);
+      expect(find.text('Cloros'), findsOneWidget);
+
+      await tester.tap(find.text(Strings.newSubcategory));
+      await tester.pumpAndSettle();
+      await tester.enterText(field(Strings.subcategoryName), 'cloros');
+      await tester.tap(find.widgetWithText(FilledButton, Strings.save));
+      await tester.pumpAndSettle();
+      expect(find.text('La categoría ya tiene una subcategoría con ese nombre.'), findsOneWidget);
+
+      await tester.enterText(field(Strings.subcategoryName), 'Desengrasantes');
+      await tester.tap(find.widgetWithText(FilledButton, Strings.save));
+      await tester.pumpAndSettle();
+      await settleReload(tester);
+      expect(find.text('Desengrasantes'), findsOneWidget);
+      expect(inventory.subcategories.map((s) => s.name), ['Cloros', 'Desengrasantes']);
+
+      // El interruptor de la primera subcategoría la desactiva sin borrarla.
+      await tester.tap(
+        find.descendant(of: find.byType(BottomSheet), matching: find.byType(Switch)).first,
+      );
+      await tester.pumpAndSettle();
+      await settleReload(tester);
+      expect(inventory.subcategories.first.active, isFalse);
+      expect(inventory.subcategories, hasLength(2));
+    });
+
     testWidgets('el interruptor desactiva la categoría sin borrarla', (tester) async {
       inventory.categories = [const ProductCategory(id: 1, name: 'Líquidos')];
       await pump(tester, const CategoriesScreen());

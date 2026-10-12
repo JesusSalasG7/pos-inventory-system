@@ -244,8 +244,7 @@ abstract final class Strings {
   static const String payments = 'Pagos';
   static const String addPaymentHint = 'Elige cómo paga el cliente. Puedes combinar varios.';
   static const String paymentAmount = 'Monto';
-  static const String paymentReference = 'Referencia';
-  static const String referenceRequired = 'Escribe la referencia';
+  static const String paymentReference = 'Referencia (opcional)';
   static const String removePayment = 'Quitar pago';
   static const String remaining = 'Restante';
   static const String change = 'Vuelto';
@@ -483,6 +482,86 @@ abstract final class Strings {
   static const String emptyCategoriesTitle = 'Aún no hay categorías';
   static const String emptyCategoriesMessage = 'Crea la primera para poder registrar productos.';
   static const String noCategoriesYet = 'Todavía no hay categorías. Crea una para continuar.';
+
+  // Subcategorías.
+  static const String subcategoriesTitle = 'Subcategorías';
+  static String subcategoriesOf(String category) => 'Subcategorías de $category';
+  static const String manageSubcategories = 'Ver subcategorías';
+  static const String subcategoriesHint =
+      'Dividen la categoría para verla con más detalle en Estadísticas. Son opcionales.';
+  static const String newSubcategory = 'Nueva subcategoría';
+  static const String editSubcategory = 'Editar subcategoría';
+  static const String subcategoryName = 'Nombre de la subcategoría';
+  static const String subcategoryNameHint = 'Ej. Detergentes';
+  static const String subcategoryNameRequired = 'Escribe el nombre de la subcategoría';
+  static const String subcategoryActivated = 'Subcategoría activada';
+  static const String subcategoryDeactivated = 'Subcategoría desactivada';
+  static const String emptySubcategories = 'Esta categoría todavía no tiene subcategorías.';
+  static const String subcategoryLabel = 'Subcategoría (opcional)';
+  static const String noSubcategory = 'Sin subcategoría';
+  static String subcategoryCount(int count) =>
+      count == 1 ? '1 subcategoría' : '$count subcategorías';
+
+  // Estadísticas.
+  static const String statisticsTitle = 'Estadísticas';
+  static const String statsRange7 = '7 días';
+  static const String statsRange30 = '30 días';
+  static const String statsRange90 = '90 días';
+  static const String statsRangeCustom = 'Personalizado';
+  static const String statsPickPeriod = 'Elige el período';
+  static const String statsBackToOverview = 'Volver a la vista general';
+  static const String statsNoSales = 'No hay ventas en este período';
+  static const String statsRevenue = 'Ingresos';
+  static const String statsProfit = 'Ganancia';
+  static const String statsMargin = 'Margen';
+  static const String statsUnits = 'Unidades';
+  static const String statsSalesCount = 'Ventas';
+  static const String statsAverageTicket = 'Ticket promedio';
+  static const String statsNoPrevious = '—';
+  static const String statsVsPrevious = 'vs. período anterior';
+  static const String statsCreditTitle = 'Contado y crédito';
+  static const String statsCash = 'Contado';
+  static const String statsCredit = 'Crédito';
+  static String statsCreditShare(String percent) => '$percent de los ingresos se vendió a crédito';
+  static const String statsNoCreditSales = 'En este período no se vendió nada a crédito.';
+  static const String statsPending = 'Por cobrar de estas ventas';
+  static String statsPendingProfit(String amount) => 'Ganancia aún por cobrar: $amount';
+  static const String statsAllCollected = 'Todo lo vendido a crédito en este período ya se cobró.';
+  static const String statsCreditNote =
+      'Una venta a crédito cuenta el día en que se factura, aunque se cobre después.';
+  static const String statsByCategory = 'Rendimiento por categoría';
+  static String statsBySubcategory(String category) => 'Subcategorías de $category';
+  static const String statsGroupsHint = 'Toca una categoría para ver sus subcategorías';
+  static const String statsRankingTitle = 'Ranking de productos';
+  static const String statsOrderUnits = 'Más vendidos';
+  static const String statsOrderRevenue = 'Mayor facturación';
+  static const String statsOrderProfit = 'Mayor ganancia';
+  static const String statsOrderMargin = 'Mejor margen';
+  static const String statsMatrixTitle = 'Volumen vs. margen';
+  static const String statsMatrixHint = 'Toca un punto para ver el producto';
+  static const String statsMatrixAxisX = 'Unidades vendidas';
+  static const String statsMatrixAxisY = 'Margen %';
+  static const String statsQuadrantStar = 'Estrellas';
+  static const String statsQuadrantVolume = 'Volumen';
+  static const String statsQuadrantNiche = 'Nicho';
+  static const String statsQuadrantReview = 'Revisar';
+  static const String statsActionStar = 'Cuidar el stock';
+  static const String statsActionVolume = 'Revisar el precio o el costo';
+  static const String statsActionNiche = 'Darles más visibilidad';
+  static const String statsActionReview = 'Considerar liquidarlos';
+  static const String statsHealthTitle = 'Salud del inventario';
+  static const String statsImmobilizedCapital = 'Capital inmovilizado';
+  static String statsRunningOut(int count) => 'Por agotarse ($count)';
+  static String statsNoMovement(int count) => 'Sin movimiento ($count)';
+  static String statsStock(String quantity) => 'Stock: $quantity';
+  static String statsDaysLeft(String days) => '~$days días restantes';
+  static const String statsOutOfStock = 'Agotado';
+  static String statsNoSalesSince(String date) => 'Sin ventas desde $date';
+  static const String statsNeverSold = 'Nunca vendido';
+  static const String statsNothingRunningOut = 'Ningún producto está por agotarse.';
+  static const String statsNothingStale = 'Todos los productos con stock se están vendiendo.';
+  static String statsCategoryPath(String category, String? subcategory) =>
+      subcategory == null ? category : '$category › $subcategory';
 
   // Clientes a crédito.
   static const String customersTitle = 'Clientes a crédito';

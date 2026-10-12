@@ -11,9 +11,10 @@ import 'package:pos_app/core/widgets/empty_state.dart';
 import 'package:pos_app/core/widgets/section_card.dart';
 import 'package:pos_app/features/inventory/presentation/providers/inventory_providers.dart';
 import 'package:pos_app/features/inventory/presentation/widgets/category_dialog.dart';
+import 'package:pos_app/features/inventory/presentation/widgets/subcategories_sheet.dart';
 
 /// Administración de categorías (solo MANAGER): crear, cambiar nombre y
-/// sticker, y activar o desactivar. No se borran.
+/// sticker, activar o desactivar, y gestionar sus subcategorías. No se borran.
 class CategoriesScreen extends ConsumerWidget {
   const CategoriesScreen({super.key});
 
@@ -47,6 +48,7 @@ class CategoriesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categories = ref.watch(categoriesProvider);
+    final subcategories = ref.watch(subcategoriesProvider).value ?? const <ProductSubcategory>[];
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.categoriesTitle)),
@@ -56,7 +58,10 @@ class CategoriesScreen extends ConsumerWidget {
         label: const Text(Strings.newCategory),
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(categoriesProvider.future),
+        onRefresh: () {
+          ref.invalidate(subcategoriesProvider);
+          return ref.refresh(categoriesProvider.future);
+        },
         child: AsyncValueView<List<ProductCategory>>(
           value: categories,
           onRetry: () => ref.invalidate(categoriesProvider),
@@ -74,6 +79,9 @@ class CategoriesScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               if (index == 0) return Text(Strings.categoriesHint, style: AppTypography.bodySmall);
               final category = items[index - 1];
+              final subcategoryCount = subcategories
+                  .where((subcategory) => subcategory.categoryId == category.id)
+                  .length;
               return SectionCard(
                 key: ValueKey(category.id),
                 onTap: () => _edit(context, category: category),
@@ -100,8 +108,18 @@ class CategoriesScreen extends ConsumerWidget {
                           ),
                           if (!category.active)
                             Text(Strings.inactiveCategory, style: AppTypography.bodySmall),
+                          if (subcategoryCount > 0)
+                            Text(
+                              Strings.subcategoryCount(subcategoryCount),
+                              style: AppTypography.bodySmall,
+                            ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      tooltip: Strings.manageSubcategories,
+                      onPressed: () => showSubcategoriesSheet(context, category: category),
+                      icon: const Icon(Icons.account_tree_outlined),
                     ),
                     Switch(
                       value: category.active,

@@ -23,6 +23,16 @@ abstract interface class InventoryRepository {
     bool? active,
   });
 
+  /// Todas las subcategorías (también las inactivas), ordenadas por nombre.
+  Future<List<ProductSubcategory>> fetchSubcategories();
+
+  /// Crea una subcategoría activa dentro de una categoría (solo MANAGER).
+  Future<ProductSubcategory> createSubcategory({required int categoryId, required String name});
+
+  /// Cambia el nombre o el estado de una subcategoría (solo MANAGER). No se
+  /// borran: se desactivan. Tampoco cambian de categoría.
+  Future<ProductSubcategory> updateSubcategory(int subcategoryId, {String? name, bool? active});
+
   /// Cantidad de productos activos de la sucursal en o por debajo de su stock mínimo.
   Future<int> fetchLowStockCount({required String branchCode});
 

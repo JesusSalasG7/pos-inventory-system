@@ -8,8 +8,8 @@ import 'package:pos_app/features/inventory/domain/entities/product.dart';
 part 'product_dto.freezed.dart';
 part 'product_dto.g.dart';
 
-/// Producto tal como lo devuelve `products/`: la categoría llega como su id
-/// más su nombre. No trae stock ni imagen.
+/// Producto tal como lo devuelve `products/`: la categoría y la subcategoría
+/// llegan como su id más su nombre. No trae stock ni imagen.
 @freezed
 abstract class ProductDto with _$ProductDto {
   const factory ProductDto({
@@ -18,6 +18,8 @@ abstract class ProductDto with _$ProductDto {
     required int category,
     required String categoryName,
     @Default('') String categoryIcon,
+    int? subcategory,
+    String? subcategoryName,
     required String unitOfMeasure,
     @DecimalConverter() required Decimal costPriceUsd,
     @DecimalConverter() required Decimal salePriceUsd,
@@ -28,15 +30,25 @@ abstract class ProductDto with _$ProductDto {
 
   factory ProductDto.fromJson(Map<String, dynamic> json) => _$ProductDtoFromJson(json);
 
-  Product toEntity() => Product(
-    id: id,
-    name: name,
-    category: ProductCategory(id: category, name: categoryName, icon: categoryIcon),
-    unit: UnitOfMeasure.fromApi(unitOfMeasure),
-    costPriceUsd: costPriceUsd,
-    salePriceUsd: salePriceUsd,
-    active: active,
-  );
+  Product toEntity() {
+    final subcategoryId = subcategory;
+    return Product(
+      id: id,
+      name: name,
+      category: ProductCategory(id: category, name: categoryName, icon: categoryIcon),
+      subcategory: subcategoryId == null
+          ? null
+          : ProductSubcategory(
+              id: subcategoryId,
+              categoryId: category,
+              name: subcategoryName ?? '',
+            ),
+      unit: UnitOfMeasure.fromApi(unitOfMeasure),
+      costPriceUsd: costPriceUsd,
+      salePriceUsd: salePriceUsd,
+      active: active,
+    );
+  }
 }
 
 /// Fila de `inventory/`: stock de un producto en una sucursal.
@@ -79,4 +91,22 @@ abstract class CategoryDto with _$CategoryDto {
   factory CategoryDto.fromJson(Map<String, dynamic> json) => _$CategoryDtoFromJson(json);
 
   ProductCategory toEntity() => ProductCategory(id: id, name: name, icon: icon, active: active);
+}
+
+/// Subcategoría tal como la devuelve `subcategories/`.
+@freezed
+abstract class SubcategoryDto with _$SubcategoryDto {
+  const factory SubcategoryDto({
+    required int id,
+    required int category,
+    required String name,
+    required bool active,
+  }) = _SubcategoryDto;
+
+  const SubcategoryDto._();
+
+  factory SubcategoryDto.fromJson(Map<String, dynamic> json) => _$SubcategoryDtoFromJson(json);
+
+  ProductSubcategory toEntity() =>
+      ProductSubcategory(id: id, categoryId: category, name: name, active: active);
 }

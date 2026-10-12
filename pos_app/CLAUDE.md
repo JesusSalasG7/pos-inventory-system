@@ -38,6 +38,17 @@ Android, para tiendas de productos de limpieza en Venezuela.
   (`icon`); sin él, el ícono sale de una paleta fija según el `id`, y el color siempre de esa
   paleta (`CategoryStyle`). Se pintan con `CategoryAvatar` / `CategoryGlyph`. Los filtros por categoría se arman con las
   categorías de los productos cargados (`categoriesOf`).
+- **Subcategorías**: opcionales, dentro de una categoría (`ProductSubcategory`, `subcategories/`).
+  Se gestionan desde la hoja de cada categoría (`showSubcategoriesSheet`) y se eligen en el
+  formulario de producto, que solo ofrece las activas de la categoría elegida.
+- **Estadísticas** (`features/statistics`, solo MANAGER, Más → Estadísticas): todo lo calcula el
+  backend, en USD. Es el único módulo cuyos decimales llegan como números de JSON: sus DTOs usan
+  `NumberDecimalConverter` y siguen entregando `Decimal`; solo los gráficos (`fl_chart`) los pasan
+  a `double`. Cada sección tiene su provider y observa `statsFilterControllerProvider`, así que se
+  piden en paralelo y fallan por separado; el orden del ranking (`rankingOrderControllerProvider`)
+  solo recarga el ranking, y la salud del inventario solo depende de la categoría. La ganancia
+  es la facturada: lo vendido a crédito cuenta al venderse, y la sección "Contado y crédito"
+  muestra aparte cuánto de eso sigue sin cobrarse.
 - **Vuelto**: no existe en el backend. A la API se envía el monto exacto que cubre la venta.
 - **Tasa automática**: el servidor registra sola la tasa del BCV (`source=BCV`, con su
   `effective_date`). La app vuelve a consultar la tasa al abrir, al volver a primer plano y cada
@@ -192,3 +203,7 @@ Al cerrar una caja, la pantalla de arqueo pasa a mostrar el resultado: la difere
 y el resumen de ventas del turno (`SessionSalesReportSection`: totales, cobros por forma de pago,
 inversión, ganancia y desglose por producto). El mismo resumen aparece en el detalle de cada caja
 del historial. Todo lo calcula el backend (`cash-sessions/<id>/sales-report/`).
+
+8. **Estadísticas y subcategorías** — hecho: subcategorías opcionales por categoría y pantalla de
+   estadísticas con filtro de período, KPIs con variación, rendimiento por categoría con entrada
+   a sus subcategorías, ranking de productos, matriz volumen vs. margen y salud del inventario.

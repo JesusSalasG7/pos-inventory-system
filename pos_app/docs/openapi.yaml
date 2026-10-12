@@ -1148,6 +1148,11 @@ paths:
         schema:
           type: string
         description: Texto dentro del nombre.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+        description: Id de la subcategoría.
       tags:
       - products
       security:
@@ -1393,6 +1398,439 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SalesSummary'
+          description: ''
+  /api/v1/statistics/credit-breakdown/:
+    get:
+      operationId: statistics_credit_breakdown
+      description: Ingresos y ganancia del período repartidos entre contado y crédito.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditBreakdown'
+          description: ''
+  /api/v1/statistics/groups/:
+    get:
+      operationId: statistics_groups
+      description: Rendimiento por categoría o, con `category`, por sus subcategorías.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupReport'
+          description: ''
+  /api/v1/statistics/inventory-health/:
+    get:
+      operationId: statistics_inventory_health
+      description: Productos sin movimiento y por agotarse, a la fecha de hoy.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: max_days_left
+        schema:
+          type: integer
+          maximum: 3650
+          minimum: 0
+          default: 15
+        description: Días de stock restantes para considerar un producto por agotarse.
+      - in: query
+        name: no_sales_days
+        schema:
+          type: integer
+          maximum: 3650
+          minimum: 1
+          default: 30
+        description: Días sin ventas para considerar un producto sin movimiento.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryHealth'
+          description: ''
+  /api/v1/statistics/matrix/:
+    get:
+      operationId: statistics_matrix
+      description: Matriz volumen vs. margen, con cortes en las medianas.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Matrix'
+          description: ''
+  /api/v1/statistics/products/ranking/:
+    get:
+      operationId: statistics_product_ranking
+      description: Ranking de productos por unidades, ingresos, ganancia o margen.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 10
+      - in: query
+        name: min_units
+        schema:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,9}(?:\.\d{0,3})?$
+          default: '5.000'
+        description: 'Solo al ordenar por margen: unidades mínimas vendidas para entrar.'
+      - in: query
+        name: order_by
+        schema:
+          enum:
+          - units
+          - revenue
+          - profit
+          - margin
+          type: string
+          default: profit
+          minLength: 1
+        description: |-
+          * `units` - Unidades
+          * `revenue` - Ingresos
+          * `profit` - Ganancia
+          * `margin` - Margen
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRanking'
+          description: ''
+  /api/v1/statistics/summary/:
+    get:
+      operationId: statistics_summary
+      description: KPIs del período y del anterior, con la variación de cada uno.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: string
+          maxLength: 20
+          minLength: 1
+        description: Por defecto, la asignada al usuario.
+      - in: query
+        name: category
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: Primer día, incluido. Por defecto, 30 días hasta `date_to`.
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: Último día, incluido. Por defecto, hoy.
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+          minimum: 1
+      tags:
+      - statistics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summary'
+          description: ''
+  /api/v1/subcategories/:
+    get:
+      operationId: subcategories_list
+      description: Subcategorías del catálogo, ordenadas por nombre.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: Solo subcategorías activas.
+      - in: query
+        name: category
+        schema:
+          type: integer
+        description: Id de la categoría.
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Número de resultados a devolver por página.
+        schema:
+          type: integer
+      tags:
+      - subcategories
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubcategoryList'
+          description: ''
+    post:
+      operationId: subcategories_create
+      description: Crea una subcategoría activa dentro de una categoría.
+      tags:
+      - subcategories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubcategoryCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubcategoryCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubcategoryCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subcategory'
+          description: ''
+  /api/v1/subcategories/{id}/:
+    get:
+      operationId: subcategories_retrieve
+      description: Lectura para SUPERVISOR y MANAGER; escritura solo para MANAGER.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - subcategories
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subcategory'
+          description: ''
+    patch:
+      operationId: subcategories_partial_update
+      description: Cambia el nombre o activa/desactiva la subcategoría.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - subcategories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubcategoryUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubcategoryUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubcategoryUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subcategory'
           description: ''
   /api/v1/users/:
     get:
@@ -1874,6 +2312,30 @@ components:
       - is_overdue
       - paid_at
       - sale
+    CreditBreakdown:
+      type: object
+      properties:
+        cash:
+          $ref: '#/components/schemas/SplitTotals'
+        credit:
+          $ref: '#/components/schemas/SplitTotals'
+        pending:
+          allOf:
+          - $ref: '#/components/schemas/PendingTotals'
+          description: Lo que sigue sin cobrarse hoy.
+        credit_share:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          description: Porcentaje de los ingresos vendido a crédito.
+      required:
+      - cash
+      - credit
+      - credit_share
+      - pending
     CreditPayment:
       type: object
       properties:
@@ -2108,6 +2570,101 @@ components:
       - id
       - source
       - usd_to_ves_rate
+    GroupPerformance:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        units:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - id
+      - margin
+      - name
+      - profit
+      - revenue
+      - units
+    GroupReport:
+      type: object
+      properties:
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        category_id:
+          type: integer
+          nullable: true
+        category_name:
+          type: string
+          nullable: true
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupPerformance'
+      required:
+      - category_id
+      - category_name
+      - groups
+      - level
+    InventoryHealth:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        no_sales_days:
+          type: integer
+        max_days_left:
+          type: integer
+        immobilized_capital_total:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        no_movement:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoMovementItem'
+        running_out:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunningOutItem'
+      required:
+      - as_of
+      - immobilized_capital_total
+      - max_days_left
+      - no_movement
+      - no_sales_days
+      - running_out
     InventoryMovement:
       type: object
       properties:
@@ -2212,6 +2769,199 @@ components:
         * `SALE` - Venta
         * `WASTE` - Merma
         * `ADJUSTMENT` - Ajuste
+    KpiChanges:
+      type: object
+      description: 'Variación %; `margin` va en puntos porcentuales. Nulo: sin base
+        de comparación.'
+      properties:
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        units:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        sales_count:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        average_ticket:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+      required:
+      - average_ticket
+      - margin
+      - profit
+      - revenue
+      - sales_count
+      - units
+    Kpis:
+      type: object
+      properties:
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        units:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        sales_count:
+          type: integer
+        average_ticket:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - average_ticket
+      - margin
+      - profit
+      - revenue
+      - sales_count
+      - units
+    LevelEnum:
+      enum:
+      - category
+      - subcategory
+      type: string
+      description: |-
+        * `category` - Categoría
+        * `subcategory` - Subcategoría
+    Matrix:
+      type: object
+      properties:
+        median_units:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        median_margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        counts:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuadrantCount'
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatrixPoint'
+      required:
+      - counts
+      - median_margin
+      - median_units
+      - products
+    MatrixPoint:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        units:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        quadrant:
+          $ref: '#/components/schemas/QuadrantEnum'
+      required:
+      - margin
+      - name
+      - product_id
+      - profit
+      - quadrant
+      - revenue
+      - unit_of_measure
+      - units
     MethodEnum:
       enum:
       - POS_CARD
@@ -2226,6 +2976,41 @@ components:
         * `CASH_USD` - Efectivo USD
         * `MOBILE_PAYMENT` - Pago móvil
         * `CREDIT` - Crédito
+    NoMovementItem:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        stock:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        last_sale_date:
+          type: string
+          format: date
+          nullable: true
+          description: 'Nulo: nunca vendido.'
+        immobilized_capital:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - immobilized_capital
+      - last_sale_date
+      - name
+      - product_id
+      - stock
+      - unit_of_measure
     OpenCashSession:
       type: object
       properties:
@@ -2238,6 +3023,18 @@ components:
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
       required:
       - opening_float
+    OrderByEnum:
+      enum:
+      - units
+      - revenue
+      - profit
+      - margin
+      type: string
+      description: |-
+        * `units` - Unidades
+        * `revenue` - Ingresos
+        * `profit` - Ganancia
+        * `margin` - Margen
     PaginatedBranchInventoryList:
       type: object
       required:
@@ -2514,6 +3311,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Sale'
+    PaginatedSubcategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subcategory'
     PaginatedUserList:
       type: object
       required:
@@ -2610,6 +3430,14 @@ components:
         category_icon:
           type: string
           readOnly: true
+        subcategory:
+          type: integer
+          minimum: 1
+          nullable: true
+        subcategory_name:
+          type: string
+          readOnly: true
+          nullable: true
         unit_of_measure:
           $ref: '#/components/schemas/UnitOfMeasureEnum'
         cost_price_usd:
@@ -2623,6 +3451,14 @@ components:
         active:
           type: boolean
           readOnly: true
+    PatchedSubcategoryUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        active:
+          type: boolean
     PatchedUserUpdate:
       type: object
       properties:
@@ -2675,6 +3511,38 @@ components:
       - amount
       - currency
       - method
+    PendingTotals:
+      type: object
+      properties:
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - profit
+      - revenue
+    Period:
+      type: object
+      properties:
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+      required:
+      - date_from
+      - date_to
     PricingSettings:
       type: object
       properties:
@@ -2700,6 +3568,14 @@ components:
         category_icon:
           type: string
           readOnly: true
+        subcategory:
+          type: integer
+          minimum: 1
+          nullable: true
+        subcategory_name:
+          type: string
+          readOnly: true
+          nullable: true
         unit_of_measure:
           $ref: '#/components/schemas/UnitOfMeasureEnum'
         cost_price_usd:
@@ -2722,7 +3598,79 @@ components:
       - id
       - name
       - sale_price_usd
+      - subcategory_name
       - unit_of_measure
+    ProductPerformance:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        category_id:
+          type: integer
+        category_name:
+          type: string
+        subcategory_id:
+          type: integer
+          nullable: true
+        subcategory_name:
+          type: string
+          nullable: true
+        units:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - category_id
+      - category_name
+      - margin
+      - name
+      - product_id
+      - profit
+      - revenue
+      - subcategory_id
+      - subcategory_name
+      - unit_of_measure
+      - units
+    ProductRanking:
+      type: object
+      properties:
+        order_by:
+          $ref: '#/components/schemas/OrderByEnum'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPerformance'
+      required:
+      - order_by
+      - results
     ProductSales:
       type: object
       properties:
@@ -2768,6 +3716,28 @@ components:
       - quantity
       - sales_usd
       - sales_ves
+    QuadrantCount:
+      type: object
+      properties:
+        quadrant:
+          $ref: '#/components/schemas/QuadrantEnum'
+        count:
+          type: integer
+      required:
+      - count
+      - quadrant
+    QuadrantEnum:
+      enum:
+      - STAR
+      - VOLUME_DRIVER
+      - PROFITABLE_NICHE
+      - REVIEW
+      type: string
+      description: |-
+        * `STAR` - Estrella
+        * `VOLUME_DRIVER` - Motor de volumen
+        * `PROFITABLE_NICHE` - Nicho rentable
+        * `REVIEW` - Revisar
     RateModeEnum:
       enum:
       - BCV
@@ -2784,6 +3754,43 @@ components:
       description: |-
         * `MANAGER` - Gerente
         * `SUPERVISOR` - Supervisor
+    RunningOutItem:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        unit_of_measure:
+          $ref: '#/components/schemas/UnitOfMeasureEnum'
+        stock:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        daily_rate:
+          type: number
+          format: double
+          maximum: 1000000000000000
+          minimum: -1000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        days_left:
+          type: number
+          format: double
+          maximum: 100000000000000000
+          minimum: -100000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - daily_rate
+      - days_left
+      - name
+      - product_id
+      - stock
+      - unit_of_measure
     Sale:
       type: object
       properties:
@@ -3013,6 +4020,85 @@ components:
       description: |-
         * `MANUAL` - Manual
         * `BCV` - BCV
+    SplitTotals:
+      type: object
+      properties:
+        revenue:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        profit:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        margin:
+          type: number
+          format: double
+          maximum: 10000000000000000
+          minimum: -10000000000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - margin
+      - profit
+      - revenue
+    Subcategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+      required:
+      - active
+      - category
+      - id
+      - name
+    SubcategoryCreate:
+      type: object
+      properties:
+        category:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - category
+      - name
+    Summary:
+      type: object
+      properties:
+        period:
+          $ref: '#/components/schemas/Period'
+        previous_period:
+          $ref: '#/components/schemas/Period'
+        current:
+          $ref: '#/components/schemas/Kpis'
+        previous:
+          $ref: '#/components/schemas/Kpis'
+        change:
+          $ref: '#/components/schemas/KpiChanges'
+      required:
+      - change
+      - current
+      - period
+      - previous
+      - previous_period
     TokenObtainPair:
       type: object
       properties:

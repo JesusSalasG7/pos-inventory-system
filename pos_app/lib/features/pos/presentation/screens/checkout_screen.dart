@@ -502,20 +502,17 @@ class _PaymentLineCard extends StatelessWidget {
                       (value ?? Decimal.zero) > Decimal.zero ? null : Strings.mustBePositive,
                   onChanged: onAmountChanged,
                 ),
-                if (line.method.requiresReference) ...[
+                if (line.method.acceptsReference) ...[
                   const SizedBox(height: AppSpacing.md),
                   TextFormField(
                     initialValue: line.reference,
                     enabled: enabled,
                     maxLength: 50,
                     textInputAction: TextInputAction.done,
-                    autovalidateMode: AutovalidateMode.always,
                     decoration: const InputDecoration(
                       labelText: Strings.paymentReference,
                       counterText: '',
                     ),
-                    validator: (value) =>
-                        (value == null || value.trim().isEmpty) ? Strings.referenceRequired : null,
                     onChanged: onReferenceChanged,
                   ),
                 ],

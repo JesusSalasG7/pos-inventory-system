@@ -85,23 +85,24 @@ enum Currency {
 }
 
 enum PaymentMethod {
-  cashUsd('CASH_USD', Currency.usd, requiresReference: false),
-  cashVes('CASH_VES', Currency.ves, requiresReference: false),
-  mobilePayment('MOBILE_PAYMENT', Currency.ves, requiresReference: true),
-  posCard('POS_CARD', Currency.ves, requiresReference: true),
+  cashUsd('CASH_USD', Currency.usd, acceptsReference: false),
+  cashVes('CASH_VES', Currency.ves, acceptsReference: false),
+  mobilePayment('MOBILE_PAYMENT', Currency.ves, acceptsReference: true),
+  posCard('POS_CARD', Currency.ves, acceptsReference: true),
 
   /// El cliente se lleva los productos sin pagar: abre una deuda en USD.
   /// No es dinero en caja y no sirve para abonar una deuda.
-  credit('CREDIT', Currency.usd, requiresReference: false);
+  credit('CREDIT', Currency.usd, acceptsReference: false);
 
-  const PaymentMethod(this.apiValue, this.currency, {required this.requiresReference});
+  const PaymentMethod(this.apiValue, this.currency, {required this.acceptsReference});
   final String apiValue;
 
   /// Moneda en la que el backend liquida el método.
   final Currency currency;
 
-  /// El backend exige `approval_reference` para los métodos electrónicos.
-  final bool requiresReference;
+  /// Métodos electrónicos: admiten anotar la referencia del banco o del punto
+  /// (`approval_reference`). Es opcional.
+  final bool acceptsReference;
 
   bool get isCash => this == cashUsd || this == cashVes;
 

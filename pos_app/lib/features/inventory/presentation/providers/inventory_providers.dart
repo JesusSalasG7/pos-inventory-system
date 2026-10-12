@@ -57,6 +57,50 @@ class Categories extends _$Categories {
   }
 }
 
+/// Todas las subcategorías del catálogo, también las inactivas, por nombre.
+/// Concentra las operaciones de un MANAGER sobre ellas.
+@riverpod
+class Subcategories extends _$Subcategories {
+  @override
+  Future<List<ProductSubcategory>> build() =>
+      ref.watch(inventoryRepositoryProvider).fetchSubcategories();
+
+  /// Los productos llevan el nombre de su subcategoría: hay que volver a pedirlos.
+  void _refreshDependents() {
+    ref
+      ..invalidateSelf()
+      ..invalidate(inventoryCatalogProvider)
+      ..invalidate(sellableCatalogProvider);
+  }
+
+  /// Crea una subcategoría dentro de una categoría. Lanza `Failure`.
+  Future<ProductSubcategory> create({required int categoryId, required String name}) async {
+    final subcategory = await ref
+        .read(inventoryRepositoryProvider)
+        .createSubcategory(categoryId: categoryId, name: name);
+    _refreshDependents();
+    return subcategory;
+  }
+
+  /// Cambia el nombre de una subcategoría. Lanza `Failure`.
+  Future<ProductSubcategory> rename(int subcategoryId, {required String name}) async {
+    final subcategory = await ref
+        .read(inventoryRepositoryProvider)
+        .updateSubcategory(subcategoryId, name: name);
+    _refreshDependents();
+    return subcategory;
+  }
+
+  /// Activa o desactiva una subcategoría. Lanza `Failure`.
+  Future<ProductSubcategory> setActive(int subcategoryId, {required bool active}) async {
+    final subcategory = await ref
+        .read(inventoryRepositoryProvider)
+        .updateSubcategory(subcategoryId, active: active);
+    _refreshDependents();
+    return subcategory;
+  }
+}
+
 /// Catálogo completo (también los productos inactivos) con su stock en la
 /// sucursal activa. Es la fuente de la pestaña Inventario y concentra las
 /// operaciones que lo modifican.

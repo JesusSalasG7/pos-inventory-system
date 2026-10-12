@@ -1,7 +1,13 @@
 from django.contrib import admin
 from django.http import HttpRequest
 
-from apps.inventory.models import BranchInventory, Category, InventoryMovement, Product
+from apps.inventory.models import (
+    BranchInventory,
+    Category,
+    InventoryMovement,
+    Product,
+    Subcategory,
+)
 
 
 @admin.register(Category)
@@ -15,11 +21,23 @@ class CategoryAdmin(admin.ModelAdmin):
         return False
 
 
+@admin.register(Subcategory)
+class SubcategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "active")
+    list_filter = ("category", "active")
+    search_fields = ("name",)
+
+    # Las subcategorías no se borran: se desactivan.
+    def has_delete_permission(self, request: HttpRequest, obj: object = None) -> bool:
+        return False
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "category",
+        "subcategory",
         "unit_of_measure",
         "cost_price_usd",
         "sale_price_usd",

@@ -213,7 +213,7 @@ class _CreditPaymentSheetState extends ConsumerState<CreditPaymentSheet> {
                 initialValue: _amount,
                 enabled: !_isSubmitting,
                 large: true,
-                textInputAction: _method.requiresReference
+                textInputAction: _method.acceptsReference
                     ? TextInputAction.next
                     : TextInputAction.done,
                 validator: _validateAmount,
@@ -236,7 +236,7 @@ class _CreditPaymentSheetState extends ConsumerState<CreditPaymentSheet> {
                   ),
                 ],
               ),
-              if (_method.requiresReference) ...[
+              if (_method.acceptsReference) ...[
                 TextFormField(
                   controller: _referenceController,
                   enabled: !_isSubmitting,
@@ -246,8 +246,6 @@ class _CreditPaymentSheetState extends ConsumerState<CreditPaymentSheet> {
                     labelText: Strings.paymentReference,
                     counterText: '',
                   ),
-                  validator: (value) =>
-                      (value == null || value.trim().isEmpty) ? Strings.referenceRequired : null,
                 ),
                 const SizedBox(height: AppSpacing.sm),
               ],

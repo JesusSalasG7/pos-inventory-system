@@ -151,7 +151,8 @@ void main() {
         ..updateAmount(first.id, dec('5'))
         ..addLine(PaymentMethod.mobilePayment);
       expect(container.read(checkoutControllerProvider).lines.last.amount, dec('375.00'));
-      expect(checkout.summary()!.status, CheckoutStatus.incomplete);
+      // El pago móvil cuadra aunque no lleve referencia: es opcional.
+      expect(checkout.summary()!.status, CheckoutStatus.exact);
     });
 
     test('venta con pago mixto: envía la venta y vacía el carrito', () async {

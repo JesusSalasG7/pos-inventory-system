@@ -65,12 +65,13 @@ void main() {
     });
   });
 
-  group('referencia obligatoria', () {
-    test('pago móvil y punto de venta exigen referencia', () {
+  group('referencia opcional', () {
+    test('pago móvil y punto de venta se pueden cobrar con o sin referencia', () {
       for (final method in [PaymentMethod.mobilePayment, PaymentMethod.posCard]) {
-        final missing = compute('10', [line(method, '1500')]);
-        expect(missing.status, CheckoutStatus.incomplete, reason: method.apiValue);
-        expect(missing.canConfirm, isFalse);
+        final without = compute('10', [line(method, '1500')]);
+        expect(without.status, CheckoutStatus.exact, reason: method.apiValue);
+        expect(without.canConfirm, isTrue);
+        expect(without.payments.single.approvalReference, '');
 
         final complete = compute('10', [line(method, '1500', reference: ' 004512 ')]);
         expect(complete.status, CheckoutStatus.exact, reason: method.apiValue);

@@ -36,6 +36,7 @@ abstract final class RouteNames {
   static const String branches = '/branches';
 
   static const String priceList = '/price-list';
+  static const String statistics = '/statistics';
 
   static const String customers = '/customers';
   static const String customerForm = '/customers/form';

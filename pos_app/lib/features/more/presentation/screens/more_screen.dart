@@ -113,6 +113,13 @@ class MoreScreen extends ConsumerWidget {
                       detail: branch?.name,
                       onTap: () => requestBranchChange(context, ref),
                     ),
+                  // Muestran costos y ganancias: solo para el gerente.
+                  if (user?.isManager ?? false)
+                    _MoreTile(
+                      icon: Icons.insights_rounded,
+                      label: Strings.statisticsTitle,
+                      onTap: () => context.push(RouteNames.statistics),
+                    ),
                   _MoreTile(
                     icon: Icons.receipt_long_rounded,
                     label: Strings.salesHistoryTitle,

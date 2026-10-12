@@ -2,6 +2,7 @@
 
 from collections.abc import Iterable
 from decimal import Decimal
+from typing import Any
 
 from django.db.models import F, QuerySet
 from django.utils import timezone
@@ -22,6 +23,27 @@ def list_low_stock(branch: str) -> QuerySet[BranchInventory]:
     """Lista los productos activos con `current_stock <= minimum_stock`."""
     return list_by_branch(branch).filter(
         product__active=True, current_stock__lte=F("minimum_stock")
+    )
+
+
+def list_product_stock(
+    branch: str, *, category_id: int | None = None, subcategory_id: int | None = None
+) -> list[dict[str, Any]]:
+    """Existencias y costo actual de cada producto de la sucursal, para las estadísticas."""
+    queryset = BranchInventory.objects.filter(branch_id=branch)
+    if category_id is not None:
+        queryset = queryset.filter(product__category_id=category_id)
+    if subcategory_id is not None:
+        queryset = queryset.filter(product__subcategory_id=subcategory_id)
+    return list(
+        queryset.order_by("product__name", "id").values(
+            "product_id",
+            "current_stock",
+            product_name=F("product__name"),
+            unit_of_measure=F("product__unit_of_measure"),
+            active=F("product__active"),
+            cost_price_usd=F("product__cost_price_usd"),
+        )
     )
 
 

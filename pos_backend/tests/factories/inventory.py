@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import factory
 
-from apps.inventory.models import BranchInventory, Category, Product
+from apps.inventory.models import BranchInventory, Category, Product, Subcategory
 from core.enums import UnitOfMeasure
 
 from .branches import VILLA_LIBERTAD, BranchCodeMixin
@@ -15,6 +15,14 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
     # Por defecto todos los productos de los tests comparten esta categoría.
     name = "Líquidos"
+
+
+class SubcategoryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Subcategory
+
+    category = factory.SubFactory(CategoryFactory)
+    name = factory.Sequence(lambda n: f"Subcategory {n}")
 
 
 class ProductFactory(factory.django.DjangoModelFactory):

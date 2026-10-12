@@ -10,7 +10,5 @@ METHOD_CURRENCY = {
     PaymentMethod.MOBILE_PAYMENT: Currency.VES,
     PaymentMethod.CREDIT: Currency.USD,
 }
-# Métodos electrónicos: exigen la referencia de aprobación del banco o terminal.
-REFERENCE_REQUIRED = frozenset({PaymentMethod.POS_CARD, PaymentMethod.MOBILE_PAYMENT})
 # Métodos con los que entra efectivo a la gaveta.
 CASH_METHODS = frozenset({PaymentMethod.CASH_USD, PaymentMethod.CASH_VES})

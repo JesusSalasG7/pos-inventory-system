@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pos_app/core/domain/category.dart';
 import 'package:pos_app/core/domain/enums.dart';
 import 'package:pos_app/core/errors/failure.dart';
 import 'package:pos_app/core/l10n/strings.dart';
@@ -20,13 +21,19 @@ void main() {
   bool? result;
 
   /// Monta una pantalla de partida y abre el formulario encima, como en la app.
-  Future<void> pumpForm(WidgetTester tester, {Product? editing}) async {
+  Future<void> pumpForm(
+    WidgetTester tester, {
+    Product? editing,
+    List<ProductSubcategory> subcategories = const [],
+  }) async {
     tester.view.physicalSize = const Size(393, 1600) * 2;
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
     result = null;
-    inventory = FakeInventoryRepository()..seed('VILLA_LIBERTAD', [stocked(chlorine, '10')]);
+    inventory = FakeInventoryRepository()
+      ..seed('VILLA_LIBERTAD', [stocked(editing ?? chlorine, '10')])
+      ..subcategories = [...subcategories];
     final container = ProviderContainer(
       retry: (_, _) => null,
       overrides: sessionOverrides(
@@ -98,6 +105,66 @@ void main() {
     expect(created.costPriceUsd, dec('1.10'));
     expect(created.salePriceUsd, dec('2.35'));
     expect(result, isTrue);
+  });
+
+  testWidgets('ofrece las subcategorías de la categoría elegida y la guarda', (tester) async {
+    await pumpForm(
+      tester,
+      subcategories: const [
+        ProductSubcategory(id: 7, categoryId: 2, name: 'Jabones en polvo'),
+        ProductSubcategory(id: 8, categoryId: 1, name: 'Cloros'),
+        ProductSubcategory(id: 9, categoryId: 2, name: 'Retirada', active: false),
+      ],
+    );
+
+    // Sin categoría elegida no hay nada que ofrecer.
+    expect(find.text(Strings.subcategoryLabel), findsNothing);
+
+    await tester.enterText(field(Strings.productName), 'Detergente');
+    await tester.tap(find.text(Strings.categoryLabel));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Polvos').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<int?>));
+    await tester.pumpAndSettle();
+    // Solo las activas de esa categoría.
+    expect(find.text('Cloros'), findsNothing);
+    expect(find.text('Retirada'), findsNothing);
+    await tester.tap(find.text('Jabones en polvo').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(field(Strings.costPriceLabel), '1');
+    await tester.enterText(field(Strings.salePriceLabel), '2');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.createProduct));
+    await tester.pumpAndSettle();
+
+    expect(inventory.products.last.subcategory?.id, 7);
+  });
+
+  testWidgets('cambiar de categoría quita la subcategoría del producto', (tester) async {
+    const chlorines = ProductSubcategory(id: 8, categoryId: 1, name: 'Cloros');
+    final classified = Product(
+      id: chlorine.id,
+      name: chlorine.name,
+      category: chlorine.category,
+      subcategory: chlorines,
+      unit: chlorine.unit,
+      costPriceUsd: chlorine.costPriceUsd,
+      salePriceUsd: chlorine.salePriceUsd,
+      active: true,
+    );
+    await pumpForm(tester, editing: classified, subcategories: const [chlorines]);
+    expect(find.text('Cloros'), findsOneWidget);
+
+    await tester.tap(find.byType(DropdownButtonFormField<int>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Polvos').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, Strings.saveChanges));
+    await tester.pumpAndSettle();
+
+    expect(inventory.products.single.category.id, powders.id);
+    expect(inventory.products.single.subcategory, isNull);
   });
 
   testWidgets('al editar parte de los datos actuales y avisa si se vende bajo el costo', (

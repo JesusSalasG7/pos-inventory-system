@@ -315,13 +315,23 @@ def test_failure_after_inserting_the_sale_rolls_back(
     assert_nothing_persisted()
 
 
+@pytest.mark.parametrize("method", [PaymentMethod.POS_CARD, PaymentMethod.MOBILE_PAYMENT])
+def test_payment_reference_is_optional(
+    method: PaymentMethod, supervisor: User, session: CashSession
+) -> None:
+    inventory = stocked("1.00")
+    payment = PaymentInput(method, Currency.VES, Decimal("150.00"), "   ")
+
+    sale = sale_service.create_sale(sale_input([item(inventory, "1")], [payment]), supervisor)
+
+    assert sale.payments.get().approval_reference == ""
+
+
 @pytest.mark.parametrize(
     "payment",
     [
         PaymentInput(PaymentMethod.CASH_USD, Currency.VES, Decimal("150.00")),
         PaymentInput(PaymentMethod.CASH_VES, Currency.USD, Decimal("1.00")),
-        PaymentInput(PaymentMethod.POS_CARD, Currency.VES, Decimal("150.00")),  # sin referencia
-        PaymentInput(PaymentMethod.MOBILE_PAYMENT, Currency.VES, Decimal("150.00"), "   "),
         PaymentInput(PaymentMethod.CASH_USD, Currency.USD, Decimal("0")),
     ],
 )

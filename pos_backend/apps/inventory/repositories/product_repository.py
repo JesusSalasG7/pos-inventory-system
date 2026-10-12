@@ -10,14 +10,20 @@ from core.enums import UnitOfMeasure
 
 
 def list_products(
-    *, only_active: bool = False, category_id: int | None = None, search: str | None = None
+    *,
+    only_active: bool = False,
+    category_id: int | None = None,
+    subcategory_id: int | None = None,
+    search: str | None = None,
 ) -> QuerySet[Product]:
     """Lista el catálogo con filtros opcionales, ordenado por nombre."""
-    queryset = Product.objects.select_related("category").order_by("name", "id")
+    queryset = Product.objects.select_related("category", "subcategory").order_by("name", "id")
     if only_active:
         queryset = queryset.filter(active=True)
     if category_id is not None:
         queryset = queryset.filter(category_id=category_id)
+    if subcategory_id is not None:
+        queryset = queryset.filter(subcategory_id=subcategory_id)
     if search:
         queryset = queryset.filter(name__icontains=search)
     return queryset
@@ -25,7 +31,7 @@ def list_products(
 
 def get_by_id(product_id: int) -> Product | None:
     """Devuelve el producto o None si no existe."""
-    return Product.objects.select_related("category").filter(pk=product_id).first()
+    return Product.objects.select_related("category", "subcategory").filter(pk=product_id).first()
 
 
 def get_active_by_ids(product_ids: Iterable[int]) -> dict[int, Product]:
@@ -48,11 +54,13 @@ def create(
     unit_of_measure: UnitOfMeasure,
     cost_price_usd: Decimal,
     sale_price_usd: Decimal,
+    subcategory_id: int | None = None,
 ) -> Product:
     """Inserta un producto activo."""
     return Product.objects.create(
         name=name,
         category_id=category_id,
+        subcategory_id=subcategory_id,
         unit_of_measure=unit_of_measure,
         cost_price_usd=cost_price_usd,
         sale_price_usd=sale_price_usd,

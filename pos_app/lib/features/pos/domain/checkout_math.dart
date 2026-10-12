@@ -20,8 +20,9 @@ class PaymentLine {
   final String reference;
 
   bool get hasAmount => (amount ?? Decimal.zero) > Decimal.zero;
-  bool get isMissingReference => method.requiresReference && reference.trim().isEmpty;
-  bool get isValid => hasAmount && !isMissingReference;
+
+  /// La referencia es opcional: basta con el monto.
+  bool get isValid => hasAmount;
 
   PaymentLine copyWith({Decimal? Function()? amount, String? reference}) => PaymentLine(
     id: id,
@@ -35,7 +36,7 @@ enum CheckoutStatus {
   /// Todavía no hay ninguna línea de pago.
   noPayments,
 
-  /// Alguna línea no tiene monto o le falta la referencia obligatoria.
+  /// Alguna línea no tiene monto.
   incomplete,
 
   /// Falta dinero por cobrar.

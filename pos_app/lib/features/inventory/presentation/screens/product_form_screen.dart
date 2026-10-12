@@ -33,6 +33,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _nameController = TextEditingController(text: widget.product?.name ?? '');
   late int? _categoryId = widget.product?.category.id;
+  late int? _subcategoryId = widget.product?.subcategory?.id;
   late UnitOfMeasure _unit = widget.product?.unit ?? UnitOfMeasure.unit;
   late Decimal? _costPrice = widget.product?.costPriceUsd;
   late Decimal? _salePrice = widget.product?.salePriceUsd;
@@ -67,6 +68,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ProductDraft(
               name: _nameController.text.trim(),
               categoryId: _categoryId!,
+              subcategoryId: _subcategoryId,
               unit: _unit,
               costPriceUsd: quantizeMoney(_costPrice!),
               salePriceUsd: quantizeMoney(_salePrice!),
@@ -118,7 +120,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 selectedId: _categoryId,
                 current: widget.product?.category,
                 enabled: !_isSubmitting,
-                onChanged: (categoryId) => setState(() => _categoryId = categoryId),
+                onChanged: (categoryId) => setState(() {
+                  // La subcategoría era de la otra categoría.
+                  if (categoryId != _categoryId) _subcategoryId = null;
+                  _categoryId = categoryId;
+                }),
+              ),
+              _SubcategoryField(
+                categoryId: _categoryId,
+                selectedId: _subcategoryId,
+                current: widget.product?.subcategory,
+                enabled: !_isSubmitting,
+                onChanged: (subcategoryId) => setState(() => _subcategoryId = subcategoryId),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(Strings.unitLabel, style: AppTypography.bodySmall),
@@ -266,6 +279,66 @@ class _CategoryField extends ConsumerWidget {
           label: const Text(Strings.newCategory),
         ),
       ],
+    );
+  }
+}
+
+/// Selector opcional de subcategoría, con las subcategorías activas de la
+/// categoría elegida. No se muestra si la categoría no tiene ninguna.
+class _SubcategoryField extends ConsumerWidget {
+  const _SubcategoryField({
+    required this.categoryId,
+    required this.selectedId,
+    required this.current,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final int? categoryId;
+  final int? selectedId;
+
+  /// Subcategoría actual del producto que se edita; se ofrece aunque esté inactiva.
+  final ProductSubcategory? current;
+  final bool enabled;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = this.current;
+    final loaded = ref.watch(subcategoriesProvider).value ?? const <ProductSubcategory>[];
+    final options = [
+      for (final subcategory in loaded)
+        if (subcategory.categoryId == categoryId &&
+            (subcategory.active || subcategory.id == current?.id))
+          subcategory,
+      // Mientras carga la lista, la del producto sigue visible.
+      if (current != null &&
+          current.categoryId == categoryId &&
+          !loaded.any((subcategory) => subcategory.id == current.id))
+        current,
+    ];
+    if (options.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: DropdownButtonFormField<int?>(
+        // La clave fuerza a releer el valor al cambiar de categoría.
+        key: ValueKey('subcategory-$categoryId-$selectedId-${options.length}'),
+        initialValue: options.any((subcategory) => subcategory.id == selectedId)
+            ? selectedId
+            : null,
+        isExpanded: true,
+        decoration: const InputDecoration(labelText: Strings.subcategoryLabel),
+        items: [
+          const DropdownMenuItem(child: Text(Strings.noSubcategory)),
+          for (final subcategory in options)
+            DropdownMenuItem(
+              value: subcategory.id,
+              child: Text(subcategory.name, overflow: TextOverflow.ellipsis),
+            ),
+        ],
+        onChanged: enabled ? onChanged : null,
+      ),
     );
   }
 }

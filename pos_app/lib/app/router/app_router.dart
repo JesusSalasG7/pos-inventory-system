@@ -38,6 +38,7 @@ import 'package:pos_app/features/pos/presentation/screens/sale_receipt_screen.da
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:pos_app/features/sales/presentation/screens/sales_history_screen.dart';
+import 'package:pos_app/features/statistics/presentation/screens/statistics_screen.dart';
 import 'package:pos_app/features/users/presentation/screens/user_form_screen.dart';
 import 'package:pos_app/features/users/presentation/screens/users_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -115,6 +116,7 @@ GoRouter appRouter(Ref ref) {
         builder: (_, state) => SaleDetailScreen(sale: state.extra! as Sale),
       ),
       GoRoute(path: RouteNames.priceList, builder: (_, _) => const PriceListScreen()),
+      GoRoute(path: RouteNames.statistics, builder: (_, _) => const StatisticsScreen()),
       GoRoute(path: RouteNames.categories, builder: (_, _) => const CategoriesScreen()),
       GoRoute(path: RouteNames.users, builder: (_, _) => const UsersScreen()),
       GoRoute(

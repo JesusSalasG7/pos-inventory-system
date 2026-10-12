@@ -24,7 +24,7 @@ from core.branch_scope import can_access_branch
 from core.enums import Currency, PaymentMethod
 from core.exceptions import BranchAccessDeniedError, DomainError
 from core.money import quantize_money, usd_to_ves, ves_to_usd
-from core.payment_rules import METHOD_CURRENCY, REFERENCE_REQUIRED
+from core.payment_rules import METHOD_CURRENCY
 
 ZERO = Decimal("0.00")
 
@@ -106,7 +106,7 @@ def register_payment(data: CreditPaymentInput, user: User) -> CreditPayment:
     currency = Currency(data.currency)
     amount = quantize_money(data.amount)
     reference = data.approval_reference.strip()
-    _validate_payment(method, currency, amount, reference)
+    _validate_payment(method, currency, amount)
 
     rate = get_payment_rate()
     if rate is None:
@@ -198,9 +198,7 @@ def get_payment_totals_for_session(cash_session_id: int) -> dict[tuple[str, str]
     return credit_repository.payment_totals_by_session(cash_session_id)
 
 
-def _validate_payment(
-    method: PaymentMethod, currency: Currency, amount: Decimal, reference: str
-) -> None:
+def _validate_payment(method: PaymentMethod, currency: Currency, amount: Decimal) -> None:
     if method == PaymentMethod.CREDIT:
         raise _invalid_payment("Un abono no puede pagarse a crédito.", method=str(method))
     if amount <= 0:
@@ -210,10 +208,6 @@ def _validate_payment(
             "La moneda no corresponde al método de pago.",
             method=str(method),
             currency=str(currency),
-        )
-    if method in REFERENCE_REQUIRED and not reference:
-        raise _invalid_payment(
-            "Este método de pago requiere la referencia de aprobación.", method=str(method)
         )
 
 

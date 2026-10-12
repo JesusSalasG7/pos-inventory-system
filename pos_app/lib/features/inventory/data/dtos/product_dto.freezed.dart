@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductDto {
 
- int get id; String get name; int get category; String get categoryName; String get categoryIcon; String get unitOfMeasure;@DecimalConverter() Decimal get costPriceUsd;@DecimalConverter() Decimal get salePriceUsd; bool get active;
+ int get id; String get name; int get category; String get categoryName; String get categoryIcon; int? get subcategory; String? get subcategoryName; String get unitOfMeasure;@DecimalConverter() Decimal get costPriceUsd;@DecimalConverter() Decimal get salePriceUsd; bool get active;
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ProductDtoCopyWith<ProductDto> get copyWith => _$ProductDtoCopyWithImpl<Product
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.subcategory, subcategory) || other.subcategory == subcategory)&&(identical(other.subcategoryName, subcategoryName) || other.subcategoryName == subcategoryName)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,unitOfMeasure,costPriceUsd,salePriceUsd,active);
+int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,subcategory,subcategoryName,unitOfMeasure,costPriceUsd,salePriceUsd,active);
 
 @override
 String toString() {
-  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
+  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, subcategory: $subcategory, subcategoryName: $subcategoryName, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ProductDtoCopyWith<$Res>  {
   factory $ProductDtoCopyWith(ProductDto value, $Res Function(ProductDto) _then) = _$ProductDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, int category, String categoryName, String categoryIcon, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
+ int id, String name, int category, String categoryName, String categoryIcon, int? subcategory, String? subcategoryName, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
 });
 
 
@@ -65,14 +65,16 @@ class _$ProductDtoCopyWithImpl<$Res>
 
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? subcategory = freezed,Object? subcategoryName = freezed,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as int,categoryName: null == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String,categoryIcon: null == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
-as String,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
+as String,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
+as int?,subcategoryName: freezed == subcategoryName ? _self.subcategoryName : subcategoryName // ignore: cast_nullable_to_non_nullable
+as String?,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
 as String,costPriceUsd: null == costPriceUsd ? _self.costPriceUsd : costPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,salePriceUsd: null == salePriceUsd ? _self.salePriceUsd : salePriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
@@ -161,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  int? subcategory,  String? subcategoryName,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductDto() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.subcategory,_that.subcategoryName,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   return orElse();
 
 }
@@ -182,10 +184,10 @@ return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.cate
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  int? subcategory,  String? subcategoryName,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)  $default,) {final _that = this;
 switch (_that) {
 case _ProductDto():
-return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.subcategory,_that.subcategoryName,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +204,10 @@ return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.cate
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int category,  String categoryName,  String categoryIcon,  int? subcategory,  String? subcategoryName,  String unitOfMeasure, @DecimalConverter()  Decimal costPriceUsd, @DecimalConverter()  Decimal salePriceUsd,  bool active)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductDto() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
+return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.categoryIcon,_that.subcategory,_that.subcategoryName,_that.unitOfMeasure,_that.costPriceUsd,_that.salePriceUsd,_that.active);case _:
   return null;
 
 }
@@ -217,7 +219,7 @@ return $default(_that.id,_that.name,_that.category,_that.categoryName,_that.cate
 @JsonSerializable()
 
 class _ProductDto extends ProductDto {
-  const _ProductDto({required this.id, required this.name, required this.category, required this.categoryName, this.categoryIcon = '', required this.unitOfMeasure, @DecimalConverter() required this.costPriceUsd, @DecimalConverter() required this.salePriceUsd, required this.active}): super._();
+  const _ProductDto({required this.id, required this.name, required this.category, required this.categoryName, this.categoryIcon = '', this.subcategory, this.subcategoryName, required this.unitOfMeasure, @DecimalConverter() required this.costPriceUsd, @DecimalConverter() required this.salePriceUsd, required this.active}): super._();
   factory _ProductDto.fromJson(Map<String, dynamic> json) => _$ProductDtoFromJson(json);
 
 @override final  int id;
@@ -225,6 +227,8 @@ class _ProductDto extends ProductDto {
 @override final  int category;
 @override final  String categoryName;
 @override@JsonKey() final  String categoryIcon;
+@override final  int? subcategory;
+@override final  String? subcategoryName;
 @override final  String unitOfMeasure;
 @override@DecimalConverter() final  Decimal costPriceUsd;
 @override@DecimalConverter() final  Decimal salePriceUsd;
@@ -243,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.subcategory, subcategory) || other.subcategory == subcategory)&&(identical(other.subcategoryName, subcategoryName) || other.subcategoryName == subcategoryName)&&(identical(other.unitOfMeasure, unitOfMeasure) || other.unitOfMeasure == unitOfMeasure)&&(identical(other.costPriceUsd, costPriceUsd) || other.costPriceUsd == costPriceUsd)&&(identical(other.salePriceUsd, salePriceUsd) || other.salePriceUsd == salePriceUsd)&&(identical(other.active, active) || other.active == active));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,unitOfMeasure,costPriceUsd,salePriceUsd,active);
+int get hashCode => Object.hash(runtimeType,id,name,category,categoryName,categoryIcon,subcategory,subcategoryName,unitOfMeasure,costPriceUsd,salePriceUsd,active);
 
 @override
 String toString() {
-  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
+  return 'ProductDto(id: $id, name: $name, category: $category, categoryName: $categoryName, categoryIcon: $categoryIcon, subcategory: $subcategory, subcategoryName: $subcategoryName, unitOfMeasure: $unitOfMeasure, costPriceUsd: $costPriceUsd, salePriceUsd: $salePriceUsd, active: $active)';
 }
 
 
@@ -263,7 +267,7 @@ abstract mixin class _$ProductDtoCopyWith<$Res> implements $ProductDtoCopyWith<$
   factory _$ProductDtoCopyWith(_ProductDto value, $Res Function(_ProductDto) _then) = __$ProductDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, int category, String categoryName, String categoryIcon, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
+ int id, String name, int category, String categoryName, String categoryIcon, int? subcategory, String? subcategoryName, String unitOfMeasure,@DecimalConverter() Decimal costPriceUsd,@DecimalConverter() Decimal salePriceUsd, bool active
 });
 
 
@@ -280,14 +284,16 @@ class __$ProductDtoCopyWithImpl<$Res>
 
 /// Create a copy of ProductDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? categoryName = null,Object? categoryIcon = null,Object? subcategory = freezed,Object? subcategoryName = freezed,Object? unitOfMeasure = null,Object? costPriceUsd = null,Object? salePriceUsd = null,Object? active = null,}) {
   return _then(_ProductDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as int,categoryName: null == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String,categoryIcon: null == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
-as String,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
+as String,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
+as int?,subcategoryName: freezed == subcategoryName ? _self.subcategoryName : subcategoryName // ignore: cast_nullable_to_non_nullable
+as String?,unitOfMeasure: null == unitOfMeasure ? _self.unitOfMeasure : unitOfMeasure // ignore: cast_nullable_to_non_nullable
 as String,costPriceUsd: null == costPriceUsd ? _self.costPriceUsd : costPriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,salePriceUsd: null == salePriceUsd ? _self.salePriceUsd : salePriceUsd // ignore: cast_nullable_to_non_nullable
 as Decimal,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
@@ -842,6 +848,278 @@ as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nu
 as String,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
 as bool,icon: null == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$SubcategoryDto {
+
+ int get id; int get category; String get name; bool get active;
+/// Create a copy of SubcategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SubcategoryDtoCopyWith<SubcategoryDto> get copyWith => _$SubcategoryDtoCopyWithImpl<SubcategoryDto>(this as SubcategoryDto, _$identity);
+
+  /// Serializes this SubcategoryDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubcategoryDto&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.name, name) || other.name == name)&&(identical(other.active, active) || other.active == active));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,category,name,active);
+
+@override
+String toString() {
+  return 'SubcategoryDto(id: $id, category: $category, name: $name, active: $active)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SubcategoryDtoCopyWith<$Res>  {
+  factory $SubcategoryDtoCopyWith(SubcategoryDto value, $Res Function(SubcategoryDto) _then) = _$SubcategoryDtoCopyWithImpl;
+@useResult
+$Res call({
+ int id, int category, String name, bool active
+});
+
+
+
+
+}
+/// @nodoc
+class _$SubcategoryDtoCopyWithImpl<$Res>
+    implements $SubcategoryDtoCopyWith<$Res> {
+  _$SubcategoryDtoCopyWithImpl(this._self, this._then);
+
+  final SubcategoryDto _self;
+  final $Res Function(SubcategoryDto) _then;
+
+/// Create a copy of SubcategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? category = null,Object? name = null,Object? active = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SubcategoryDto].
+extension SubcategoryDtoPatterns on SubcategoryDto {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SubcategoryDto value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SubcategoryDto() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SubcategoryDto value)  $default,){
+final _that = this;
+switch (_that) {
+case _SubcategoryDto():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SubcategoryDto value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SubcategoryDto() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int category,  String name,  bool active)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SubcategoryDto() when $default != null:
+return $default(_that.id,_that.category,_that.name,_that.active);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int category,  String name,  bool active)  $default,) {final _that = this;
+switch (_that) {
+case _SubcategoryDto():
+return $default(_that.id,_that.category,_that.name,_that.active);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int category,  String name,  bool active)?  $default,) {final _that = this;
+switch (_that) {
+case _SubcategoryDto() when $default != null:
+return $default(_that.id,_that.category,_that.name,_that.active);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SubcategoryDto extends SubcategoryDto {
+  const _SubcategoryDto({required this.id, required this.category, required this.name, required this.active}): super._();
+  factory _SubcategoryDto.fromJson(Map<String, dynamic> json) => _$SubcategoryDtoFromJson(json);
+
+@override final  int id;
+@override final  int category;
+@override final  String name;
+@override final  bool active;
+
+/// Create a copy of SubcategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SubcategoryDtoCopyWith<_SubcategoryDto> get copyWith => __$SubcategoryDtoCopyWithImpl<_SubcategoryDto>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SubcategoryDtoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubcategoryDto&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.name, name) || other.name == name)&&(identical(other.active, active) || other.active == active));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,category,name,active);
+
+@override
+String toString() {
+  return 'SubcategoryDto(id: $id, category: $category, name: $name, active: $active)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SubcategoryDtoCopyWith<$Res> implements $SubcategoryDtoCopyWith<$Res> {
+  factory _$SubcategoryDtoCopyWith(_SubcategoryDto value, $Res Function(_SubcategoryDto) _then) = __$SubcategoryDtoCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, int category, String name, bool active
+});
+
+
+
+
+}
+/// @nodoc
+class __$SubcategoryDtoCopyWithImpl<$Res>
+    implements _$SubcategoryDtoCopyWith<$Res> {
+  __$SubcategoryDtoCopyWithImpl(this._self, this._then);
+
+  final _SubcategoryDto _self;
+  final $Res Function(_SubcategoryDto) _then;
+
+/// Create a copy of SubcategoryDto
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? category = null,Object? name = null,Object? active = null,}) {
+  return _then(_SubcategoryDto(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,active: null == active ? _self.active : active // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

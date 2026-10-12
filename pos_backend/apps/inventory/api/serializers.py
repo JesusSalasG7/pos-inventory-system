@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from apps.inventory.models import BranchInventory, Category, InventoryMovement, Product
+from apps.inventory.models import (
+    BranchInventory,
+    Category,
+    InventoryMovement,
+    Product,
+    Subcategory,
+)
 from core.enums import MovementType
 
 
@@ -24,11 +30,41 @@ class CategoryUpdateSerializer(serializers.Serializer):
     active = serializers.BooleanField(required=False)
 
 
+class SubcategorySerializer(serializers.ModelSerializer):
+    category = serializers.IntegerField(source="category_id", read_only=True)
+
+    class Meta:
+        model = Subcategory
+        fields = ["id", "category", "name", "active"]
+        read_only_fields = fields
+
+
+class SubcategoryCreateSerializer(serializers.Serializer):
+    category = serializers.IntegerField(min_value=1)
+    name = serializers.CharField(max_length=100)
+
+
+class SubcategoryUpdateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100, required=False)
+    active = serializers.BooleanField(required=False)
+
+
+class SubcategoryListQuerySerializer(serializers.Serializer):
+    category = serializers.IntegerField(min_value=1, required=False)
+
+
 class ProductSerializer(serializers.ModelSerializer):
     # La categoría viaja como su id; el nombre va aparte para no pedirla otra vez.
     category = serializers.IntegerField(source="category_id", min_value=1)
     category_name = serializers.CharField(source="category.name", read_only=True)
     category_icon = serializers.CharField(source="category.icon", read_only=True)
+    # Opcional: `null` deja el producto sin subcategoría.
+    subcategory = serializers.IntegerField(
+        source="subcategory_id", min_value=1, required=False, allow_null=True
+    )
+    subcategory_name = serializers.CharField(
+        source="subcategory.name", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = Product
@@ -38,6 +74,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "category",
             "category_name",
             "category_icon",
+            "subcategory",
+            "subcategory_name",
             "unit_of_measure",
             "cost_price_usd",
             "sale_price_usd",
@@ -48,6 +86,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductListQuerySerializer(serializers.Serializer):
     category = serializers.IntegerField(min_value=1, required=False)
+    subcategory = serializers.IntegerField(min_value=1, required=False)
 
 
 class BranchInventorySerializer(serializers.ModelSerializer):

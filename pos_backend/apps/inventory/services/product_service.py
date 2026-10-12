@@ -9,22 +9,36 @@ from django.db.models import QuerySet
 from apps.branches.services import branch_service
 from apps.inventory.models import Product
 from apps.inventory.repositories import branch_inventory_repository, product_repository
-from apps.inventory.services import category_service
+from apps.inventory.services import category_service, subcategory_service
 from core.enums import UnitOfMeasure
 from core.exceptions import DomainError, InactiveProductError, NotFoundError
 
 EDITABLE_FIELDS = frozenset(
-    {"name", "category_id", "unit_of_measure", "cost_price_usd", "sale_price_usd"}
+    {
+        "name",
+        "category_id",
+        "subcategory_id",
+        "unit_of_measure",
+        "cost_price_usd",
+        "sale_price_usd",
+    }
 )
 PRICE_FIELDS = ("cost_price_usd", "sale_price_usd")
 
 
 def list_products(
-    *, only_active: bool = False, category_id: int | None = None, search: str | None = None
+    *,
+    only_active: bool = False,
+    category_id: int | None = None,
+    subcategory_id: int | None = None,
+    search: str | None = None,
 ) -> QuerySet[Product]:
     """Lista el catálogo aplicando los filtros recibidos."""
     return product_repository.list_products(
-        only_active=only_active, category_id=category_id, search=search
+        only_active=only_active,
+        category_id=category_id,
+        subcategory_id=subcategory_id,
+        search=search,
     )
 
 
@@ -61,23 +75,28 @@ def create_product(
     unit_of_measure: UnitOfMeasure,
     cost_price_usd: Decimal,
     sale_price_usd: Decimal,
+    subcategory_id: int | None = None,
 ) -> Product:
     """Crea un producto.
 
     Pasos:
     1. Validar el nombre (no vacío y no repetido), que la categoría exista y
-       esté activa, y que los precios no sean negativos.
+       esté activa, que la subcategoría (opcional) esté activa y sea de esa
+       categoría, y que los precios no sean negativos.
     2. Dentro de `transaction.atomic()`: crear el producto y sus filas de
        BranchInventory en stock cero para cada sucursal activa.
     """
     name = _clean_name(name)
     category_service.require_active(category_id)
+    if subcategory_id is not None:
+        subcategory_service.require_active_in_category(subcategory_id, category_id)
     _require_non_negative_prices(cost_price_usd=cost_price_usd, sale_price_usd=sale_price_usd)
 
     with transaction.atomic():
         product = product_repository.create(
             name=name,
             category_id=category_id,
+            subcategory_id=subcategory_id,
             unit_of_measure=unit_of_measure,
             cost_price_usd=cost_price_usd,
             sale_price_usd=sale_price_usd,
@@ -98,6 +117,7 @@ def update_product(product_id: int, **fields: object) -> Product:
     # Un producto puede conservar una categoría desactivada, pero no pasar a una.
     if "category_id" in fields and fields["category_id"] != product.category_id:
         category_service.require_active(int(fields["category_id"]))
+    _resolve_subcategory(product, fields)
     _require_non_negative_prices(**{f: fields[f] for f in PRICE_FIELDS if f in fields})
     if not fields:
         return product
@@ -108,6 +128,27 @@ def toggle_active(product_id: int) -> Product:
     """Invierte el estado activo/inactivo. Un producto inactivo no puede venderse."""
     product = get_product(product_id)
     return product_repository.set_active(product, not product.active)
+
+
+def _resolve_subcategory(product: Product, fields: dict[str, object]) -> None:
+    """Deja en `fields` una subcategoría coherente con la categoría final del producto.
+
+    - Una subcategoría nueva debe estar activa y ser de la categoría final.
+    - Si cambia la categoría y no se indica subcategoría, la anterior se quita:
+      pertenecía a la otra categoría.
+    - Conservar la que ya tenía, aunque esté desactivada, siempre se permite.
+    """
+    category_id = int(fields.get("category_id", product.category_id))
+    category_changed = category_id != product.category_id
+    if "subcategory_id" not in fields:
+        if category_changed and product.subcategory_id is not None:
+            fields["subcategory_id"] = None
+        return
+    subcategory_id = fields["subcategory_id"]
+    if subcategory_id is None:
+        return
+    if category_changed or subcategory_id != product.subcategory_id:
+        subcategory_service.require_active_in_category(int(subcategory_id), category_id)
 
 
 def _clean_name(name: str, *, exclude_id: int | None = None) -> str:

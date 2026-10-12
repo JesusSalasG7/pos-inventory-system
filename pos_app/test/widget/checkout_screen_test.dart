@@ -102,20 +102,20 @@ void main() {
     expect(confirmEnabled(tester), isTrue);
   });
 
-  testWidgets('pago móvil exige la referencia para poder confirmar', (tester) async {
+  testWidgets('pago móvil se puede confirmar sin referencia, o anotándola', (tester) async {
     await pumpCheckout(tester);
 
     await tester.tap(find.text(Strings.paymentMethod(PaymentMethod.mobilePayment)));
     await tester.pumpAndSettle();
 
-    expect(find.text(Strings.referenceRequired), findsOneWidget);
-    expect(find.text(Strings.incompletePayments), findsOneWidget);
-    expect(confirmEnabled(tester), isFalse);
+    // El campo se ofrece, pero dejarlo vacío no bloquea el cobro.
+    expect(find.widgetWithText(TextFormField, Strings.paymentReference), findsOneWidget);
+    expect(find.text(Strings.incompletePayments), findsNothing);
+    expect(confirmEnabled(tester), isTrue);
 
     await tester.enterText(find.widgetWithText(TextFormField, Strings.paymentReference), '004512');
     await tester.pumpAndSettle();
 
-    expect(find.text(Strings.referenceRequired), findsNothing);
     expect(confirmEnabled(tester), isTrue);
   });
 

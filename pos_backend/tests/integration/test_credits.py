@@ -170,6 +170,17 @@ def test_payment_in_usd_is_applied_to_the_oldest_debt_first(
     ]
 
 
+@pytest.mark.parametrize("method", [PaymentMethod.MOBILE_PAYMENT, PaymentMethod.POS_CARD])
+def test_payment_reference_is_optional(
+    method: PaymentMethod, supervisor: User, session: CashSession, customer: Customer
+) -> None:
+    sell_on_credit(supervisor, customer, "20.00", [credit("20.00")])
+
+    payment = pay(supervisor, customer, method, "1500.00", "   ")
+
+    assert payment.approval_reference == ""
+
+
 def test_payment_in_bolivars_uses_the_bcv_rate_not_the_active_one(
     supervisor: User, session: CashSession, customer: Customer
 ) -> None:

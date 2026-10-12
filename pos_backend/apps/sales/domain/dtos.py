@@ -1,6 +1,7 @@
 """DTOs inmutables de entrada y resultado para los services de ventas."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 
 from core.enums import Currency, PaymentMethod
@@ -103,3 +104,67 @@ class SessionSalesReport:
     products: tuple[ProductSales, ...]
     # Abonos de deudas cobrados en la caja, por método. No son ventas del turno.
     credit_collections: tuple[PaymentTotal, ...] = ()
+
+
+@dataclass(frozen=True)
+class SalesAggregate:
+    """Lo vendido en un conjunto de líneas: base de las estadísticas."""
+
+    units: Decimal
+    revenue_usd: Decimal
+    cost_usd: Decimal
+    # Ventas distintas a las que pertenecen las líneas.
+    sales_count: int
+
+    @property
+    def profit_usd(self) -> Decimal:
+        return self.revenue_usd - self.cost_usd
+
+
+@dataclass(frozen=True)
+class GroupSalesAggregate:
+    """Lo vendido de una categoría o subcategoría. `id` nulo: productos sin subcategoría."""
+
+    id: int | None
+    name: str | None
+    totals: SalesAggregate
+
+
+@dataclass(frozen=True)
+class ProductSalesAggregate:
+    """Lo vendido de un producto, con su clasificación actual en el catálogo."""
+
+    product_id: int
+    product_name: str
+    unit_of_measure: str
+    category_id: int
+    category_name: str
+    subcategory_id: int | None
+    subcategory_name: str | None
+    totals: SalesAggregate
+
+
+@dataclass(frozen=True)
+class ProductSalesActivity:
+    """Última venta de un producto y unidades vendidas desde una fecha."""
+
+    last_sale_at: datetime
+    recent_units: Decimal
+
+
+@dataclass(frozen=True)
+class CreditSplitAggregate:
+    """Lo vendido en un período y la parte que se dejó a crédito.
+
+    Una venta puede ser a crédito solo en parte: sus líneas se reparten en la
+    proporción `deuda ÷ total de la venta`. Los importes van sin redondear.
+    """
+
+    revenue_usd: Decimal
+    cost_usd: Decimal
+    # Parte que quedó como deuda al vender.
+    credit_revenue_usd: Decimal
+    credit_cost_usd: Decimal
+    # Parte que sigue sin cobrarse hoy.
+    pending_revenue_usd: Decimal
+    pending_cost_usd: Decimal

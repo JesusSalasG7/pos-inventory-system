@@ -12,6 +12,8 @@ _ProductDto _$ProductDtoFromJson(Map<String, dynamic> json) => _ProductDto(
   category: (json['category'] as num).toInt(),
   categoryName: json['category_name'] as String,
   categoryIcon: json['category_icon'] as String? ?? '',
+  subcategory: (json['subcategory'] as num?)?.toInt(),
+  subcategoryName: json['subcategory_name'] as String?,
   unitOfMeasure: json['unit_of_measure'] as String,
   costPriceUsd: const DecimalConverter().fromJson(json['cost_price_usd'] as String),
   salePriceUsd: const DecimalConverter().fromJson(json['sale_price_usd'] as String),
@@ -24,6 +26,8 @@ Map<String, dynamic> _$ProductDtoToJson(_ProductDto instance) => <String, dynami
   'category': instance.category,
   'category_name': instance.categoryName,
   'category_icon': instance.categoryIcon,
+  'subcategory': instance.subcategory,
+  'subcategory_name': instance.subcategoryName,
   'unit_of_measure': instance.unitOfMeasure,
   'cost_price_usd': const DecimalConverter().toJson(instance.costPriceUsd),
   'sale_price_usd': const DecimalConverter().toJson(instance.salePriceUsd),
@@ -60,4 +64,18 @@ Map<String, dynamic> _$CategoryDtoToJson(_CategoryDto instance) => <String, dyna
   'name': instance.name,
   'active': instance.active,
   'icon': instance.icon,
+};
+
+_SubcategoryDto _$SubcategoryDtoFromJson(Map<String, dynamic> json) => _SubcategoryDto(
+  id: (json['id'] as num).toInt(),
+  category: (json['category'] as num).toInt(),
+  name: json['name'] as String,
+  active: json['active'] as bool,
+);
+
+Map<String, dynamic> _$SubcategoryDtoToJson(_SubcategoryDto instance) => <String, dynamic>{
+  'id': instance.id,
+  'category': instance.category,
+  'name': instance.name,
+  'active': instance.active,
 };

@@ -43,6 +43,9 @@ import 'package:pos_app/features/sales/data/repositories/sales_repository_impl.d
 import 'package:pos_app/features/sales/domain/entities/sale.dart';
 import 'package:pos_app/features/sales/domain/entities/sales_summary.dart';
 import 'package:pos_app/features/sales/domain/repositories/sales_repository.dart';
+import 'package:pos_app/features/statistics/data/repositories/statistics_repository_impl.dart';
+import 'package:pos_app/features/statistics/domain/entities/statistics.dart';
+import 'package:pos_app/features/statistics/domain/repositories/statistics_repository.dart';
 import 'package:pos_app/features/users/data/repositories/users_repository_impl.dart';
 import 'package:pos_app/features/users/domain/repositories/users_repository.dart';
 
@@ -599,6 +602,7 @@ class FakeUsersRepository implements UsersRepository {
 class FakeInventoryRepository implements InventoryRepository {
   int lowStock = 0;
   List<ProductCategory> categories = [liquids, powders, accessories];
+  List<ProductSubcategory> subcategories = [];
   List<Product> products = [];
   List<BranchStock> stock = [];
   int catalogCalls = 0;
@@ -721,6 +725,7 @@ class FakeInventoryRepository implements InventoryRepository {
                 id: p.id,
                 name: p.name,
                 category: ProductCategory(id: updated.id, name: updated.name, icon: updated.icon),
+                subcategory: p.subcategory,
                 unit: p.unit,
                 costPriceUsd: p.costPriceUsd,
                 salePriceUsd: p.salePriceUsd,
@@ -729,6 +734,57 @@ class FakeInventoryRepository implements InventoryRepository {
             : p,
     ];
     return updated;
+  }
+
+  ProductSubcategory? _subcategory(int? subcategoryId) => subcategoryId == null
+      ? null
+      : subcategories.firstWhere((subcategory) => subcategory.id == subcategoryId);
+
+  @override
+  Future<List<ProductSubcategory>> fetchSubcategories() async =>
+      [...subcategories]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+  @override
+  Future<ProductSubcategory> createSubcategory({
+    required int categoryId,
+    required String name,
+  }) async {
+    _failIfRequested();
+    final taken = subcategories.any(
+      (s) => s.categoryId == categoryId && s.name.toLowerCase() == name.trim().toLowerCase(),
+    );
+    if (taken) {
+      throw const Failure(
+        code: 'subcategory_name_taken',
+        message: 'La categoría ya tiene una subcategoría con ese nombre.',
+        type: ApiErrorType.api,
+        statusCode: 409,
+      );
+    }
+    final created = ProductSubcategory(
+      id: subcategories.fold(0, (highest, s) => s.id > highest ? s.id : highest) + 1,
+      categoryId: categoryId,
+      name: name.trim(),
+    );
+    subcategories.add(created);
+    return created;
+  }
+
+  @override
+  Future<ProductSubcategory> updateSubcategory(
+    int subcategoryId, {
+    String? name,
+    bool? active,
+  }) async {
+    _failIfRequested();
+    final index = subcategories.indexWhere((subcategory) => subcategory.id == subcategoryId);
+    final current = subcategories[index];
+    return subcategories[index] = ProductSubcategory(
+      id: current.id,
+      categoryId: current.categoryId,
+      name: name?.trim() ?? current.name,
+      active: active ?? current.active,
+    );
   }
 
   @override
@@ -756,6 +812,7 @@ class FakeInventoryRepository implements InventoryRepository {
       id: products.fold(0, (highest, p) => p.id > highest ? p.id : highest) + 1,
       name: draft.name,
       category: _category(draft.categoryId),
+      subcategory: _subcategory(draft.subcategoryId),
       unit: draft.unit,
       costPriceUsd: draft.costPriceUsd,
       salePriceUsd: draft.salePriceUsd,
@@ -774,6 +831,7 @@ class FakeInventoryRepository implements InventoryRepository {
         id: current.id,
         name: draft.name,
         category: _category(draft.categoryId),
+        subcategory: _subcategory(draft.subcategoryId),
         unit: draft.unit,
         costPriceUsd: draft.costPriceUsd,
         salePriceUsd: draft.salePriceUsd,
@@ -791,6 +849,7 @@ class FakeInventoryRepository implements InventoryRepository {
         id: current.id,
         name: current.name,
         category: current.category,
+        subcategory: current.subcategory,
         unit: current.unit,
         costPriceUsd: current.costPriceUsd,
         salePriceUsd: current.salePriceUsd,
@@ -1008,6 +1067,210 @@ class FakeCreditsRepository implements CreditsRepository {
 }
 
 /// Overrides para montar la sesión con repositorios falsos.
+/// Estadísticas de ejemplo: dos categorías con ventas y, dentro de Líquidos,
+/// una subcategoría y productos sin subcategoría.
+class FakeStatisticsRepository implements StatisticsRepository {
+  /// Filtros recibidos por cada sección, en orden de llegada.
+  final List<StatsFilter> summaryCalls = [];
+  final List<StatsFilter> groupCalls = [];
+  final List<RankingOrder> rankingCalls = [];
+  final List<StatsFilter> matrixCalls = [];
+  final List<int?> healthCalls = [];
+
+  /// Con `true` el período no tiene ventas.
+  bool empty = false;
+
+  /// Si se asignan, esa sección falla con el error.
+  Failure? summaryFailure;
+  Failure? matrixFailure;
+
+  static StatsKpis _kpis(String revenue, String profit, String margin, int sales) => StatsKpis(
+    revenue: dec(revenue),
+    profit: dec(profit),
+    margin: dec(margin),
+    units: dec('33'),
+    salesCount: sales,
+    averageTicket: sales == 0 ? Decimal.zero : dec('26.00'),
+  );
+
+  @override
+  Future<StatsSummary> fetchSummary({
+    required String branchCode,
+    required StatsFilter filter,
+  }) async {
+    summaryCalls.add(filter);
+    final failure = summaryFailure;
+    if (failure != null) throw failure;
+    return StatsSummary(
+      period: filter.period,
+      previousPeriod: filter.period,
+      current: empty ? _kpis('0', '0', '0', 0) : _kpis('52.00', '14.00', '26.92', 2),
+      previous: empty ? _kpis('0', '0', '0', 0) : _kpis('10.00', '5.00', '50.00', 1),
+      change: empty
+          ? const StatsKpiChanges()
+          : StatsKpiChanges(
+              revenue: dec('420.00'),
+              profit: dec('180.00'),
+              margin: dec('-23.08'),
+              units: dec('560.00'),
+              salesCount: dec('100.00'),
+            ),
+    );
+  }
+
+  /// Con `false` no hubo ventas a crédito en el período.
+  bool hasCreditSales = true;
+  final List<StatsFilter> creditCalls = [];
+
+  @override
+  Future<CreditBreakdown> fetchCreditBreakdown({
+    required String branchCode,
+    required StatsFilter filter,
+  }) async {
+    creditCalls.add(filter);
+    if (!hasCreditSales) {
+      return CreditBreakdown(
+        cash: SplitTotals(revenue: dec('52.00'), profit: dec('14.00'), margin: dec('26.92')),
+        credit: SplitTotals(revenue: Decimal.zero, profit: Decimal.zero, margin: Decimal.zero),
+        pendingRevenue: Decimal.zero,
+        pendingProfit: Decimal.zero,
+        creditShare: Decimal.zero,
+      );
+    }
+    return CreditBreakdown(
+      cash: SplitTotals(revenue: dec('42.00'), profit: dec('10.40'), margin: dec('24.76')),
+      credit: SplitTotals(revenue: dec('10.00'), profit: dec('3.60'), margin: dec('36.00')),
+      pendingRevenue: dec('4.00'),
+      pendingProfit: dec('1.44'),
+      creditShare: dec('19.23'),
+    );
+  }
+
+  static GroupPerformance _group(int? id, String name, String revenue, String profit) =>
+      GroupPerformance(
+        id: id,
+        name: name,
+        units: dec('10'),
+        revenue: dec(revenue),
+        profit: dec(profit),
+        margin: dec('31.91'),
+      );
+
+  @override
+  Future<GroupReport> fetchGroups({required String branchCode, required StatsFilter filter}) async {
+    groupCalls.add(filter);
+    if (empty) return const GroupReport(level: GroupLevel.category, groups: []);
+    if (filter.category == null) {
+      return GroupReport(
+        level: GroupLevel.category,
+        groups: [_group(1, 'Líquidos', '47.00', '15.00'), _group(2, 'Polvos', '5.00', '-1.00')],
+      );
+    }
+    return GroupReport(
+      level: GroupLevel.subcategory,
+      groups: [
+        _group(7, 'Detergentes', '20.00', '10.00'),
+        _group(null, 'Sin subcategoría', '27.00', '5.00'),
+      ],
+    );
+  }
+
+  static ProductPerformance _ranked(int id, String name, String units, String profit) =>
+      ProductPerformance(
+        productId: id,
+        name: name,
+        unit: UnitOfMeasure.liter,
+        categoryName: 'Líquidos',
+        subcategoryName: id == 1 ? 'Detergentes' : null,
+        units: dec(units),
+        revenue: dec('20.00'),
+        profit: dec(profit),
+        margin: dec('50.00'),
+      );
+
+  @override
+  Future<List<ProductPerformance>> fetchRanking({
+    required String branchCode,
+    required StatsFilter filter,
+    required RankingOrder order,
+    int limit = 10,
+  }) async {
+    rankingCalls.add(order);
+    if (empty) return const [];
+    final detergent = _ranked(1, 'Detergente', '10', '10.00');
+    final chlorine = _ranked(2, 'Cloro', '20', '4.00');
+    return order == RankingOrder.units ? [chlorine, detergent] : [detergent, chlorine];
+  }
+
+  static MatrixPoint _point(int id, String name, String units, String margin, Quadrant quadrant) =>
+      MatrixPoint(
+        productId: id,
+        name: name,
+        unit: UnitOfMeasure.liter,
+        units: dec(units),
+        revenue: dec('20.00'),
+        profit: dec('4.00'),
+        margin: dec(margin),
+        quadrant: quadrant,
+      );
+
+  @override
+  Future<StatsMatrix> fetchMatrix({required String branchCode, required StatsFilter filter}) async {
+    matrixCalls.add(filter);
+    final failure = matrixFailure;
+    if (failure != null) throw failure;
+    return StatsMatrix(
+      medianUnits: dec('6'),
+      medianMargin: dec('25'),
+      products: empty
+          ? const []
+          : [
+              _point(1, 'Detergente', '10', '50.00', Quadrant.star),
+              _point(2, 'Cloro', '20', '16.67', Quadrant.volumeDriver),
+              // Un margen negativo también se pinta.
+              _point(4, 'Ambientador', '2', '-20.00', Quadrant.review),
+            ],
+    );
+  }
+
+  @override
+  Future<InventoryHealth> fetchInventoryHealth({
+    required String branchCode,
+    int? categoryId,
+  }) async {
+    healthCalls.add(categoryId);
+    return InventoryHealth(
+      immobilizedCapitalTotal: dec('12.00'),
+      noMovement: [
+        NoMovementItem(
+          productId: 5,
+          name: 'Viejo',
+          unit: UnitOfMeasure.unit,
+          stock: dec('4'),
+          lastSaleDate: DateTime(2026, 3),
+          immobilizedCapital: dec('10.00'),
+        ),
+        NoMovementItem(
+          productId: 6,
+          name: 'Nuevo',
+          unit: UnitOfMeasure.unit,
+          stock: dec('2'),
+          immobilizedCapital: dec('2.00'),
+        ),
+      ],
+      runningOut: [
+        RunningOutItem(
+          productId: 1,
+          name: 'Detergente',
+          unit: UnitOfMeasure.liter,
+          stock: dec('3'),
+          daysLeft: dec('9.0'),
+        ),
+      ],
+    );
+  }
+}
+
 List<Override> sessionOverrides({
   required FakeAuthRepository auth,
   required FakeBranchRepository branches,
@@ -1021,7 +1284,9 @@ List<Override> sessionOverrides({
   InMemoryRateNoticeStorage? rateNotice,
   FakeCreditsRepository? credits,
   InMemoryDebtNotifier? debtNotifier,
+  FakeStatisticsRepository? statistics,
 }) => [
+  statisticsRepositoryProvider.overrideWithValue(statistics ?? FakeStatisticsRepository()),
   rateNoticeStorageProvider.overrideWithValue(rateNotice ?? InMemoryRateNoticeStorage()),
   creditsRepositoryProvider.overrideWithValue(credits ?? FakeCreditsRepository()),
   debtNotificationsProvider.overrideWithValue(debtNotifier ?? InMemoryDebtNotifier()),

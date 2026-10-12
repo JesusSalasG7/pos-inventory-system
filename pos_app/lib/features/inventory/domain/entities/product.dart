@@ -14,11 +14,15 @@ class Product {
     required this.costPriceUsd,
     required this.salePriceUsd,
     required this.active,
+    this.subcategory,
   });
 
   final int id;
   final String name;
   final ProductCategory category;
+
+  /// Opcional. Si la tiene, pertenece a [category].
+  final ProductSubcategory? subcategory;
   final UnitOfMeasure unit;
   final Decimal costPriceUsd;
   final Decimal salePriceUsd;
@@ -30,13 +34,15 @@ class Product {
       other.id == id &&
       other.name == name &&
       other.category == category &&
+      other.subcategory == subcategory &&
       other.unit == unit &&
       other.costPriceUsd == costPriceUsd &&
       other.salePriceUsd == salePriceUsd &&
       other.active == active;
 
   @override
-  int get hashCode => Object.hash(id, name, category, unit, costPriceUsd, salePriceUsd, active);
+  int get hashCode =>
+      Object.hash(id, name, category, subcategory, unit, costPriceUsd, salePriceUsd, active);
 }
 
 /// Existencias de un producto en una sucursal.
@@ -90,10 +96,14 @@ class ProductDraft {
     required this.unit,
     required this.costPriceUsd,
     required this.salePriceUsd,
+    this.subcategoryId,
   });
 
   final String name;
   final int categoryId;
+
+  /// `null` deja el producto sin subcategoría.
+  final int? subcategoryId;
   final UnitOfMeasure unit;
   final Decimal costPriceUsd;
   final Decimal salePriceUsd;

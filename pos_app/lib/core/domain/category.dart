@@ -28,3 +28,33 @@ class ProductCategory {
   @override
   int get hashCode => Object.hash(id, name, icon, active);
 }
+
+/// Subcategoría: el segundo nivel del catálogo, dentro de una categoría. Las
+/// crea un MANAGER; no se borran, se desactivan.
+@immutable
+class ProductSubcategory {
+  const ProductSubcategory({
+    required this.id,
+    required this.categoryId,
+    required this.name,
+    this.active = true,
+  });
+
+  final int id;
+  final int categoryId;
+  final String name;
+
+  /// Una subcategoría inactiva conserva sus productos pero no admite nuevos.
+  final bool active;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ProductSubcategory &&
+      other.id == id &&
+      other.categoryId == categoryId &&
+      other.name == name &&
+      other.active == active;
+
+  @override
+  int get hashCode => Object.hash(id, categoryId, name, active);
+}

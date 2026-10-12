@@ -61,6 +61,60 @@ abstract class _$Categories extends $AsyncNotifier<List<ProductCategory>> {
   }
 }
 
+/// Todas las subcategorías del catálogo, también las inactivas, por nombre.
+/// Concentra las operaciones de un MANAGER sobre ellas.
+
+@ProviderFor(Subcategories)
+final subcategoriesProvider = SubcategoriesProvider._();
+
+/// Todas las subcategorías del catálogo, también las inactivas, por nombre.
+/// Concentra las operaciones de un MANAGER sobre ellas.
+final class SubcategoriesProvider
+    extends $AsyncNotifierProvider<Subcategories, List<ProductSubcategory>> {
+  /// Todas las subcategorías del catálogo, también las inactivas, por nombre.
+  /// Concentra las operaciones de un MANAGER sobre ellas.
+  SubcategoriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'subcategoriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$subcategoriesHash();
+
+  @$internal
+  @override
+  Subcategories create() => Subcategories();
+}
+
+String _$subcategoriesHash() => r'5096d05a88055901563a17fcb60ef83a3817e297';
+
+/// Todas las subcategorías del catálogo, también las inactivas, por nombre.
+/// Concentra las operaciones de un MANAGER sobre ellas.
+
+abstract class _$Subcategories extends $AsyncNotifier<List<ProductSubcategory>> {
+  FutureOr<List<ProductSubcategory>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<List<ProductSubcategory>>, List<ProductSubcategory>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<ProductSubcategory>>, List<ProductSubcategory>>,
+              AsyncValue<List<ProductSubcategory>>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 /// Catálogo completo (también los productos inactivos) con su stock en la
 /// sucursal activa. Es la fuente de la pestaña Inventario y concentra las
 /// operaciones que lo modifican.

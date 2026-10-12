@@ -22,9 +22,18 @@ from apps.inventory.api.serializers import (
     MinimumStockSerializer,
     ProductListQuerySerializer,
     ProductSerializer,
+    SubcategoryCreateSerializer,
+    SubcategoryListQuerySerializer,
+    SubcategorySerializer,
+    SubcategoryUpdateSerializer,
 )
 from apps.inventory.models import InventoryMovement
-from apps.inventory.services import category_service, product_service, stock_service
+from apps.inventory.services import (
+    category_service,
+    product_service,
+    stock_service,
+    subcategory_service,
+)
 from core.branch_scope import resolve_branch
 from core.permissions import HasBranchAccess, IsManager, IsSupervisorOrManager
 from core.query_params import is_true
@@ -100,6 +109,72 @@ class CategoryDetailView(ReadSupervisorWriteManagerMixin, APIView):
         return Response(CategorySerializer(category).data)
 
 
+class SubcategoryListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
+    serializer_class = SubcategorySerializer
+    filter_backends = []
+
+    @extend_schema(
+        operation_id="subcategories_list",
+        parameters=[
+            OpenApiParameter(
+                "active", OpenApiTypes.BOOL, description="Solo subcategorías activas."
+            ),
+            OpenApiParameter("category", OpenApiTypes.INT, description="Id de la categoría."),
+        ],
+        responses=SubcategorySerializer(many=True),
+        tags=["subcategories"],
+    )
+    def get(self, request: Request) -> Response:
+        """Subcategorías del catálogo, ordenadas por nombre."""
+        query = SubcategoryListQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        subcategories = subcategory_service.list_subcategories(
+            only_active=is_true(request.query_params.get("active")),
+            category_id=query.validated_data.get("category"),
+        )
+        page = self.paginate_queryset(subcategories)
+        return self.get_paginated_response(SubcategorySerializer(page, many=True).data)
+
+    @extend_schema(
+        operation_id="subcategories_create",
+        request=SubcategoryCreateSerializer,
+        responses={201: SubcategorySerializer},
+        tags=["subcategories"],
+    )
+    def post(self, request: Request) -> Response:
+        """Crea una subcategoría activa dentro de una categoría."""
+        serializer = SubcategoryCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        subcategory = subcategory_service.create_subcategory(
+            category_id=serializer.validated_data["category"],
+            name=serializer.validated_data["name"],
+        )
+        return Response(SubcategorySerializer(subcategory).data, status=status.HTTP_201_CREATED)
+
+
+class SubcategoryDetailView(ReadSupervisorWriteManagerMixin, APIView):
+    @extend_schema(
+        operation_id="subcategories_retrieve",
+        responses=SubcategorySerializer,
+        tags=["subcategories"],
+    )
+    def get(self, request: Request, id: int) -> Response:
+        return Response(SubcategorySerializer(subcategory_service.get_subcategory(id)).data)
+
+    @extend_schema(
+        operation_id="subcategories_partial_update",
+        request=SubcategoryUpdateSerializer,
+        responses=SubcategorySerializer,
+        tags=["subcategories"],
+    )
+    def patch(self, request: Request, id: int) -> Response:
+        """Cambia el nombre o activa/desactiva la subcategoría."""
+        serializer = SubcategoryUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        subcategory = subcategory_service.update_subcategory(id, **serializer.validated_data)
+        return Response(SubcategorySerializer(subcategory).data)
+
+
 class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
     serializer_class = ProductSerializer
     filter_backends = []
@@ -109,6 +184,7 @@ class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
         parameters=[
             OpenApiParameter("active", OpenApiTypes.BOOL, description="Solo productos activos."),
             OpenApiParameter("category", OpenApiTypes.INT, description="Id de la categoría."),
+            OpenApiParameter("subcategory", OpenApiTypes.INT, description="Id de la subcategoría."),
             OpenApiParameter("search", OpenApiTypes.STR, description="Texto dentro del nombre."),
         ],
         responses=ProductSerializer(many=True),
@@ -122,6 +198,7 @@ class ProductListCreateView(ReadSupervisorWriteManagerMixin, GenericAPIView):
         products = product_service.list_products(
             only_active=is_true(params.get("active")),
             category_id=query.validated_data.get("category"),
+            subcategory_id=query.validated_data.get("subcategory"),
             search=params.get("search"),
         )
         page = self.paginate_queryset(products)

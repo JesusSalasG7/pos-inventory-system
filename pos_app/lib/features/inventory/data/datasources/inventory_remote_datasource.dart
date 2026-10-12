@@ -71,6 +71,30 @@ class InventoryRemoteDataSource {
     return CategoryDto.fromJson(response.data!);
   }
 
+  Future<Paginated<SubcategoryDto>> fetchSubcategories({required int page}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'subcategories/',
+      queryParameters: {'page': page, 'page_size': Paginated.maxPageSize},
+    );
+    return Paginated.fromJson(response.data!, SubcategoryDto.fromJson);
+  }
+
+  Future<SubcategoryDto> createSubcategory({required int categoryId, required String name}) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      'subcategories/',
+      data: {'category': categoryId, 'name': name},
+    );
+    return SubcategoryDto.fromJson(response.data!);
+  }
+
+  Future<SubcategoryDto> updateSubcategory(int subcategoryId, {String? name, bool? active}) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      'subcategories/$subcategoryId/',
+      data: {'name': ?name, 'active': ?active},
+    );
+    return SubcategoryDto.fromJson(response.data!);
+  }
+
   Future<ProductDto> createProduct(Map<String, dynamic> body) async {
     final response = await _dio.post<Map<String, dynamic>>('products/', data: body);
     return ProductDto.fromJson(response.data!);

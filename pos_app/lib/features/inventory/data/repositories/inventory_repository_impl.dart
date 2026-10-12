@@ -81,9 +81,39 @@ class InventoryRepositoryImpl implements InventoryRepository {
     });
   }
 
+  @override
+  Future<List<ProductSubcategory>> fetchSubcategories() {
+    return Failure.guard(() async {
+      final dtos = await Paginated.fetchAll((page) => _remote.fetchSubcategories(page: page));
+      return [for (final dto in dtos) dto.toEntity()];
+    });
+  }
+
+  @override
+  Future<ProductSubcategory> createSubcategory({required int categoryId, required String name}) {
+    return Failure.guard(() async {
+      final dto = await _remote.createSubcategory(categoryId: categoryId, name: name.trim());
+      return dto.toEntity();
+    });
+  }
+
+  @override
+  Future<ProductSubcategory> updateSubcategory(int subcategoryId, {String? name, bool? active}) {
+    return Failure.guard(() async {
+      final dto = await _remote.updateSubcategory(
+        subcategoryId,
+        name: name?.trim(),
+        active: active,
+      );
+      return dto.toEntity();
+    });
+  }
+
   static Map<String, dynamic> _productBody(ProductDraft draft) => {
     'name': draft.name,
     'category': draft.categoryId,
+    // Se envía también en `null`: así se le quita la subcategoría al producto.
+    'subcategory': draft.subcategoryId,
     'unit_of_measure': draft.unit.apiValue,
     'cost_price_usd': moneyToApi(draft.costPriceUsd),
     'sale_price_usd': moneyToApi(draft.salePriceUsd),
